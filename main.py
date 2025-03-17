@@ -14,7 +14,7 @@ def main():
     print("Move added to queue")
     UR5.moveTCPandWait([0.40, -0.55, 0.20, 0.50, 1.5, -1.362], "l") # Move to a specific position
     print(f"Moved to final position({str(UR5.getCurrentPos())})")
-    UR5.setToolPos(69)
+    UR5.setToolPos(50)
     time.sleep(2)
     
     
