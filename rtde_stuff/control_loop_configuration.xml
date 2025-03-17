@@ -16,6 +16,11 @@
 		<field name="input_double_register_4" type="DOUBLE"/>
 		<field name="input_double_register_5" type="DOUBLE"/>
 		<field name="input_int_register_1" type="INT32"/>
+		<field name="input_int_register_2" type="INT32"/>
+	</recipe>
+
+	<recipe key="setTool">
+		<field name="input_int_register_3" type="INT32"/>
 	</recipe>
 
 	<recipe key="watchdog">
