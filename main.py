@@ -2,11 +2,14 @@ import sys
 from rtde_stuff.rtde_com import RTDEConnection
 import time
 import numpy as np
-
+import matrixConversion as mc
+res = mc.axisAngleToMatrix([0.4745, -0.1093, 0.60895, np.radians(-90), np.radians(0), np.radians(-90)])
+print(res)
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
 def main():
     #Example code
+    
     print("Ready to execute commands")
     time.sleep(4)
     UR5.moveJoint([np.radians(-41.62), np.radians(-66.38), np.radians(-110.76), np.radians(56.17), np.radians(93.86), np.radians(38.53)]) # Move to a specific position
