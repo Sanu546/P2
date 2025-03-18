@@ -244,61 +244,6 @@ class CalibratingMenue(QWidget):
         self.y = value
         print(f"y: {self.y}")
 
-
-#This class lets us switch between the TestMenue and AutoMenue classes
-class MenuStacker(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        # Create layout
-        layout = QVBoxLayout()
-
-        # Create a QStackedWidget
-        self.StackedWidget = QStackedWidget()
-        
-        self.autoMenu = AutoMenu()
-        self.testMenu = TestMenu()
-        self.calibratingMenu = CalibratingMenue()
-
-        # Add the classes to the stacked widget
-        self.StackedWidget.addWidget(self.autoMenu)
-        self.StackedWidget.addWidget(self.testMenu)
-        self.StackedWidget.addWidget(self.calibratingMenu)
-
-        # Add the stacked widget to the layout
-        layout.addWidget(self.StackedWidget)
-
-        # Create buttons to switch between classes
-        self.buttonWork = QPushButton('Work Mode', self)
-        self.buttonTest = QPushButton('Test Mode', self)
-        self.buttonCalibrate = QPushButton('Calibrate', self)
-
-        # Connect buttons to switch classes
-        self.buttonWork.clicked.connect(self.switch_WorkMode)
-        self.buttonTest.clicked.connect(self.switch_TestMode)
-        self.buttonCalibrate.clicked.connect(self.switch_CalibratingMenue)
-
-        # Create layout and add buttons
-        
-        layout.addWidget(self.buttonWork)
-        layout.addWidget(self.buttonTest)
-        layout.addWidget(self.buttonCalibrate)
-        self.setLayout(layout) 
-    
-    def switch_WorkMode(self):
-        # Switch to AutoMenue
-        self.StackedWidget.setCurrentIndex(0)
-
-    def switch_TestMode(self):
-        # Switch to TestMenue
-        self.StackedWidget.setCurrentIndex(1)
-
-    def switch_CalibratingMenue(self):
-        # Switch to CalibratingMenue
-        self.StackedWidget.setCurrentIndex(2)
-
 class Calibrator(QWidget):
     def __init__(self):
         super().__init__()
@@ -320,6 +265,62 @@ class Calibrator(QWidget):
     def Calibrate(self):
         print("Calibrating")
 
+#This class lets us switch between the TestMenue and AutoMenue classes
+class MenuStacker(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        # Create layout
+        layout = QVBoxLayout()
+
+        # Create a QStackedWidget
+        self.StackedWidget = QStackedWidget()
+        
+        self.autoMenu = AutoMenu()
+        self.testMenu = TestMenu()
+        self.calibratingMenu = CalibratingMenue()
+
+        # Add the classes to the stacked widget
+        self.StackedWidget.addWidget(self.autoMenu)
+        self.StackedWidget.addWidget(self.testMenu)
+        #self.StackedWidget.addWidget(self.calibratingMenu)
+
+        # Add the stacked widget to the layout
+        layout.addWidget(self.StackedWidget)
+
+        # Create buttons to switch between classes
+        self.buttonWork = QPushButton('Work Mode', self)
+        self.buttonTest = QPushButton('Test Mode', self)
+        #self.buttonCalibrate = QPushButton('Calibrate', self)
+
+        # Connect buttons to switch classes
+        self.buttonWork.clicked.connect(self.switch_WorkMode)
+        self.buttonTest.clicked.connect(self.switch_TestMode)
+        #self.buttonCalibrate.clicked.connect(self.switch_CalibratingMenue)
+
+        # Create layout and add buttons
+        
+        layout.addWidget(self.buttonWork)
+        layout.addWidget(self.buttonTest)
+        #layout.addWidget(self.buttonCalibrate)
+        self.setLayout(layout) 
+    
+    def switch_WorkMode(self):
+        # Switch to AutoMenue
+        self.StackedWidget.setCurrentIndex(0)
+
+    def switch_TestMode(self):
+        # Switch to TestMenue
+        self.StackedWidget.setCurrentIndex(1)
+
+    #def switch_CalibratingMenue(self):
+        # Switch to CalibratingMenue
+        #self.StackedWidget.setCurrentIndex(2)
+
+
+
 class DropdownStacker(QWidget):
     def __init__(self):
         super().__init__()
@@ -328,7 +329,12 @@ class DropdownStacker(QWidget):
     def initUI(self):
         layout = QVBoxLayout()
 
+        self.StackedWidget = QStackedWidget()
         self.cellDisplay = CellDisplay()
+        self.calibrator = Calibrator()
+
+        self.StackedWidget.addWidget(self.cellDisplay)
+        self.StackedWidget.addWidget(self.calibrator)
 
         # dropdown menu
         self.dropdown = QComboBox()
@@ -336,11 +342,15 @@ class DropdownStacker(QWidget):
         self.dropdown.currentIndexChanged.connect(self.switchMode)
         
         layout.addWidget(self.dropdown)
+        layout.addWidget(self.cellDisplay)
         self.setLayout(layout)
     
     # Function to switch between the different modes
     def switchMode(self, index):
         print(f"Switching to mode: {self.dropdown.itemText(index)}")
+    
+    def switchMode(self, index):
+        self.StackedWidget.setCurrentIndex(index)
 
 #This class is the main window of the GUI
 class MainWindow(QWidget):
@@ -359,12 +369,13 @@ class MainWindow(QWidget):
         # Create instance of classes
         self.controlMenu = MenuStacker()
         self.cellDisplay = CellDisplay()
+        self.dropdownStacker = DropdownStacker()
         
 
         # Use QSplitter for resizable splits (Horizontal split)(Menue on the left, Cell on the right)
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self.controlMenu)
-        splitter.addWidget(self.cellDisplay)
+        splitter.addWidget(self.dropdownStacker)
         layout.addWidget(splitter)
 
         self.setLayout(layout)
