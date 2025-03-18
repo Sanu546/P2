@@ -21,7 +21,7 @@ class CellDisplay(QWidget):
     def initUI(self):
         # Set up the layout
         self.grid_layout = QGridLayout()
-        self.input_layout = QVBoxLayout()
+        #self.input_layout = QVBoxLayout()
 
         # Create a 2x4 grid of boxes (buttons)
         self.boxes = []
@@ -33,21 +33,21 @@ class CellDisplay(QWidget):
                 self.boxes.append(box)
 
         # Input field for the array
-        self.input_label = QLabel('Enter 8 colors (comma-separated):')
-        self.input_field = QLineEdit(self)
-        self.input_field.setPlaceholderText('e.g., red,green,blue,...')
-        self.update_button = QPushButton('Update Visualisation')
-        self.update_button.clicked.connect(self.update_colors)
-
+        #self.input_label = QLabel('Enter 8 colors (comma-separated):')
+        #self.input_field = QLineEdit(self)
+        #self.input_field.setPlaceholderText('e.g., red,green,blue,...')
+        #self.update_button = QPushButton('Update Visualisation')
+        #self.update_button.clicked.connect(self.update_colors)
+        
         # Add widgets to the input layout
-        self.input_layout.addWidget(self.input_label)
-        self.input_layout.addWidget(self.input_field)
-        self.input_layout.addWidget(self.update_button)
-
+        #self.input_layout.addWidget(self.input_label)
+        #self.input_layout.addWidget(self.input_field)
+        #self.input_layout.addWidget(self.update_button)
+        
         # Combine the grid and input layouts
         layout = QVBoxLayout()
         layout.addLayout(self.grid_layout)
-        layout.addLayout(self.input_layout)
+        #layout.addLayout(self.input_layout)
 
         # Set the main layout
         self.setLayout(layout)
@@ -56,14 +56,14 @@ class CellDisplay(QWidget):
         self.setWindowTitle('2x8 Color Grid')
         self.setGeometry(300, 300, 500, 200)
 
-    def update_colors(self):
+    def update_colors(self, colors):
         """Update the colors of the boxes based on the input array."""
-        input_text = self.input_field.text().strip()
-        if not input_text:
-            return
+        #input_text = self.input_field.text().strip()
+        #if not input_text:
+            #return
 
         # Split the input into a list of colors
-        colors = input_text.split(',')
+        #colors = input_text.split(',')
         if len(colors) != 8:
             self.input_field.setPlaceholderText('Please enter exactly 8 colors.')
             return
@@ -87,40 +87,49 @@ class TestMenue(QWidget):
         self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
 
         # Create buttons
-        self.button69 = QPushButton("Next Procces Step")
+        self.buttonNext = QPushButton("Next Procces Step")
         self.buttonBack = QPushButton("Back")
         self.buttonReset = QPushButton("Reset")
     
         # Set color of the buttons
-        self.button69.setStyleSheet("background-color: green")
+        self.buttonNext.setStyleSheet("background-color: green")
         self.buttonBack.setStyleSheet("background-color: red")
         self.buttonReset.setStyleSheet("background-color: orange")
 
         # Set the size of the buttons
-        self.button69.setFixedHeight(50)
+        self.buttonNext.setFixedHeight(50)
         self.buttonBack.setFixedHeight(50)
         self.buttonReset.setFixedHeight(50)
 
 
         # Set the font size of the buttons
-        self.button69.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.buttonNext.setFont(QFont("Arial", 20, QFont.Weight.Bold))
         self.buttonBack.setFont(QFont("Arial", 20, QFont.Weight.Bold))
         self.buttonReset.setFont(QFont("Arial", 20, QFont.Weight.Bold))
 
         # Connect buttons to functions (slots)
-        self.button69.clicked.connect(self.NextProccesStep)
+        self.buttonNext.clicked.connect(self.NextProccesStep)
         self.buttonBack.clicked.connect(self.Back)
         self.buttonReset.clicked.connect(self.Reset)
 
         # Add buttons to the layout
         layout.addWidget(self.label)
-        layout.addWidget(self.button69)
+        layout.addWidget(self.buttonNext)
         layout.addWidget(self.buttonBack)
         layout.addWidget(self.buttonReset)
         layout.addStretch()
 
         self.setLayout(layout)
-
+    #set function to button
+    def setFunctionNext(self, function):
+        self.buttonNext.clicked.connect(function)
+    
+    def setFunctionBack(self, function):
+        self.buttonBack.clicked.connect(function)
+    
+    def setFunctionReset(self, function):
+        self.buttonReset.clicked.connect(function)
+    
     def NextProccesStep(self):
         print("Next Procces Step")
     
@@ -171,7 +180,16 @@ class AutoMenue(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
-
+        
+    def setFunctionStart(self, function):
+        self.buttonStart.clicked.connect(function)
+    
+    def setFunctionStop(self, function):
+        self.buttonStop.clicked.connect(function)
+    
+    def setFunctionReset(self, function):
+        self.buttonReset.clicked.connect(function)
+    
     def start(self):
         print("Start")
 
@@ -208,6 +226,12 @@ class CalibratingMenue(QWidget):
         layout.addWidget(QLabel("x Direction"))
         layout.addWidget(self.x_slider)
         self.setLayout(layout)
+        
+    def setChangeFunctionX(self, function):
+        self.x_slider.valueChanged.connect(function)
+    
+    def setChangeFunctionY(self, function):
+        self.y_slider.valueChanged.connect(function)
     
     def update_x(self, value):
         self.x = value
@@ -230,11 +254,15 @@ class MenueStacker(QWidget):
 
         # Create a QStackedWidget
         self.StackedWidget = QStackedWidget()
+        
+        self.autoMenu = AutoMenue()
+        self.testMenu = TestMenue()
+        self.calibratingMenu = CalibratingMenue()
 
         # Add the classes to the stacked widget
-        self.StackedWidget.addWidget(AutoMenue())
-        self.StackedWidget.addWidget(TestMenue())
-        self.StackedWidget.addWidget(CalibratingMenue())
+        self.StackedWidget.addWidget(self.autoMenu)
+        self.StackedWidget.addWidget(self.testMenu)
+        self.StackedWidget.addWidget(self.calibratingMenu)
 
         # Add the stacked widget to the layout
         layout.addWidget(self.StackedWidget)
@@ -270,31 +298,31 @@ class MenueStacker(QWidget):
 
 #This class is the main window of the GUI
 class MainWindow(QWidget):
-    def __init__(self):
+    app = QApplication(sys.argv)
+    def __init__(self, minSize = (500, 500), title = 'P2 GUI'):
         super().__init__()
         self.initUI()
+        self.setMinimumSize(minSize[0], minSize[1])
+        self.setWindowTitle(title)
+       
 
     def initUI(self):
         # Set layout
         layout = QVBoxLayout()
 
         # Create instance of classes
-        self.ClassMenue = MenueStacker()
-        self.ClassCell = CellDisplay()
+        self.controlMenu = MenueStacker()
+        self.cellDisplay = CellDisplay()
 
         # Use QSplitter for resizable splits (Horizontal split)(Menue on the left, Cell on the right)
         splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.addWidget(self.ClassMenue)
-        splitter.addWidget(self.ClassCell)
+        splitter.addWidget(self.controlMenu)
+        splitter.addWidget(self.cellDisplay)
         layout.addWidget(splitter)
 
         self.setLayout(layout)
-    
-    
-# Run the application
-app = QApplication(sys.argv)
-window = MainWindow()
-window.setMinimumSize(500, 500)
-window.setWindowTitle('P2 GUI')
-window.show()
-app.exec()
+        
+    def runUI(self):
+         self.show()
+         self.app.exec() 
+        
