@@ -1,0 +1,466 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1" pages="6">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Main">
+    <mxGraphModel dx="834" dy="511" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="11RXBTAd65POD9zUKf5H-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="WIyWlLk6GJQsqaUBKTNV-3" target="11RXBTAd65POD9zUKf5H-0" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-3" value="Main entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="354" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="q_KfeEagSFL4IjDplxOT-31" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell high level flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="111" y="30" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="11RXBTAd65POD9zUKf5H-0" target="11RXBTAd65POD9zUKf5H-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-0" value="Initialization of systems and communications" style="rounded=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="354" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="11RXBTAd65POD9zUKf5H-3" target="11RXBTAd65POD9zUKf5H-5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-3" value="&amp;nbsp; Select operational mode" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="354" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="11RXBTAd65POD9zUKf5H-5" target="11RXBTAd65POD9zUKf5H-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-5" value="Battery recycling" style="rounded=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="354" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="11RXBTAd65POD9zUKf5H-7" value="Done" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="354" y="620" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r1FCIUtbMPbD_QY-EfRL-0" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Main entry point&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="PJaZsdcNJsARZG44BiSc" name="Battery recycling">
+    <mxGraphModel dx="1043" dy="639" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-1" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="40" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-2" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Function: Battery recycling&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="eTsdoco1rKTCBjLnpUmi-4" target="eTsdoco1rKTCBjLnpUmi-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-4" value="Battery pack lid removal" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="eTsdoco1rKTCBjLnpUmi-6" target="eTsdoco1rKTCBjLnpUmi-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-6" value="Battery pack analysis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="eTsdoco1rKTCBjLnpUmi-8" target="eTsdoco1rKTCBjLnpUmi-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-8" value="Swap bad modules" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="eTsdoco1rKTCBjLnpUmi-10" target="eTsdoco1rKTCBjLnpUmi-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-10" value="Place missing modules" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="eTsdoco1rKTCBjLnpUmi-12">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="413" y="980" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-12" value="Reinstall battery pack lid" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-13" value="Return" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="354" y="980" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="412.76" y="200" as="sourcePoint" />
+            <mxPoint x="412.76" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eTsdoco1rKTCBjLnpUmi-15" value="Entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="353" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="CGB4twL7A_MsffzvQkka" name="Lid removal">
+    <mxGraphModel dx="981" dy="601" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-2" value="Entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="208" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-3" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="40" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-4" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Function: Battery pack lid removal&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-6" target="VvLNxAZxilRf3RFcMVJp-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-6" value="&lt;div&gt;Robot action&lt;/div&gt;Open gripper" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-8" target="VvLNxAZxilRf3RFcMVJp-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-8" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-10" target="VvLNxAZxilRf3RFcMVJp-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-10" value="Robot move-J&lt;div&gt;Lid pickup app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-12" target="VvLNxAZxilRf3RFcMVJp-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-12" value="Robot move-L&lt;div&gt;Lid pickup&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-14" target="VvLNxAZxilRf3RFcMVJp-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-14" value="Robot action&lt;div&gt;Close gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-16" target="VvLNxAZxilRf3RFcMVJp-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="268" y="1060" />
+              <mxPoint x="423" y="1060" />
+              <mxPoint x="423" y="260" />
+              <mxPoint x="583" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-16" value="Robot move-L&lt;div&gt;Lid pickup app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="980" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-18" target="VvLNxAZxilRf3RFcMVJp-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-18" value="Robot move-J&lt;div&gt;Lid storage app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-20" target="VvLNxAZxilRf3RFcMVJp-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-20" value="Robot move-L&lt;div&gt;Lid storage&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-22" target="VvLNxAZxilRf3RFcMVJp-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-22" value="Robot action&lt;div&gt;Open gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-24" target="VvLNxAZxilRf3RFcMVJp-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-24" value="Robot move-L&lt;div&gt;Lid storage app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VvLNxAZxilRf3RFcMVJp-26" target="VvLNxAZxilRf3RFcMVJp-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-26" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-27" value="Return" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="523" y="980" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="VvLNxAZxilRf3RFcMVJp-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="267.71" y="200" as="sourcePoint" />
+            <mxPoint x="267.71" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qJ6B0gjStWBx_j2CukSp-1" value="move-J represents a joint move of the TCP&lt;div&gt;&lt;br&gt;&lt;div&gt;move-L represents a linear move of the TCP&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;app. is short for approach and reffers to the approach position for a specific target&lt;/div&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="523" y="110" width="300" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="eQ-NQ8rqkrDSpY9TxrYD" name="Lid retrieval">
+    <mxGraphModel dx="981" dy="601" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-1" value="Entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="208" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-2" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="40" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-3" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Function: Battery pack lid retrieval&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-5" target="nUKtWlXIWF9nwfO6Lr5z-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-5" value="&lt;div&gt;Robot action&lt;/div&gt;Open gripper" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-7" target="nUKtWlXIWF9nwfO6Lr5z-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-7" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-9" target="nUKtWlXIWF9nwfO6Lr5z-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-9" value="Robot move-J&lt;div&gt;Lid storage app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-11" target="nUKtWlXIWF9nwfO6Lr5z-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-11" value="Robot move-L&lt;div&gt;Lid storage&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-13" target="nUKtWlXIWF9nwfO6Lr5z-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-13" value="Robot action&lt;div&gt;Close gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-15" target="nUKtWlXIWF9nwfO6Lr5z-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="268" y="1060" />
+              <mxPoint x="423" y="1060" />
+              <mxPoint x="423" y="260" />
+              <mxPoint x="583" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-15" value="Robot move-L&lt;div&gt;Lid storage app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="208" y="980" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-17" target="nUKtWlXIWF9nwfO6Lr5z-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-17" value="Robot move-J&lt;div&gt;Lid pickup app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-19" target="nUKtWlXIWF9nwfO6Lr5z-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-19" value="Robot move-L&lt;div&gt;Lid pickup&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-21" target="nUKtWlXIWF9nwfO6Lr5z-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-21" value="Robot action&lt;div&gt;Open gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-23" target="nUKtWlXIWF9nwfO6Lr5z-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-23" value="Robot move-L&lt;div&gt;Lid pickup app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="nUKtWlXIWF9nwfO6Lr5z-25" target="nUKtWlXIWF9nwfO6Lr5z-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-25" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="523" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-26" value="Return" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="523" y="980" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nUKtWlXIWF9nwfO6Lr5z-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="267.71" y="200" as="sourcePoint" />
+            <mxPoint x="267.71" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5JFHvt00BVsbPhm1ZB-e-1" value="move-J represents a joint move of the TCP&lt;div&gt;&lt;br&gt;&lt;div&gt;move-L represents a linear move of the TCP&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;app. is short for approach and reffers to the approach position for a specific target&lt;/div&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="523" y="110" width="300" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="5Ox5WLUeD1lvmYbe6ef4" name="Battery pack analysis">
+    <mxGraphModel dx="1043" dy="639" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-1" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="40" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-2" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Function: Battery pack analysis&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="JHNQAutd9Ra2wCSpnC10-4" target="JHNQAutd9Ra2wCSpnC10-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-4" value="RPi action&lt;div&gt;Take 10 images&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="JHNQAutd9Ra2wCSpnC10-6" target="JHNQAutd9Ra2wCSpnC10-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-6" value="RPi numpy&lt;div&gt;Average images&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="JHNQAutd9Ra2wCSpnC10-8" target="JHNQAutd9Ra2wCSpnC10-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-8" value="RPi OpenCV&lt;div&gt;Detect colors&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-10" value="RPi action&lt;div&gt;Prase array with color data&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="353" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="413" y="840" as="targetPoint" />
+            <mxPoint x="412.9999999999998" y="760" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-13" value="Return" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="354" y="840" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="412.76" y="200" as="sourcePoint" />
+            <mxPoint x="412.76" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JHNQAutd9Ra2wCSpnC10-15" value="Entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="353" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="I_1zTt-ktqty37wB5W0t" name="Swap bad modules">
+    <mxGraphModel dx="836" dy="518" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-1" value="Entry point" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="208" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-2" value="&lt;h1&gt;&lt;font style=&quot;font-size: 26px;&quot;&gt;Robotic recycling cell flow chart&lt;/font&gt;&lt;/h1&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="110" y="40" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-3" value="&lt;h2&gt;&lt;font style=&quot;font-size: 17px;&quot;&gt;Function: Swap bad modules&lt;/font&gt;&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="110" y="80" width="606" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-5" target="kGXKdoTdgQltqSgIUL9S-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-5" value="&lt;div&gt;Robot action&lt;/div&gt;Open gripper" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-7" target="kGXKdoTdgQltqSgIUL9S-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-7" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-9" target="kGXKdoTdgQltqSgIUL9S-11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-9" value="Robot move-J&lt;div&gt;bad module at index [i] app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-11" target="kGXKdoTdgQltqSgIUL9S-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-11" value="Robot move-L&lt;div&gt;bad module at index [i]&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-13" target="kGXKdoTdgQltqSgIUL9S-15" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-13" value="Robot action&lt;div&gt;Close gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="kGXKdoTdgQltqSgIUL9S-15" target="kGXKdoTdgQltqSgIUL9S-17" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="268" y="1060" />
+              <mxPoint x="423" y="1060" />
+              <mxPoint x="423" y="260" />
+              <mxPoint x="583" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-15" value="Robot move-L&lt;div&gt;bad module at index [i] app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="208" y="980" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-17" target="kGXKdoTdgQltqSgIUL9S-19" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-17" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="523" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-19" target="kGXKdoTdgQltqSgIUL9S-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-19" value="Robot move-J&lt;div&gt;Lid pickup&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="523" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-21" target="kGXKdoTdgQltqSgIUL9S-23" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-21" value="Robot action&lt;div&gt;Open gripper&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="523" y="560" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-23" target="kGXKdoTdgQltqSgIUL9S-25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-23" value="Robot move-L&lt;div&gt;Lid pickup app.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="523" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="kGXKdoTdgQltqSgIUL9S-25" target="kGXKdoTdgQltqSgIUL9S-26" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-25" value="Robot move-J&lt;div&gt;Home&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="523" y="840" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-26" value="Return" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="523" y="980" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kGXKdoTdgQltqSgIUL9S-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="267.71" y="200" as="sourcePoint" />
+            <mxPoint x="267.71" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XelpG0t6MIpjnM34WK1y-1" value="move-J represents a joint move of the TCP&lt;div&gt;&lt;br&gt;&lt;div&gt;move-L represents a linear move of the TCP&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;app. is short for approach and refers to the approach position for a specific target&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;As multiple bad modules might be present in the battery pack, an index i is created to keep track on the module that is currently being processed&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="523" y="110" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="OuIM3dNjTCmLHOAE0JAP-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OuIM3dNjTCmLHOAE0JAP-1" target="kGXKdoTdgQltqSgIUL9S-17" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OuIM3dNjTCmLHOAE0JAP-1" value="Only needed if collision will occur (can be put as via)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="683" y="295" width="140" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
