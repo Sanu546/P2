@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget, QSlider
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
@@ -73,7 +73,7 @@ class CellDisplay(QWidget):
             color = colors[i].strip()
             box.setStyleSheet(f'background-color: {color};')
         
-class TestMenue(QWidget):
+class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
         
@@ -83,8 +83,11 @@ class TestMenue(QWidget):
         layout = QVBoxLayout()
 
         # Create label
-        self.label = QLabel("Test Menue")
+        self.label = QLabel("Test Menu:")
+        #Bold and underlined font
         self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(50)
 
         # Create buttons
         self.buttonNext = QPushButton("Next Procces Step")
@@ -139,7 +142,7 @@ class TestMenue(QWidget):
     def Reset(self):
         print("Reset")
 
-class AutoMenue(QWidget):
+class AutoMenu(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -243,7 +246,7 @@ class CalibratingMenue(QWidget):
 
 
 #This class lets us switch between the TestMenue and AutoMenue classes
-class MenueStacker(QWidget):
+class MenuStacker(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -255,8 +258,8 @@ class MenueStacker(QWidget):
         # Create a QStackedWidget
         self.StackedWidget = QStackedWidget()
         
-        self.autoMenu = AutoMenue()
-        self.testMenu = TestMenue()
+        self.autoMenu = AutoMenu()
+        self.testMenu = TestMenu()
         self.calibratingMenu = CalibratingMenue()
 
         # Add the classes to the stacked widget
@@ -296,6 +299,49 @@ class MenueStacker(QWidget):
         # Switch to CalibratingMenue
         self.StackedWidget.setCurrentIndex(2)
 
+class Calibrator(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        Layout = QVBoxLayout()
+
+        self.StackedWidget = QStackedWidget()
+
+        self.pushbutton = QPushButton("Calibrate")
+
+        self.buttonCalibrate.clicked.connect(self.Calibrate)
+
+        Layout.addWidget(self.pushbutton)
+
+        self.setLayout(Layout)
+
+    def Calibrate(self):
+        print("Calibrating")
+
+class DropdownStacker(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        self.cellDisplay = CellDisplay()
+
+        # dropdown menu
+        self.dropdown = QComboBox()
+        self.dropdown.addItems(["Battery Cells Display", "okkurt", "okkurt annad", "okkurt tridja"]) 
+        self.dropdown.currentIndexChanged.connect(self.switchMode)
+        
+        layout.addWidget(self.dropdown)
+        self.setLayout(layout)
+    
+    # Function to switch between the different modes
+    def switchMode(self, index):
+        print(f"Switching to mode: {self.dropdown.itemText(index)}")
+
 #This class is the main window of the GUI
 class MainWindow(QWidget):
     app = QApplication(sys.argv)
@@ -311,8 +357,9 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
 
         # Create instance of classes
-        self.controlMenu = MenueStacker()
+        self.controlMenu = MenuStacker()
         self.cellDisplay = CellDisplay()
+        
 
         # Use QSplitter for resizable splits (Horizontal split)(Menue on the left, Cell on the right)
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -325,4 +372,7 @@ class MainWindow(QWidget):
     def runUI(self):
          self.show()
          self.app.exec() 
-        
+
+ # Kør GUI mens man arbejder på den       
+window = MainWindow()
+window.runUI()
