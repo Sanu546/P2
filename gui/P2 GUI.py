@@ -33,10 +33,10 @@ class CellDisplay(QWidget):
                 self.boxes.append(box)
 
         # Input field for the array
-        self.input_label = QLabel('Enter 8 colors (comma-separated):', self)
+        self.input_label = QLabel('Enter 8 colors (comma-separated):')
         self.input_field = QLineEdit(self)
         self.input_field.setPlaceholderText('e.g., red,green,blue,...')
-        self.update_button = QPushButton('Update Colors', self)
+        self.update_button = QPushButton('Update Visualisation')
         self.update_button.clicked.connect(self.update_colors)
 
         # Add widgets to the input layout
@@ -82,29 +82,41 @@ class TestMenue(QWidget):
     def initUI(self):
         layout = QVBoxLayout()
 
+        # Create label
+        self.label = QLabel("Test Menue")
+        self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+
         # Create buttons
         self.button69 = QPushButton("Next Procces Step")
-        self.button70 = QPushButton("Back")
+        self.buttonBack = QPushButton("Back")
+        self.buttonReset = QPushButton("Reset")
     
         # Set color of the buttons
         self.button69.setStyleSheet("background-color: green")
-        self.button70.setStyleSheet("background-color: red")
+        self.buttonBack.setStyleSheet("background-color: red")
+        self.buttonReset.setStyleSheet("background-color: orange")
 
         # Set the size of the buttons
         self.button69.setFixedHeight(50)
-        self.button70.setFixedHeight(50)
+        self.buttonBack.setFixedHeight(50)
+        self.buttonReset.setFixedHeight(50)
+
 
         # Set the font size of the buttons
         self.button69.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        self.button70.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.buttonBack.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.buttonReset.setFont(QFont("Arial", 20, QFont.Weight.Bold))
 
         # Connect buttons to functions (slots)
         self.button69.clicked.connect(self.NextProccesStep)
-        self.button70.clicked.connect(self.Back)
+        self.buttonBack.clicked.connect(self.Back)
+        self.buttonReset.clicked.connect(self.Reset)
 
         # Add buttons to the layout
+        layout.addWidget(self.label)
         layout.addWidget(self.button69)
-        layout.addWidget(self.button70)
+        layout.addWidget(self.buttonBack)
+        layout.addWidget(self.buttonReset)
         layout.addStretch()
 
         self.setLayout(layout)
@@ -114,6 +126,9 @@ class TestMenue(QWidget):
     
     def Back(self):
         print("Back")
+
+    def Reset(self):
+        print("Reset")
 
 class AutoMenue(QWidget):
     def __init__(self):
@@ -125,73 +140,73 @@ class AutoMenue(QWidget):
         layout = QVBoxLayout()
 
         # Create buttons
-        self.buttonStart = QPushButton("Start Program")
-        self.button2 = QPushButton("Stop Program")
-        self.button4 = QPushButton("Back to Start Position")
+        self.buttonStart = QPushButton("Auto Start")
+        self.buttonStop = QPushButton("Auto Stop")
+        self.buttonReset = QPushButton("Reset")
 
         # Set colors of the buttons
         self.buttonStart.setStyleSheet("background-color: green")
-        self.button2.setStyleSheet("background-color: red")
-        self.button4.setStyleSheet("background-color: orange")
+        self.buttonStop.setStyleSheet("background-color: red")
+        self.buttonReset.setStyleSheet("background-color: orange")
 
         # Set the size of the buttons
         self.buttonStart.setFixedHeight(50)
-        self.button2.setFixedHeight(50)
-        self.button4.setFixedHeight(50)
+        self.buttonStop.setFixedHeight(50)
+        self.buttonReset.setFixedHeight(50)
 
         # Set the font size of the buttons
         self.buttonStart.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        self.button2.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        self.button4.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.buttonStop.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.buttonReset.setFont(QFont("Arial", 20, QFont.Weight.Bold))
 
         # Connect buttons to functions (slots)
         self.buttonStart.clicked.connect(self.start)
-        self.button2.clicked.connect(self.stop)
-        self.button4.clicked.connect(self.back_to_start)
+        self.buttonStop.clicked.connect(self.stop)
+        self.buttonReset.clicked.connect(self.reset)
 
         # Add buttons to the layout
         layout.addWidget(self.buttonStart)
-        layout.addWidget(self.button4)
-        layout.addWidget(self.button2)
+        layout.addWidget(self.buttonStop)
+        layout.addWidget(self.buttonReset)
         layout.addStretch()
 
         self.setLayout(layout)
 
     def start(self):
-        print("Start Program")
+        print("Start")
 
     def stop(self):
-        print("Stop After Cycle")
+        print("Stop")
 
-    def back_to_start(self):
-        print("Test cycle started")
+    def reset(self):
+        print("Reset")
 
 class CalibratingMenue(QWidget):
     def __init__(self):
         super().__init__()
-        self.x = 100
-        self.y = 100
+        self.x = 0
+        self.y = 0
         self.initUI()
     
     def initUI(self):
         
         # Create sliders
         self.x_slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.x_slider.setRange(0, 500)
+        self.x_slider.setRange(-500, 500)
         self.x_slider.setValue(self.x)
         self.x_slider.valueChanged.connect(self.update_x)
 
         self.y_slider = QSlider(Qt.Orientation.Vertical, self)
-        self.y_slider.setRange(0, 500)
+        self.y_slider.setRange(-500, 500)
         self.y_slider.setValue(self.y)
         self.y_slider.valueChanged.connect(self.update_y)
 
         # Create layout
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("x Direction"))
-        layout.addWidget(self.x_slider)
         layout.addWidget(QLabel("y Direction"))
         layout.addWidget(self.y_slider)
+        layout.addWidget(QLabel("x Direction"))
+        layout.addWidget(self.x_slider)
         self.setLayout(layout)
     
     def update_x(self, value):
@@ -210,7 +225,9 @@ class MenueStacker(QWidget):
         self.initUI()
 
     def initUI(self):
-        
+        # Create layout
+        layout = QVBoxLayout()
+
         # Create a QStackedWidget
         self.StackedWidget = QStackedWidget()
 
@@ -233,7 +250,7 @@ class MenueStacker(QWidget):
         self.buttonCalibrate.clicked.connect(self.switch_CalibratingMenue)
 
         # Create layout and add buttons
-        layout = QHBoxLayout()
+        
         layout.addWidget(self.buttonWork)
         layout.addWidget(self.buttonTest)
         layout.addWidget(self.buttonCalibrate)
