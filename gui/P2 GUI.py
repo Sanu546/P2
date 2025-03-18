@@ -1,9 +1,8 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget, QSlider
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 import sys
-
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -12,6 +11,7 @@ The last 2 classes if for the layout of the GUI.
 The MenueStacker class is for the buttons that will switch between the TestMenue and AutoMenue. 
 the CellDisplay class shows the detected battery cells.  
 """
+
 #Class for detected battery cell visualization
 class CellDisplay(QWidget):
     def __init__(self,):
@@ -45,12 +45,12 @@ class CellDisplay(QWidget):
         self.input_layout.addWidget(self.update_button)
 
         # Combine the grid and input layouts
-        box_layout = QVBoxLayout()
-        box_layout.addLayout(self.grid_layout)
-        box_layout.addLayout(self.input_layout)
+        layout = QVBoxLayout()
+        layout.addLayout(self.grid_layout)
+        layout.addLayout(self.input_layout)
 
         # Set the main layout
-        self.setLayout(box_layout)
+        self.setLayout(layout)
 
         # Set window properties
         self.setWindowTitle('2x8 Color Grid')
@@ -80,7 +80,7 @@ class TestMenue(QWidget):
         self.initUI()
 
     def initUI(self):
-        TestWidget_layout = QVBoxLayout()
+        layout = QVBoxLayout()
 
         # Create buttons
         self.button69 = QPushButton("Next Procces Step")
@@ -103,11 +103,11 @@ class TestMenue(QWidget):
         self.button70.clicked.connect(self.Back)
 
         # Add buttons to the layout
-        TestWidget_layout.addWidget(self.button69)
-        TestWidget_layout.addWidget(self.button70)
-        TestWidget_layout.addStretch()
+        layout.addWidget(self.button69)
+        layout.addWidget(self.button70)
+        layout.addStretch()
 
-        self.setLayout(TestWidget_layout)
+        self.setLayout(layout)
 
     def NextProccesStep(self):
         print("Next Procces Step")
@@ -122,7 +122,7 @@ class AutoMenue(QWidget):
         self.initUI()
     
     def initUI(self):
-        button_layout = QVBoxLayout()
+        layout = QVBoxLayout()
 
         # Create buttons
         self.buttonStart = QPushButton("Start Program")
@@ -150,12 +150,12 @@ class AutoMenue(QWidget):
         self.button4.clicked.connect(self.back_to_start)
 
         # Add buttons to the layout
-        button_layout.addWidget(self.buttonStart)
-        button_layout.addWidget(self.button4)
-        button_layout.addWidget(self.button2)
-        button_layout.addStretch()
+        layout.addWidget(self.buttonStart)
+        layout.addWidget(self.button4)
+        layout.addWidget(self.button2)
+        layout.addStretch()
 
-        self.setLayout(button_layout)
+        self.setLayout(layout)
 
     def start(self):
         print("Start Program")
@@ -165,7 +165,44 @@ class AutoMenue(QWidget):
 
     def back_to_start(self):
         print("Test cycle started")
+
+class CalibratingMenue(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.x = 100
+        self.y = 100
+        self.initUI()
+    
+    def initUI(self):
         
+        # Create sliders
+        self.x_slider = QSlider(Qt.Orientation.Horizontal, self)
+        self.x_slider.setRange(0, 500)
+        self.x_slider.setValue(self.x)
+        self.x_slider.valueChanged.connect(self.update_x)
+
+        self.y_slider = QSlider(Qt.Orientation.Vertical, self)
+        self.y_slider.setRange(0, 500)
+        self.y_slider.setValue(self.y)
+        self.y_slider.valueChanged.connect(self.update_y)
+
+        # Create layout
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("x Direction"))
+        layout.addWidget(self.x_slider)
+        layout.addWidget(QLabel("y Direction"))
+        layout.addWidget(self.y_slider)
+        self.setLayout(layout)
+    
+    def update_x(self, value):
+        self.x = value
+        print(f"x: {self.x}")
+
+    def update_y(self, value):
+        self.y = value
+        print(f"y: {self.y}")
+
+
 #This class lets us switch between the TestMenue and AutoMenue classes
 class MenueStacker(QWidget):
     def __init__(self):
@@ -173,39 +210,46 @@ class MenueStacker(QWidget):
         self.initUI()
 
     def initUI(self):
-        # Create the main widget and layout
-        layout = QVBoxLayout()
-
+        
         # Create a QStackedWidget
         self.StackedWidget = QStackedWidget()
 
         # Add the classes to the stacked widget
         self.StackedWidget.addWidget(AutoMenue())
         self.StackedWidget.addWidget(TestMenue())
+        self.StackedWidget.addWidget(CalibratingMenue())
 
         # Add the stacked widget to the layout
         layout.addWidget(self.StackedWidget)
 
         # Create buttons to switch between classes
-        self.button_a = QPushButton('Work Mode', self) #This is class_a
-        self.button_b = QPushButton('Test Mode', self) #This is class_b
+        self.buttonWork = QPushButton('Work Mode', self)
+        self.buttonTest = QPushButton('Test Mode', self)
+        self.buttonCalibrate = QPushButton('Calibrate', self)
 
         # Connect buttons to switch classes
-        self.button_a.clicked.connect(self.show_class_a)
-        self.button_b.clicked.connect(self.show_class_b)
+        self.buttonWork.clicked.connect(self.switch_WorkMode)
+        self.buttonTest.clicked.connect(self.switch_TestMode)
+        self.buttonCalibrate.clicked.connect(self.switch_CalibratingMenue)
 
-        # Add buttons to the layout
-        layout.addWidget(self.button_a)
-        layout.addWidget(self.button_b)
+        # Create layout and add buttons
+        layout = QHBoxLayout()
+        layout.addWidget(self.buttonWork)
+        layout.addWidget(self.buttonTest)
+        layout.addWidget(self.buttonCalibrate)
         self.setLayout(layout) 
     
-    def show_class_a(self):
-        #Switch to ClassA
+    def switch_WorkMode(self):
+        # Switch to AutoMenue
         self.StackedWidget.setCurrentIndex(0)
 
-    def show_class_b(self):
-        #Switch to ClassB
+    def switch_TestMode(self):
+        # Switch to TestMenue
         self.StackedWidget.setCurrentIndex(1)
+
+    def switch_CalibratingMenue(self):
+        # Switch to CalibratingMenue
+        self.StackedWidget.setCurrentIndex(2)
 
 #This class is the main window of the GUI
 class MainWindow(QWidget):
