@@ -64,9 +64,9 @@ class CellDisplay(QWidget):
 
         # Split the input into a list of colors
         #colors = input_text.split(',')
-        if len(colors) != 8:
-            self.input_field.setPlaceholderText('Please enter exactly 8 colors.')
-            return
+        # if len(colors) != 8:
+        #     self.input_field.setPlaceholderText('Please enter exactly 8 colors.')
+        #     return
 
         # Update the colors of the boxes
         for i, box in enumerate(self.boxes):
