@@ -4,6 +4,7 @@ import time
 import numpy as np
 import matrixConversion as mc
 from gui.P2_GUI import MainWindow
+import vision.objRec as objRec
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -21,7 +22,8 @@ def exampleProgram():
 def main():
     window = MainWindow()
     window.controlMenu.testMenu.setFunctionNext(exampleProgram) # Set the function to be called when the button is pressed
-    window.cellDisplay.update_colors(["green", "red", "blue","green","black","yellow","pink","green"]) # Set the colors of the cells
+    colors = objRec.get_colors() # Get the colors of the cells 
+    window.cellDisplay.update_colors(colors) # Set the colors of the cells
     window.runUI() # Run the GUI
     
 
