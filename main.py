@@ -4,7 +4,6 @@ import time
 import numpy as np
 import matrixConversion as mc
 from gui.P2_GUI import MainWindow
-import random
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -20,11 +19,9 @@ def exampleProgram():
 
 
 def main():
-    #Random number
-    num = random.randint(1, 3)
-    print(f"Random number: {num}")
     window = MainWindow()
     window.controlMenu.testMenu.setFunctionNext(exampleProgram) # Set the function to be called when the button is pressed
+    window.cellDisplay.update_colors(["green", "red", "blue","green","black","yellow","pink","green"]) # Set the colors of the cells
     window.runUI() # Run the GUI
     
 
