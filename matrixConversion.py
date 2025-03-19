@@ -29,16 +29,3 @@ def axisAngleToMatrix(pose):
                      [0,0,0,1]])
     
     return np.round(T,6)
-
-T = np.array([[    -0.000000,     0.000000,     1.000000,   474.500000 ],
-            [-1.000000,    -0.000000,    -0.000000,  -109.300000 ],
-            [0.000000,    -1.000000,     0.000000,   608.950000 ],
-            [0.000000,     0.000000,     0.000000,     1.000000 ]])
-
-
-
-axisAngle = matrixToAxisAngle(T)
-print("Axis-Angle Representation:", axisAngle)
-
-T2 = axisAngleToMatrix(axisAngle)
-print("Rounded Reconstructed Transformation Matrix:\n", T2)
