@@ -4,9 +4,7 @@ import time
 import numpy as np
 import matrixConversion as mc
 from gui.P2_GUI import MainWindow
-
-
-
+import random
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -18,15 +16,17 @@ def exampleProgram():
     print(f"Moved to final position({str(UR5.getCurrentPos())})")
     UR5.setToolPos(50)
     time.sleep(2)
+    
+
 
 def main():
+    #Random number
+    num = random.randint(1, 3)
+    print(f"Random number: {num}")
     window = MainWindow()
-    
     window.controlMenu.testMenu.setFunctionNext(exampleProgram) # Set the function to be called when the button is pressed
-    
     window.runUI() # Run the GUI
     
-    #UR5.kill()# Kill the connection to the robot, so the server thread stops running
 
 #stuff so you can ctrl+c to exit the program
 try:
