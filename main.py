@@ -16,8 +16,6 @@ def exampleProgram():
     print(f"Moved to final position({str(UR5.getCurrentPos())})")
     UR5.setToolPos(50)
     time.sleep(2)
-    
-
 
 def main():
     window = MainWindow()
@@ -26,7 +24,6 @@ def main():
     window.cellDisplay.update_colors(colors) # Set the colors of the cells
     window.runUI() # Run the GUI
     
-
 #stuff so you can ctrl+c to exit the program
 try:
     main()
