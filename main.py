@@ -4,7 +4,7 @@ import time
 import numpy as np
 import matrixConversion as mc
 from gui.P2_GUI import MainWindow
-import random
+import vision.objRec as objRec
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -16,18 +16,14 @@ def exampleProgram():
     print(f"Moved to final position({str(UR5.getCurrentPos())})")
     UR5.setToolPos(50)
     time.sleep(2)
-    
-
 
 def main():
-    #Random number
-    num = random.randint(1, 3)
-    print(f"Random number: {num}")
     window = MainWindow()
     window.controlMenu.testMenu.setFunctionNext(exampleProgram) # Set the function to be called when the button is pressed
+    colors = objRec.get_colors() # Get the colors of the cells 
+    window.cellDisplay.update_colors(colors) # Set the colors of the cells
     window.runUI() # Run the GUI
     
-
 #stuff so you can ctrl+c to exit the program
 try:
     main()
