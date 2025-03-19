@@ -181,8 +181,8 @@ class AutoMenue(QWidget):
 
         self.setLayout(layout)
         
-    def setFunctionStart(self, function):
-        self.buttonStart.clicked.connect(function)
+    def setFunctionStart(self, function, args):
+        self.buttonStart.clicked.connect(function, args)
     
     def setFunctionStop(self, function):
         self.buttonStop.clicked.connect(function)
