@@ -27,5 +27,5 @@ def axisAngleToMatrix(pose):
                      [r2[0],r2[1],r2[2],pose[1]],
                      [r3[0],r3[1],r3[2],pose[2]],
                      [0,0,0,1]])
-    
     return np.round(T,6)
+
