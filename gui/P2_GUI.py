@@ -85,23 +85,28 @@ class CameraView(QWidget):
         self.initUI()
     
     def initUI(self):
-    
-        layout = QVBoxLayout()
+            
+        self.label = QLabel("Camera view")
+        self.buttonOn = QPushButton("On")
+        self.buttonOff = QPushButton("Off")
 
-        camera = cv.VideoCapture(0)
-        while True:
-            ret, frame = camera.read()
-    
-            cv.imshow('Camera View', frame)
-            if cv.waitKey(5) == ord('x'):
-                break
-        
-        cv.destroyAllWindows
-        camera.release()
-        
-    
-        layout = QVBoxLayout
+        self.buttonOn.clicked.connect(self.on)
+        self.buttonOff.clicked.connect(self.off)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.buttonOn)
+        layout.addWidget(self.buttonOff)
         self.setLayout(layout)
+    
+    def on(self):
+        camera = cv.VideoCapture(0)
+        frame = camera.read()
+        cv.imshow('Camera View', frame)
+        camera.release()
+    
+    def off(self):
+        cv.destroyAllWindows
 
 class TestMenu(QWidget):
     def __init__(self):
@@ -444,14 +449,16 @@ class DropdownStacker(QWidget):
         self.StackedWidget = QStackedWidget()
         self.cellDisplay = CellDisplay()
         self.calibrator = Calibrator()
+        self.CameraView = CameraView()
 
         self.StackedWidget.addWidget(self.cellDisplay)
         self.StackedWidget.addWidget(self.calibrator)
+        self.StackedWidget.addWidget(self.CameraView)
 
         # dropdown menu
         self.dropdown = QComboBox()
 
-        self.dropdown.addItems(["Cell Display","Calibrator"])
+        self.dropdown.addItems(["Cell Display","Calibrator","Camera View"])
         
         self.dropdown.currentIndexChanged.connect(self.switchMode)
         
