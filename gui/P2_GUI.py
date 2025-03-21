@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedW
 from PyQt6.QtGui import QFont
 import sys
 from PyQt6.QtCore import Qt, QTimer
+import cv2 as cv
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -76,7 +77,32 @@ class CellDisplay(QWidget):
             y = i // 2
             color = colors[y][x].strip()
             box.setStyleSheet(f'background-color: {color};')
+
+class CameraView(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+    
+    def initUI(self):
+    
+        layout = QVBoxLayout()
+
+        camera = cv.VideoCapture(0)
+        while True:
+            ret, frame = camera.read()
+    
+            cv.imshow('Camera View', frame)
+            if cv.waitKey(5) == ord('x'):
+                break
         
+        cv.destroyAllWindows
+        camera.release()
+        
+    
+        layout = QVBoxLayout
+        self.setLayout(layout)
+
 class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
