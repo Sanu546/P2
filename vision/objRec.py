@@ -68,10 +68,10 @@ def tilt_image(image: np.ndarray, tilt_h: float, tilt_v: float) -> np.ndarray:  
 
     # Define destination points (simulate both horizontal & vertical tilt)
     dst_pts = np.float32([
-        [0, tilt_v],         # Top-left moves
-        [w, tilt_v],    # Top-right moves
-        [0, h - tilt_v],     # Bottom-left moves
-        [w, h - tilt_v]  # Bottom-right moves
+        [tilt_h, tilt_v],         # Top-left moves
+        [w + tilt_h, tilt_v],    # Top-right moves
+        [-tilt_h, h - tilt_v],     # Bottom-left moves
+        [w-tilt_h, h - tilt_v]  # Bottom-right moves
     ])
 
     # Compute perspective transformation matrix
