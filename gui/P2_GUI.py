@@ -1,8 +1,8 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget, QSlider
 from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
 import sys
+from PyQt6.QtCore import Qt, QTimer
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -77,7 +77,7 @@ class CellDisplay(QWidget):
             color = colors[y][x].strip()
             box.setStyleSheet(f'background-color: {color};')
         
-class TestMenue(QWidget):
+class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
         
@@ -87,8 +87,11 @@ class TestMenue(QWidget):
         layout = QVBoxLayout()
 
         # Create label
-        self.label = QLabel("Test Menue")
+        self.label = QLabel("Test Menu:")
+        #Bold and underlined font
         self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(50)
 
         # Create buttons
         self.buttonNext = QPushButton("Next Procces Step")
@@ -143,7 +146,7 @@ class TestMenue(QWidget):
     def Reset(self):
         print("Reset")
 
-class AutoMenue(QWidget):
+class AutoMenu(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -203,51 +206,165 @@ class AutoMenue(QWidget):
     def reset(self):
         print("Reset")
 
-class CalibratingMenue(QWidget):
+
+class Calibrator(QWidget):
     def __init__(self):
         super().__init__()
-        self.x = 0
-        self.y = 0
         self.initUI()
-    
+
     def initUI(self):
-        
-        # Create sliders
-        self.x_slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.x_slider.setRange(-500, 500)
-        self.x_slider.setValue(self.x)
-        self.x_slider.valueChanged.connect(self.update_x)
+        # Create a label to display the pressed arrow key
+        self.label = QLabel("Calibrating Buttons:")
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.labelLeft = QLabel("Rotate Left:")
+        self.labelRight = QLabel(":Rotate Right")
 
-        self.y_slider = QSlider(Qt.Orientation.Vertical, self)
-        self.y_slider.setRange(-500, 500)
-        self.y_slider.setValue(self.y)
-        self.y_slider.valueChanged.connect(self.update_y)
+        self.buttonUp = QPushButton("↑")
+        self.buttonDown = QPushButton("↓")
+        self.buttonLeft = QPushButton("←")
+        self.buttonRight = QPushButton("→")
+        self.buttonRotLeft = QPushButton("←")
+        self.buttonRotRight = QPushButton("→")
 
-        # Create layout
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("y Direction"))
-        layout.addWidget(self.y_slider)
-        layout.addWidget(QLabel("x Direction"))
-        layout.addWidget(self.x_slider)
-        self.setLayout(layout)
-        
-    def setChangeFunctionX(self, function):
-        self.x_slider.valueChanged.connect(function)
+        #connecting buttons to terminal print
+        self.buttonUp.pressed.connect(self.up)
+        self.buttonUp.released.connect(self.stopAction)
+        self.buttonDown.pressed.connect(self.down)
+        self.buttonDown.released.connect(self.stopAction)
+        self.buttonLeft.pressed.connect(self.left)
+        self.buttonLeft.released.connect(self.stopAction)
+        self.buttonRight.pressed.connect(self.right)
+        self.buttonRight.released.connect(self.stopAction)
+        self.buttonRotLeft.pressed.connect(self.rotLeft)
+        self.buttonRotLeft.released.connect(self.stopAction)
+        self.buttonRotRight.pressed.connect(self.rotRight)
+        self.buttonRotRight.released.connect(self.stopAction)
+
+        self.dropdown = QComboBox()
+        self.dropdown.addItems(["Hello","How are you","quite well","Thank you very much"])
+        self.dropdown.currentIndexChanged.connect(self.base)
+
+         # Main vertical layout
+        vbox = QVBoxLayout()
+
+        # Horizontal layout for rotator buttons
+        rot = QHBoxLayout()
+        rot.addWidget(self.labelLeft)
+        rot.addWidget(self.buttonRotLeft)
+        rot.addWidget(self.buttonRotRight)
+        rot.addWidget(self.labelRight)
+
+        # Horizontal layout for arrow buttons
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.buttonLeft)
+        hbox.addWidget(self.buttonDown)
+        hbox.addWidget(self.buttonRight)
+
+        # Add widgets and layouts to the main vertical layout in the desired order
+        vbox.addWidget(self.dropdown) 
+        vbox.addWidget(self.label)     
+        vbox.addLayout(rot)             
+        vbox.addWidget(self.buttonUp) 
+        vbox.addLayout(hbox)
+
+        self.setLayout(vbox)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.performAction)
+
+        self.currentAction = None
+
+    def setFunctionUp(self,function):
+        self.buttonUp.pressed.connect(function)
+        self.currentAction = "up"
+        self.timer.start(100)
     
-    def setChangeFunctionY(self, function):
-        self.y_slider.valueChanged.connect(function)
+    def setFunctionDown(self,function):
+        self.buttonDown.pressed.connect(function)
+        self.currentAction = "down"
+        self.timer.start(100)
     
-    def update_x(self, value):
-        self.x = value
-        print(f"x: {self.x}")
+    def setFunctionLeft(self,function):
+        self.buttonLeft.pressed.connect(function)
+        self.currentAction = "left"
+        self.timer.start(100)
+    
+    def setFunctionRight(self,function):
+        self.buttonRight.pressed.connect(function)
+        self.currentAction = "right"
+        self.timer.start(100)        
 
-    def update_y(self, value):
-        self.y = value
-        print(f"y: {self.y}")
+    def setFunctionRotLeft(self,function):
+        self.buttonRotLeft.pressed.connect(function)
+        self.currentAction = "rotate left"
+        self.timer.start(100)
+    
+    def setFunctionRotRight(self,function):
+        self.buttonRotRight.pressed.connect(function)
+        self.currentAction = "rotate right"
+        self.timer.start(100)
 
+    def setFunctionStopAction(self,function):
+        self.buttonUp.released.connect(function)
+        self.buttonDown.released.connect(function)
+        self.buttonLeft.released.connect(function)
+        self.buttonRight.released.connect(function)
+        self.buttonRotLeft.released.connect(function)
+        self.buttonRotRight.released.connect(function)
+        self.currentAction = None
+        self.timer.stop()
 
-#This class lets us switch between the TestMenue and AutoMenue classes
-class MenueStacker(QWidget):
+    def up(self):
+        self.currentAction = "up"
+        self.timer.start(100)
+
+    def down(self):
+        self.currentAction = "down"
+        self.timer.start(100)
+    
+    def left(self):
+        self.currentAction = "left"
+        self.timer.start(100)
+
+    def right(self):
+        self.currentAction = "right"
+        self.timer.start(100)
+
+    def rotLeft(self):
+        self.currentAction = "rotate left"
+        self.timer.start(100)
+    
+    def rotRight(self):
+        self.currentAction = "rotate right"
+        self.timer.start(100)
+    
+    def stopAction(self):
+        self.timer.stop()
+        self.currentAction = None
+    
+    def performAction(self):
+        if self.currentAction == "up":
+            print("up")
+            
+        elif self.currentAction == "down":
+            print("down")
+            
+        elif self.currentAction == "left":
+            print("left")
+        elif self.currentAction == "right":
+            print("right")
+           
+        elif self.currentAction == "rotate left":
+            print("rotate left")
+        
+        elif self.currentAction == "rotate right":
+            print("rotate left")
+
+    def base(self, index):
+        print(index)
+
+# This class lets us switch between the TestMenue and AutoMenue classes
+class MenuStacker(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -259,14 +376,12 @@ class MenueStacker(QWidget):
         # Create a QStackedWidget
         self.StackedWidget = QStackedWidget()
         
-        self.autoMenu = AutoMenue()
-        self.testMenu = TestMenue()
-        self.calibratingMenu = CalibratingMenue()
+        self.autoMenu = AutoMenu()
+        self.testMenu = TestMenu()
 
         # Add the classes to the stacked widget
         self.StackedWidget.addWidget(self.autoMenu)
         self.StackedWidget.addWidget(self.testMenu)
-        self.StackedWidget.addWidget(self.calibratingMenu)
 
         # Add the stacked widget to the layout
         layout.addWidget(self.StackedWidget)
@@ -274,33 +389,54 @@ class MenueStacker(QWidget):
         # Create buttons to switch between classes
         self.buttonWork = QPushButton('Work Mode', self)
         self.buttonTest = QPushButton('Test Mode', self)
-        self.buttonCalibrate = QPushButton('Calibrate', self)
 
         # Connect buttons to switch classes
-        self.buttonWork.clicked.connect(self.switch_WorkMode)
-        self.buttonTest.clicked.connect(self.switch_TestMode)
-        self.buttonCalibrate.clicked.connect(self.switch_CalibratingMenue)
+        self.buttonWork.clicked.connect(self.switchWorkMode)
+        self.buttonTest.clicked.connect(self.switchTestMode)
 
-        # Create layout and add buttons
-        
+        # Add buttons to the layout
         layout.addWidget(self.buttonWork)
         layout.addWidget(self.buttonTest)
-        layout.addWidget(self.buttonCalibrate)
         self.setLayout(layout) 
     
-    def switch_WorkMode(self):
+    def switchWorkMode(self):
         # Switch to AutoMenue
         self.StackedWidget.setCurrentIndex(0)
 
-    def switch_TestMode(self):
+    def switchTestMode(self):
         # Switch to TestMenue
         self.StackedWidget.setCurrentIndex(1)
 
-    def switch_CalibratingMenue(self):
-        # Switch to CalibratingMenue
-        self.StackedWidget.setCurrentIndex(2)
+class DropdownStacker(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    
+    def initUI(self):
+        layout = QVBoxLayout()
 
-#This class is the main window of the GUI
+        self.StackedWidget = QStackedWidget()
+        self.cellDisplay = CellDisplay()
+        self.calibrator = Calibrator()
+
+        self.StackedWidget.addWidget(self.cellDisplay)
+        self.StackedWidget.addWidget(self.calibrator)
+
+        # dropdown menu
+        self.dropdown = QComboBox()
+
+        self.dropdown.addItems(["Cell Display","Calibrator"])
+        
+        self.dropdown.currentIndexChanged.connect(self.switchMode)
+        
+        layout.addWidget(self.dropdown)
+        layout.addWidget(self.StackedWidget)
+        self.setLayout(layout)
+
+    def switchMode(self, index):
+        self.StackedWidget.setCurrentIndex(index)
+    
+# This class is the main window of the GUI
 class MainWindow(QWidget):
     app = QApplication(sys.argv)
     def __init__(self, minSize = (500, 500), title = 'P2 GUI'):
@@ -315,13 +451,14 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
 
         # Create instance of classes
-        self.controlMenu = MenueStacker()
-        self.cellDisplay = CellDisplay()
+        self.controlMenu = MenuStacker()
+        self.dropdownStacker = DropdownStacker()
+        
 
         # Use QSplitter for resizable splits (Horizontal split)(Menue on the left, Cell on the right)
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self.controlMenu)
-        splitter.addWidget(self.cellDisplay)
+        splitter.addWidget(self.dropdownStacker)
         layout.addWidget(splitter)
 
         self.setLayout(layout)
@@ -329,4 +466,7 @@ class MainWindow(QWidget):
     def runUI(self):
          self.show()
          self.app.exec() 
-        
+
+# Run the GUI
+window = MainWindow()
+window.runUI()
