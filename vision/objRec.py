@@ -4,14 +4,14 @@ import pyautogui
 import tkinter as tk
 
 # Constants
-capture_x, capture_y, capture_w, capture_h = 100, 100, 500, 500
+capture_x, capture_y, capture_w, capture_h = 300, 300, 300, 700
 box_size = 60
 
 # Measurement box values
-x_spacing = 42
-y_spacing = 85
-x_offset = 39
-y_offset = 93
+x_spacing = 92
+y_spacing = 52
+x_offset = 20
+y_offset = 79
 tilt_h = 0
 tilt_v = 0
 
@@ -20,8 +20,8 @@ no_background = False
 closed_tk = False
 
 # Result array
-color_res = [[""] * 4 for _ in range(2)]
-color_val = [[""] * 4 for _ in range(2)]
+color_res = [[""] * 2 for _ in range(4)]
+color_val = [[""] * 2 for _ in range(4)]
 
 BGR_color_limits = {
     "Red": [((0, 0, 200), (150, 150, 255))],
@@ -83,6 +83,7 @@ def tilt_image(image: np.ndarray, tilt_h: float, tilt_v: float) -> np.ndarray:  
     return tilted_image
 
 # Create Tkinter UI
+
 win = tk.Tk()
 win.title("Color Detection Settings")
 win.protocol("WM_DELETE_WINDOW", lambda: closed(None))  # Catch window close event
@@ -107,10 +108,10 @@ slider_tilt_h.pack()
 
 slider_tilt_v = tk.Scale(win, from_=0, to=100, label="Tilt vertical", command=update_scale, orient="horizontal", length=200)
 slider_tilt_v.pack()
-
+    
 # Main loop
-def update_frame():
-    if closed_tk:
+def update_frame(debug=False):
+    if closed_tk and debug:
         win.quit()
         return
 
@@ -121,8 +122,8 @@ def update_frame():
     blank_frame = np.zeros_like(frame)
 
     # Color reckgonition
-    for row in range(2):
-        for col in range(4):
+    for row in range(4):
+        for col in range(2):
             x = x_offset + col * (box_size + x_spacing)
             y = y_offset + row * (box_size + y_spacing)
             roi = frame[y:y+box_size, x:x+box_size]
@@ -149,14 +150,20 @@ def update_frame():
                 cv2.rectangle(blank_frame, (x, y), (x + box_size, y + box_size), (0, 255, 0), 1)
                 cv2.putText(frame, detected_color, (x, y-5), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0))
                 cv2.putText(blank_frame, detected_color, (x, y-5), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0))
+                
+    if debug:
+        cv2.imshow("Frame", blank_frame if no_background else frame)
+        win.after(10, update_frame, True)  # Schedule next frame update
+        #print_debug(color_val)
+        print(color_res)
+    else:
+        return color_res
 
-
-
-    cv2.imshow("Frame", blank_frame if no_background else frame)
-    win.after(10, update_frame)  # Schedule next frame update
-    print_debug(color_val)
-
-# Start loop
-update_frame()
-win.mainloop()
-cv2.destroyAllWindows()
+def debug():
+    update_frame(True)
+    win.mainloop()
+    cv2.destroyAllWindows()
+    
+def get_colors(): 
+    colors = update_frame()
+    return colors
