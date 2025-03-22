@@ -10,6 +10,8 @@ import rtde.rtde as rtde
 import rtde.rtde_config as rtde_config
 import threading as th #Import treading to keep the server running in the background
 import numpy as np
+import matrixConversion as mc
+
 
 
 class RTDEConnection:
@@ -79,10 +81,12 @@ class RTDEConnection:
     
     
     def moveTCP(self, position, type="j"):
+        position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
 
     
     def moveTCPandWait(self, position, type="j"):
+        position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
         while len(self.targets) > 0:
             pass
@@ -98,11 +102,11 @@ class RTDEConnection:
     #Get the current position of the robot
     def getCurrentPos(self):
         state = self.con.receive()
-        return state.actual_TCP_pose
+        return mc.axisAngleToMatrix(state.actual_TCP_pose)
     
     def getCurrentTaget(self):
         state = self.con.receive()
-        return state.target_TCP_pose
+        return mc.axisAngleToMatrix(state.target_TCP_pose)
     
     def getAllTargets(self):
         return self.targets
@@ -114,9 +118,9 @@ class RTDEConnection:
     def serverThread(self):
         while not self.killed:
             if len(self.targets) > 0: #If there are targets in the queue
-                print("Moving to target")
+                #print("Moving to target")
                 target = self.targets[0]
-                print(target)
+                #print(target)
                 moveDone = False
                 
                 self.setPos.input_int_register_1 = 0 if target["joint"] else 1
@@ -127,14 +131,17 @@ class RTDEConnection:
                 self.watchdog.input_int_register_0 = 1
                 state = self.con.receive()
                     
-                while not moveDone and state.output_int_register_0 == 1:
+                while not moveDone:
                     state = self.con.receive()
                     #print(f"Robot out: {state.output_int_register_0}")
                     if state.output_int_register_0 == 0:
                         print("Move done")
+                        print(f"moves left: {self.targets}")
                         moveDone = True
                         self.watchdog.input_int_register_0 = 0
                     self.con.send(self.watchdog)
+                    while state.output_int_register_0 == 0:
+                        state = self.con.receive()
                     
                 self.targets.pop(0)
             else:
