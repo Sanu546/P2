@@ -33,11 +33,7 @@ def exampleProgram():
     time.sleep(2)
 
 def pickUpCells():
-    print("Picking up cells")
-    UR5.moveTCP(rampFrame.getApproach())
-    UR5.moveTCPandWait(rampFrame.getGlobalPos(), "l")
-    print(UR5.getCurrentPos())
-    return
+    print(f"Cells: {cellFrames}")
     for cell in cellFrames:
         if cell.isEmpty:
             continue
