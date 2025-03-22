@@ -1,0 +1,144 @@
+def rtde_com_p2():
+  set_safety_mode_transition_hardness(1)
+  step_count_deb42677_4019_46d2_9ed5_8e61a79ca4bc = 0.0
+  thread Step_Counter_Thread_cb59f2c0_13d2_4d06_bdf0_75f120e4cdac():
+    while (True):
+      step_count_deb42677_4019_46d2_9ed5_8e61a79ca4bc = step_count_deb42677_4019_46d2_9ed5_8e61a79ca4bc + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_cb59f2c0_13d2_4d06_bdf0_75f120e4cdac()
+  set_tool_voltage(12)
+  set_standard_analog_input_domain(0, 1)
+  set_standard_analog_input_domain(1, 1)
+  set_tool_analog_input_domain(0, 1)
+  set_tool_analog_input_domain(1, 1)
+  set_analog_outputdomain(0, 0)
+  set_analog_outputdomain(1, 0)
+  set_input_actions_to_default()
+  set_tcp(p[0.0,0.0,0.0,0.0,0.0,0.0])
+  set_payload(2.0)
+  set_gravity([0.0, 0.0, 9.82])
+  global i_var_1=23
+  $ 1 "BeforeStart"
+  $ 2 "set_tool_voltage(12)"
+  set_tool_voltage(12)
+  $ 3 "setp≔p[0,0,0,0,0,0]"
+  global setp=p[0,0,0,0,0,0]
+  $ 4 "rtde_set_watchdog('input_int_register_0', 1, 'PAUSE')"
+  rtde_set_watchdog("input_int_register_0", 1, "PAUSE")
+  $ 5 "write_output_integer_register(0, 1)"
+  write_output_integer_register(0, 1)
+  $ 6 "out≔1"
+  global out=1
+  $ 28 "Thread_1"
+  thread Thread_1():
+    while (True):
+      $ 29 "Loop"
+      while (True):
+        $ 30 "tmp≔p[0,0,0,0,0,0]"
+        global tmp=p[0,0,0,0,0,0]
+        $ 31 "tmpq≔[0,0,0,0,0,0]"
+        global tmpq=[0,0,0,0,0,0]
+        $ 32 "tmp[0] = read_input_float_register(0)"
+        tmp[0] = read_input_float_register(0)
+        $ 33 "tmp[1] = read_input_float_register(1)"
+        tmp[1] = read_input_float_register(1)
+        $ 34 "tmp[2] = read_input_float_register(2)"
+        tmp[2] = read_input_float_register(2)
+        $ 35 "tmp[3] = read_input_float_register(3)"
+        tmp[3] = read_input_float_register(3)
+        $ 36 "tmp[4] = read_input_float_register(4)"
+        tmp[4] = read_input_float_register(4)
+        $ 37 "tmp[5] = read_input_float_register(5)"
+        tmp[5] = read_input_float_register(5)
+        $ 38 "tmpq[0] = read_input_float_register(0)"
+        tmpq[0] = read_input_float_register(0)
+        $ 39 "tmpq[1] = read_input_float_register(1)"
+        tmpq[1] = read_input_float_register(1)
+        $ 40 "tmpq[2] = read_input_float_register(2)"
+        tmpq[2] = read_input_float_register(2)
+        $ 41 "tmpq[3] = read_input_float_register(3)"
+        tmpq[3] = read_input_float_register(3)
+        $ 42 "tmpq[4] = read_input_float_register(4)"
+        tmpq[4] = read_input_float_register(4)
+        $ 43 "tmpq[5] = read_input_float_register(5)"
+        tmpq[5] = read_input_float_register(5)
+        $ 44 "setp≔tmp"
+        global setp=tmp
+        $ 45 "setq≔tmpq"
+        global setq=tmpq
+        $ 46 "sync()"
+        sync()
+      end
+    end
+  end
+  threadId_Thread_1 = run Thread_1()
+  $ 47 "Thread_2"
+  thread Thread_2():
+    while (True):
+      $ 48 "toolValue≔read_input_integer_register(3)"
+      global toolValue=read_input_integer_register(3)
+      $ 49 "Script: tool_script.script"
+      def ToolScript(value):
+          FREQ = 200 #Hz
+          UP_TIME = (1/FREQ)*(value/100)
+          DOWN_TIME = (1/FREQ)-UP_TIME
+      
+          set_tool_digital_out(0, True)
+          sleep(UP_TIME)
+          set_tool_digital_out(0, False)
+          sleep(DOWN_TIME)
+      end
+      
+      ToolScript(value=toolValue)
+      sync()
+    end
+  end
+  threadId_Thread_2 = run Thread_2()
+  while (True):
+    $ 7 "Robot Program"
+    $ 8 "If read_input_integer_register(0)≟1 and setp≠p[0, 0, 0, 0, 0, 0]"
+    if (read_input_integer_register(0) == 1  and  setp != p[0, 0, 0, 0, 0, 0]):
+      $ 9 "'Valid pose received from client'"
+      # 'Valid pose received from client'
+      $ 10 "If read_input_integer_register(2)≟0"
+      if (read_input_integer_register(2) == 0):
+        $ 11 "MoveJ"
+        $ 12 "If read_input_integer_register(1)≟0"
+        if (read_input_integer_register(1) == 0):
+          $ 13 "setq" "breakAfter"
+          movej(setq, a=1.3962634015954636, v=1.0471975511965976)
+        else:
+          $ 14 "Else" "noBreak"
+          $ 15 "setp" "breakAfter"
+          movej(setp, a=1.3962634015954636, v=1.0471975511965976)
+        end
+      else:
+        $ 16 "Else" "noBreak"
+        $ 17 "MoveL"
+        $ 18 "setp" "breakAfter"
+        movel(pose_trans(p[0.0,0.0,0.0,0.0,0.0,0.0], setp), a=1.2, v=0.15)
+      end
+      $ 19 "'Confirm that move was executed'"
+      # 'Confirm that move was executed'
+      $ 20 "write_output_integer_register(0, 0)"
+      write_output_integer_register(0, 0)
+      $ 21 "'Wait until script acknowledges confirmation'"
+      # 'Wait until script acknowledges confirmation'
+      $ 22 "Loop read_input_integer_register(0)≟1"
+      while (read_input_integer_register(0) == 1):
+        $ 23 "sync()"
+        sync()
+      end
+      $ 24 "'Request next pose'"
+      # 'Request next pose'
+      $ 25 "write_output_integer_register(0, 1)"
+      write_output_integer_register(0, 1)
+      $ 26 "out≔0"
+      global out=0
+    end
+    $ 27 "sync()"
+    sync()
+  end
+end
