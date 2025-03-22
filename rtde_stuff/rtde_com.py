@@ -82,7 +82,6 @@ class RTDEConnection:
     
     def moveTCP(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
-        print(f"Moving to {position}")
         self.targets.append({"position": position, "joint": False, "type": type})
 
     
@@ -132,14 +131,17 @@ class RTDEConnection:
                 self.watchdog.input_int_register_0 = 1
                 state = self.con.receive()
                     
-                while not moveDone and state.output_int_register_0 == 1:
+                while not moveDone:
                     state = self.con.receive()
                     #print(f"Robot out: {state.output_int_register_0}")
                     if state.output_int_register_0 == 0:
                         print("Move done")
+                        print(f"moves left: {self.targets}")
                         moveDone = True
                         self.watchdog.input_int_register_0 = 0
                     self.con.send(self.watchdog)
+                    while state.output_int_register_0 == 0:
+                        state = self.con.receive()
                     
                 self.targets.pop(0)
             else:
