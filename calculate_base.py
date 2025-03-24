@@ -1,6 +1,8 @@
 import numpy as np
 from numpy import linalg
 from numpy import pi
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 points = [[22.8,  15.3, 0],
           [126.7, 51.5, 0],
@@ -49,6 +51,59 @@ def calculate_base(points):
     base = np.vstack([base, [0,0,0,1]])
         
     print(f"\nResulting transform:\n{base}")
+    
+    plot_points_and_transforms(points, [base,  np.array([[1,0,0,1],
+                                                        [0,1,0,1],
+                                                        [0,0,1,1],
+                                                        [0,0,0,1]])])
+
+
+def plot_points_and_transforms(points, transforms):
+    # Create a 3D plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Plot the points
+    points = np.array(points)
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c='b', marker='o', label='Points')
+    
+    # Plot the transforms
+    for transform in transforms:
+        # Extract the translation part (last column of the transformation matrix)
+        origin = transform[:3, 3]
+        
+        # Extract the rotation part (first 3 columns of the transformation matrix)
+        x_axis = transform[:3, 0]
+        y_axis = transform[:3, 1]
+        z_axis = transform[:3, 2]
+        
+        # Plot the origin of the transform
+        ax.scatter(origin[0], origin[1], origin[2], c='r', marker='x', label='Transform Origin' if not 'origin_plotted' in locals() else "")
+        origin_plotted = True
+        
+        # Plot the axes of the transform
+        ax.quiver(origin[0], origin[1], origin[2], x_axis[0], x_axis[1], x_axis[2], color='r', length=100.0, normalize=True, label='X Axis' if not 'x_axis_plotted' in locals() else "")
+        ax.quiver(origin[0], origin[1], origin[2], y_axis[0], y_axis[1], y_axis[2], color='g', length=100.0, normalize=True, label='Y Axis' if not 'y_axis_plotted' in locals() else "")
+        ax.quiver(origin[0], origin[1], origin[2], z_axis[0], z_axis[1], z_axis[2], color='b', length=100.0, normalize=True, label='Z Axis' if not 'z_axis_plotted' in locals() else "")
+        x_axis_plotted = True
+        y_axis_plotted = True
+        z_axis_plotted = True
+    
+    # Set labels
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    
+    # Set limits (optional, adjust as needed)
+    ax.set_xlim([-1000, 1000])
+    ax.set_ylim([-1000, 1000])
+    ax.set_zlim([-1000, 1000])
+    
+    # Show legend
+    ax.legend()
+    
+    # Show the plot
+    plt.show()
 
 
 calculate_base(points)
