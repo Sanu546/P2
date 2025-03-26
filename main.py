@@ -7,7 +7,6 @@ import vision.objRec as objRec
 from frames import Pose
 from typing import List
 
-
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
 moves = [] # The moves that the robot will make
