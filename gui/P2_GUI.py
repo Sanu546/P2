@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget, QSlider
-from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget
+from PyQt6.QtGui import QFont, QImage, QPixmap
 import sys
 from PyQt6.QtCore import Qt, QTimer
 import cv2 as cv
@@ -81,33 +81,36 @@ class CellDisplay(QWidget):
 class CameraView(QWidget):
     def __init__(self):
         super().__init__()
-
         self.initUI()
     
     def initUI(self):
-            
-        self.label = QLabel("Camera view")
-        self.buttonOn = QPushButton("On")
-        self.buttonOff = QPushButton("Off")
-
-        self.buttonOn.clicked.connect(self.on)
-        self.buttonOff.clicked.connect(self.off)
-
         layout = QVBoxLayout()
+
+        self.camera = cv.VideoCapture(0)
+
+        self.label = QLabel()
         layout.addWidget(self.label)
-        layout.addWidget(self.buttonOn)
-        layout.addWidget(self.buttonOff)
         self.setLayout(layout)
     
-    def on(self):
-        camera = cv.VideoCapture(0)
-        frame = camera.read()
-        cv.imshow('Camera View', frame)
-        camera.release()
-    
-    def off(self):
-        cv.destroyAllWindows
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.runCamera)
+        self.timer.start(30)
 
+    def runCamera(self):
+        ret, frame = self.camera.read()
+        if ret:
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+
+            h, w, ch = frame.shape
+            bytesPerLine = ch * w
+            qImg = QImage(frame.data, w, h, bytesPerLine, QImage.Format.Format_RGB888)
+
+            self.label.setPixmap(QPixmap.fromImage(qImg))
+
+    def closeEvent(self,event):
+        self.camera.release()
+        event.accept()
+    
 class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
@@ -130,9 +133,9 @@ class TestMenu(QWidget):
         self.buttonReset = QPushButton("Reset")
     
         # Set color of the buttons
-        self.buttonNext.setStyleSheet("background-color: green")
-        self.buttonBack.setStyleSheet("background-color: red")
-        self.buttonReset.setStyleSheet("background-color: orange")
+        self.buttonNext.setStyleSheet("background-color: gray")
+        self.buttonBack.setStyleSheet("background-color: gray")
+        self.buttonReset.setStyleSheet("background-color: blue")
 
         # Set the size of the buttons
         self.buttonNext.setFixedHeight(50)
@@ -186,15 +189,21 @@ class AutoMenu(QWidget):
     def initUI(self):
         layout = QVBoxLayout()
 
+        # Create label, set size and align
+        self.label = QLabel("Auto Menu:")
+        self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(50)
+
         # Create buttons
         self.buttonStart = QPushButton("Auto Start")
         self.buttonStop = QPushButton("Auto Stop")
         self.buttonReset = QPushButton("Reset")
 
         # Set colors of the buttons
-        self.buttonStart.setStyleSheet("background-color: green")
-        self.buttonStop.setStyleSheet("background-color: red")
-        self.buttonReset.setStyleSheet("background-color: orange")
+        self.buttonStart.setStyleSheet("background-color: white; color : black")
+        self.buttonStop.setStyleSheet("background-color: black")
+        self.buttonReset.setStyleSheet("background-color: blue")
 
         # Set the size of the buttons
         self.buttonStart.setFixedHeight(50)
@@ -212,6 +221,7 @@ class AutoMenu(QWidget):
         self.buttonReset.clicked.connect(self.reset)
 
         # Add buttons to the layout
+        layout.addWidget(self.label)
         layout.addWidget(self.buttonStart)
         layout.addWidget(self.buttonStop)
         layout.addWidget(self.buttonReset)
@@ -236,7 +246,6 @@ class AutoMenu(QWidget):
 
     def reset(self):
         print("Reset")
-
 
 class Calibrator(QWidget):
     def __init__(self):
