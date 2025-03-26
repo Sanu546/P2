@@ -74,7 +74,9 @@ class RTDEConnection:
         
         #Start a thread to keep the server running
         self.server_thread = th.Thread(target=self.serverThread)
+        self.server_thread.daemon = True
         self.server_thread.start()
+       
         
         while not program_running:
             state = self.con.receive()

@@ -400,6 +400,18 @@ class MenuStacker(QWidget):
 
         # Add the stacked widget to the layout
         layout.addWidget(self.StackedWidget)
+        
+        self.progressLable = QLabel(f"Progress: Step 0/0")
+        self.currentTargetLable = QLabel("Current Target: None")
+        
+        self.progressLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.currentTargetLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        
+        self.progressLable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.currentTargetLable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.spaceing = QLabel("")
+        self.spaceing.setFixedHeight(100)
 
         # Create buttons to switch between classes
         self.buttonWork = QPushButton('Work Mode', self)
@@ -410,9 +422,27 @@ class MenuStacker(QWidget):
         self.buttonTest.clicked.connect(self.switchTestMode)
 
         # Add buttons to the layout
+        layout.addWidget(self.progressLable)
+        layout.addWidget(self.currentTargetLable)
+        layout.addWidget(self.spaceing)
         layout.addWidget(self.buttonWork)
         layout.addWidget(self.buttonTest)
         self.setLayout(layout) 
+    
+    def setProgress(self, currentStep, totalSteps):
+        self.progressLable.setText(f"Progress: Step {currentStep}/{totalSteps}")
+        print("Progress: Step {currentStep}/{totalSteps}")
+    
+    def setCurrentTarget(self, target):
+        self.currentTargetLable.setText(f"Current Target: {target}")
+        print(f"Current Target: {target}")
+    
+    def getCurrentMode(self):
+        currentIndex = self.StackedWidget.currentIndex()
+        if currentIndex == 0:
+            return "auto"
+        else:
+            return "test"
     
     def switchWorkMode(self):
         # Switch to AutoMenue
@@ -480,8 +510,4 @@ class MainWindow(QWidget):
         
     def runUI(self):
          self.show()
-         self.app.exec() 
-
-# Run the GUI
-window = MainWindow()
-window.runUI()
+         self.app.exec()

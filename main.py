@@ -6,6 +6,7 @@ from gui.P2_GUI import MainWindow
 import vision.objRec as objRec
 from frames import Pose
 from typing import List
+import threading as th
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -18,7 +19,7 @@ currentMove = 0
 
 
 # The frame for the ramp
-rampFrame = Pose(np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
+rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
      [-0.023483,     0.765548,    -0.642950,  -.657846558],
       [0.010124,    -0.642913,    -0.765873,   .283486816],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]
@@ -26,7 +27,7 @@ rampFrame = Pose(np.array([[    -0.999673,    -0.024494,     0.007347,   .201236
 
 cellFrames: List[Pose] = [] # The frames for the cells
 
-dropOffFrame = Pose(np.array([[1, 0, 0, 0.5],
+dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.5],
                               [0, 1, 0, 0],
                               [0, 0, 1, 0],
                               [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
@@ -34,7 +35,7 @@ dropOffFrame = Pose(np.array([[1, 0, 0, 0.5],
 def generateCellFrames():
     for i in range(4):  
         for j in range(2):
-            cellFrames.append(Pose(np.array([[    1,     0,     0,   j*cellSpacingX ],
+            cellFrames.append(Pose(f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX ],
             [0,     1,     0,   i*cellSpacingY ],
             [0,     0,     1,   0 ],
             [0,     0,     0,     1 ]]), rampFrame, isCell = True, color = "blue"))
@@ -43,12 +44,12 @@ def generateMoves():
     for cell in cellFrames:
         if cell.isEmpty:
             continue
-        moves.append({"move": cell.getApproach(), "type": "j"})
-        moves.append({"move": cell.getGlobalPos(), "type": "l"})
-        moves.append({"move": cell.getApproach(), "type": "l"})
-        moves.append({"move": dropOffFrame.getApproach(), "type": "j"})
-        moves.append({"move": dropOffFrame.getGlobalPos(), "type": "l"})
-        moves.append({"move": dropOffFrame.getApproach(), "type": "l"})
+        moves.append({"name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+        moves.append({"name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+        moves.append({"name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+        moves.append({"name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+        moves.append({"name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+        moves.append({"name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
 
 def runAutoRobot():
     status = UR5.getStatus()
@@ -96,14 +97,13 @@ def nextMove():
 
 def updateUI():
     colors = objRec.get_colors()
-    window.cellDisplay.update_colors(colors)
+    window.dropdownStacker.cellDisplay.update_colors(colors)
     
 
 def resetAuto():
     global currentMove
-    currentMove = 0
     global moves
-    
+    currentMove = 0
     moves = []
     
     UR5.resetProgram()
@@ -131,12 +131,31 @@ def resetDebug():
     
     generateCellFrames()
     generateMoves()
+
+def updateProgramProgress():
+    while True:
+        currentMode = window.controlMenu.getCurrentMode() 
+        if currentMode == "auto":
+            if len(UR5.getAllTargets()) == 0:
+                window.controlMenu.setProgress(0,0)
+                window.controlMenu.setCurrentTarget("None")
+                continue
+            
+            currentMove = len(moves) - len(UR5.getAllTargets())  
+            window.controlMenu.setProgress(currentMove + 1, len(moves))
+            window.controlMenu.setCurrentTarget(moves[currentMove]["name"])
+            
+        time.sleep(0.1)
+
     
 window = MainWindow()
+progressThread = th.Thread(target=updateProgramProgress)
+progressThread.daemon = True
 
 def main():
     generateCellFrames()
     generateMoves()
+    progressThread.start()
     window.controlMenu.autoMenu.setFunctionStart(runAutoRobot) # Set the function to be called when the button is pressed
     window.controlMenu.testMenu.setFunctionNext(nextMove) # Set the function to be called when the button is pressed
     window.controlMenu.autoMenu.setFunctionStop(stopAutoRobot) # Set the function to be called when the button is pressed
@@ -148,14 +167,8 @@ def main():
     
     window.runUI() # Run the GUI
     
-#stuff so you can ctrl+c to exit the program
-try:
-    main()
-    
-except KeyboardInterrupt:
-    print("Disconnected from robot")
-    UR5.kill()
-    sys.exit()
+main()
+
 
 
 
