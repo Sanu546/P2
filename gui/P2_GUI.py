@@ -104,7 +104,9 @@ class TestMenue(QWidget):
         self.buttonNext.setFixedHeight(50)
         self.buttonBack.setFixedHeight(50)
         self.buttonReset.setFixedHeight(50)
-
+        
+        #Disable the back button
+        self.buttonBack.setEnabled(False)
 
         # Set the font size of the buttons
         self.buttonNext.setFont(QFont("Arial", 20, QFont.Weight.Bold))
@@ -136,12 +138,16 @@ class TestMenue(QWidget):
     
     def NextProccesStep(self):
         print("Next Procces Step")
+        self.buttonBack.setEnabled(True)
     
     def Back(self):
+        self.buttonNext.setEnabled(True)
         print("Back")
 
     def Reset(self):
         print("Reset")
+        self.buttonBack.setEnabled(False)
+        self.buttonNext.setEnabled(True)
 
 class AutoMenue(QWidget):
     def __init__(self):
@@ -156,12 +162,15 @@ class AutoMenue(QWidget):
         self.buttonStart = QPushButton("Auto Start")
         self.buttonStop = QPushButton("Auto Stop")
         self.buttonReset = QPushButton("Reset")
+        
+        #Disable the stop button
+        self.buttonStop.setEnabled(False)
 
         # Set colors of the buttons
         self.buttonStart.setStyleSheet("background-color: green")
         self.buttonStop.setStyleSheet("background-color: red")
         self.buttonReset.setStyleSheet("background-color: orange")
-
+        
         # Set the size of the buttons
         self.buttonStart.setFixedHeight(50)
         self.buttonStop.setFixedHeight(50)
@@ -185,8 +194,8 @@ class AutoMenue(QWidget):
 
         self.setLayout(layout)
         
-    def setFunctionStart(self, function, args):
-        self.buttonStart.clicked.connect(function, args)
+    def setFunctionStart(self, function):
+        self.buttonStart.clicked.connect(function)
     
     def setFunctionStop(self, function):
         self.buttonStop.clicked.connect(function)
@@ -196,12 +205,18 @@ class AutoMenue(QWidget):
     
     def start(self):
         print("Start")
+        self.buttonStop.setEnabled(True)
+        self.buttonStart.setEnabled(False)
 
     def stop(self):
         print("Stop")
+        self.buttonStop.setEnabled(False)
+        self.buttonStart.setEnabled(True)
 
     def reset(self):
         print("Reset")
+        self.buttonStop.setEnabled(False)
+        self.buttonStart.setEnabled(True)
 
 class CalibratingMenue(QWidget):
     def __init__(self):
