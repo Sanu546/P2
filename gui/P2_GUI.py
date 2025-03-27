@@ -145,7 +145,9 @@ class TestMenu(QWidget):
         self.buttonNext.setFixedHeight(50)
         self.buttonBack.setFixedHeight(50)
         self.buttonReset.setFixedHeight(50)
-
+        
+        #Disable the back button
+        self.buttonBack.setEnabled(False)
 
         # Set the font size of the buttons
         self.buttonNext.setFont(QFont("Arial", 20, QFont.Weight.Bold))
@@ -177,12 +179,16 @@ class TestMenu(QWidget):
     
     def NextProccesStep(self):
         print("Next Procces Step")
+        self.buttonBack.setEnabled(True)
     
     def Back(self):
+        self.buttonNext.setEnabled(True)
         print("Back")
 
     def Reset(self):
         print("Reset")
+        self.buttonBack.setEnabled(False)
+        self.buttonNext.setEnabled(True)
 
 class AutoMenu(QWidget):
     def __init__(self):
@@ -203,6 +209,9 @@ class AutoMenu(QWidget):
         self.buttonStart = QPushButton("Auto Start")
         self.buttonStop = QPushButton("Auto Stop")
         self.buttonReset = QPushButton("Reset")
+        
+        #Disable the stop button
+        self.buttonStop.setEnabled(False)
 
         # Set colors of the buttons
         self.buttonStart.setStyleSheet("background-color: white; color : black")
@@ -244,12 +253,18 @@ class AutoMenu(QWidget):
     
     def start(self):
         print("Start")
+        self.buttonStop.setEnabled(True)
+        self.buttonStart.setEnabled(False)
 
     def stop(self):
         print("Stop")
+        self.buttonStop.setEnabled(False)
+        self.buttonStart.setEnabled(True)
 
     def reset(self):
         print("Reset")
+        self.buttonStop.setEnabled(False)
+        self.buttonStart.setEnabled(True)
 
 class Calibrator(QWidget):
     def __init__(self):
