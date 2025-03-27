@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSplitter, QStackedWidget, QSlider
-from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget
+from PyQt6.QtGui import QFont, QImage, QPixmap
 import sys
 from PyQt6.QtCore import Qt, QTimer
+import cv2 as cv
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -76,7 +77,44 @@ class CellDisplay(QWidget):
             y = i // 2
             color = colors[y][x].strip()
             box.setStyleSheet(f'background-color: {color};')
+
+class CameraView(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        self.camera = cv.VideoCapture(0)
+
+        self.label = QLabel()
         
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+    
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.runCamera)
+        self.timer.start(30)
+
+    def runCamera(self):
+        ret, frame = self.camera.read()
+        if ret:
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            frame = cv.flip(frame, 1)
+            frame = cv.resize(frame,(300,300))
+            
+
+            h, w, ch = frame.shape
+            bytesPerLine = ch * w
+            qImg = QImage(frame.data, w, h, bytesPerLine, QImage.Format.Format_RGB888)
+
+            self.label.setPixmap(QPixmap.fromImage(qImg))
+
+    def closeEvent(self,event):
+        self.camera.release()
+        event.accept()
+    
 class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
@@ -99,9 +137,9 @@ class TestMenu(QWidget):
         self.buttonReset = QPushButton("Reset")
     
         # Set color of the buttons
-        self.buttonNext.setStyleSheet("background-color: green")
-        self.buttonBack.setStyleSheet("background-color: red")
-        self.buttonReset.setStyleSheet("background-color: orange")
+        self.buttonNext.setStyleSheet("background-color: gray")
+        self.buttonBack.setStyleSheet("background-color: gray")
+        self.buttonReset.setStyleSheet("background-color: blue")
 
         # Set the size of the buttons
         self.buttonNext.setFixedHeight(50)
@@ -161,6 +199,12 @@ class AutoMenu(QWidget):
     def initUI(self):
         layout = QVBoxLayout()
 
+        # Create label, set size and align
+        self.label = QLabel("Auto Menu:")
+        self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(50)
+
         # Create buttons
         self.buttonStart = QPushButton("Auto Start")
         self.buttonStop = QPushButton("Auto Stop")
@@ -170,10 +214,10 @@ class AutoMenu(QWidget):
         self.buttonStop.setEnabled(False)
 
         # Set colors of the buttons
-        self.buttonStart.setStyleSheet("background-color: green")
-        self.buttonStop.setStyleSheet("background-color: red")
-        self.buttonReset.setStyleSheet("background-color: orange")
-        
+        self.buttonStart.setStyleSheet("background-color: white; color : black")
+        self.buttonStop.setStyleSheet("background-color: black")
+        self.buttonReset.setStyleSheet("background-color: blue")
+
         # Set the size of the buttons
         self.buttonStart.setFixedHeight(50)
         self.buttonStop.setFixedHeight(50)
@@ -190,6 +234,7 @@ class AutoMenu(QWidget):
         self.buttonReset.clicked.connect(self.reset)
 
         # Add buttons to the layout
+        layout.addWidget(self.label)
         layout.addWidget(self.buttonStart)
         layout.addWidget(self.buttonStop)
         layout.addWidget(self.buttonReset)
@@ -220,7 +265,6 @@ class AutoMenu(QWidget):
         print("Reset")
         self.buttonStop.setEnabled(False)
         self.buttonStart.setEnabled(True)
-
 
 class Calibrator(QWidget):
     def __init__(self):
@@ -433,14 +477,16 @@ class DropdownStacker(QWidget):
         self.StackedWidget = QStackedWidget()
         self.cellDisplay = CellDisplay()
         self.calibrator = Calibrator()
+        self.CameraView = CameraView()
 
         self.StackedWidget.addWidget(self.cellDisplay)
         self.StackedWidget.addWidget(self.calibrator)
+        self.StackedWidget.addWidget(self.CameraView)
 
         # dropdown menu
         self.dropdown = QComboBox()
 
-        self.dropdown.addItems(["Cell Display","Calibrator"])
+        self.dropdown.addItems(["Cell Display","Calibrator","Camera View"])
         
         self.dropdown.currentIndexChanged.connect(self.switchMode)
         
@@ -483,5 +529,5 @@ class MainWindow(QWidget):
          self.app.exec() 
 
 # Run the GUI
-window = MainWindow()
-window.runUI()
+#window = MainWindow()
+#window.runUI() 
