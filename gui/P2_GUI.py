@@ -89,6 +89,7 @@ class CameraView(QWidget):
         self.camera = cv.VideoCapture(0)
 
         self.label = QLabel()
+        
         layout.addWidget(self.label)
         self.setLayout(layout)
     
@@ -100,6 +101,9 @@ class CameraView(QWidget):
         ret, frame = self.camera.read()
         if ret:
             frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            frame = cv.flip(frame, 1)
+            frame = cv.resize(frame,(300,300))
+            
 
             h, w, ch = frame.shape
             bytesPerLine = ch * w
