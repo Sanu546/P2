@@ -160,6 +160,14 @@ class AutoMenu(QWidget):
     
     def initUI(self):
         layout = QVBoxLayout()
+        
+        # Create label
+        self.label = QLabel("Auto Menu:")
+        #Bold and underlined font
+        self.label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(50)
+
 
         # Create buttons
         self.buttonStart = QPushButton("Auto Start")
@@ -190,6 +198,7 @@ class AutoMenu(QWidget):
         self.buttonReset.clicked.connect(self.reset)
 
         # Add buttons to the layout
+        layout.addWidget(self.label)
         layout.addWidget(self.buttonStart)
         layout.addWidget(self.buttonStop)
         layout.addWidget(self.buttonReset)
@@ -223,12 +232,22 @@ class AutoMenu(QWidget):
 
 
 class Calibrator(QWidget):
+    
+    rotateRightFunc = None
+    rotateLeftFunc = None
+    upFunc = None
+    downFunc = None
+    leftFunc = None
+    rightFunc = None
+    stopActionFunc = None
+    
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
         # Create a label to display the pressed arrow key
+        self.startCal = QPushButton("Start Calibration")
         self.label = QLabel("Calibrating Buttons:")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.labelLeft = QLabel("Rotate Left:")
@@ -256,7 +275,6 @@ class Calibrator(QWidget):
         self.buttonRotRight.released.connect(self.stopAction)
 
         self.dropdown = QComboBox()
-        self.dropdown.addItems(["Hello","How are you","quite well","Thank you very much"])
         self.dropdown.currentIndexChanged.connect(self.base)
 
          # Main vertical layout
@@ -287,35 +305,35 @@ class Calibrator(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.performAction)
 
-        self.currentAction = None
+        self.currentAction = None    
 
     def setFunctionUp(self,function):
-        self.buttonUp.pressed.connect(function)
+        self.upFunc = function 
         self.currentAction = "up"
         self.timer.start(100)
     
     def setFunctionDown(self,function):
-        self.buttonDown.pressed.connect(function)
+        self.downFunc = function
         self.currentAction = "down"
         self.timer.start(100)
     
     def setFunctionLeft(self,function):
-        self.buttonLeft.pressed.connect(function)
+        self.leftFunc = function
         self.currentAction = "left"
         self.timer.start(100)
     
     def setFunctionRight(self,function):
-        self.buttonRight.pressed.connect(function)
+        self.rightFunc = function
         self.currentAction = "right"
         self.timer.start(100)        
 
     def setFunctionRotLeft(self,function):
-        self.buttonRotLeft.pressed.connect(function)
+        self.rotateLeftFunc = function
         self.currentAction = "rotate left"
         self.timer.start(100)
     
     def setFunctionRotRight(self,function):
-        self.buttonRotRight.pressed.connect(function)
+        self.rotateRightFunc = function
         self.currentAction = "rotate right"
         self.timer.start(100)
 
@@ -328,52 +346,40 @@ class Calibrator(QWidget):
         self.buttonRotRight.released.connect(function)
         self.currentAction = None
         self.timer.stop()
-
-    def up(self):
-        self.currentAction = "up"
-        self.timer.start(100)
-
-    def down(self):
-        self.currentAction = "down"
-        self.timer.start(100)
-    
-    def left(self):
-        self.currentAction = "left"
-        self.timer.start(100)
-
-    def right(self):
-        self.currentAction = "right"
-        self.timer.start(100)
-
-    def rotLeft(self):
-        self.currentAction = "rotate left"
-        self.timer.start(100)
-    
-    def rotRight(self):
-        self.currentAction = "rotate right"
-        self.timer.start(100)
-    
-    def stopAction(self):
-        self.timer.stop()
-        self.currentAction = None
     
     def performAction(self):
         if self.currentAction == "up":
-            print("up")
-            
+            if self.upFunc == None:
+                print("Up not defined")
+                return
+            print("Up")
         elif self.currentAction == "down":
-            print("down")
-            
+            if self.downFunc == None:
+                print("Down not defined")
+                return
+            print("Down")
         elif self.currentAction == "left":
-            print("left")
+            if self.leftFunc == None:   
+                print("Left not defined")
+                return
+            print("Left")
         elif self.currentAction == "right":
-            print("right")
-           
+            if self.rightFunc == None:
+                print("Right not defined")
+                return
+            print("Right")
         elif self.currentAction == "rotate left":
-            print("rotate left")
-        
+            if self.rotateLeftFunc == None:
+                print("Rotate Left not defined")
+                return
+            print("Rotate Left")
         elif self.currentAction == "rotate right":
-            print("rotate left")
+            if self.rotateRightFunc == None:
+                print("Rotate Right not defined")
+                return
+            print("Rotate Right")
+        else:
+            print("No action")
 
     def base(self, index):
         print(index)
@@ -401,14 +407,25 @@ class MenuStacker(QWidget):
         # Add the stacked widget to the layout
         layout.addWidget(self.StackedWidget)
         
-        self.progressLable = QLabel(f"Progress: Step 0/0")
-        self.currentTargetLable = QLabel("Current Target: None")
+        self.progressTitleLable = QLabel(f"Progress:")
+        self.progressLable = QLabel(f"Step 0/0")
+        self.currentTargetTitleLable = QLabel("Current Target:")
+        self.currentTargetLable = QLabel("None")
+        self.nextTargetTitleLable = QLabel("Next Target:")
+        self.nextTargetLable = QLabel("None")
+
         
-        self.progressLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
-        self.currentTargetLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.progressLable.setFont(QFont("Arial", 12, QFont.Weight.Bold, True))
+        self.progressTitleLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.progressLable.setStyleSheet("color: grey")
         
-        self.progressLable.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.currentTargetLable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.currentTargetTitleLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.currentTargetLable.setFont(QFont("Arial", 12, QFont.Weight.Bold, True))
+        self.currentTargetLable.setStyleSheet("color: grey")
+        
+        self.nextTargetTitleLable.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.nextTargetLable.setFont(QFont("Arial", 12, QFont.Weight.Bold, True))
+        self.nextTargetLable.setStyleSheet("color: grey")
         
         self.spaceing = QLabel("")
         self.spaceing.setFixedHeight(100)
@@ -422,20 +439,22 @@ class MenuStacker(QWidget):
         self.buttonTest.clicked.connect(self.switchTestMode)
 
         # Add buttons to the layout
+        layout.addWidget(self.progressTitleLable)
         layout.addWidget(self.progressLable)
+        layout.addWidget(self.currentTargetTitleLable)
         layout.addWidget(self.currentTargetLable)
+        layout.addWidget(self.nextTargetTitleLable)
+        layout.addWidget(self.nextTargetLable)
         layout.addWidget(self.spaceing)
         layout.addWidget(self.buttonWork)
         layout.addWidget(self.buttonTest)
         self.setLayout(layout) 
     
     def setProgress(self, currentStep, totalSteps):
-        self.progressLable.setText(f"Progress: Step {currentStep}/{totalSteps}")
-        print("Progress: Step {currentStep}/{totalSteps}")
+        self.progressLable.setText(f"Step {currentStep}/{totalSteps}")
     
     def setCurrentTarget(self, target):
-        self.currentTargetLable.setText(f"Current Target: {target}")
-        print(f"Current Target: {target}")
+        self.currentTargetLable.setText(f"{target}")
     
     def getCurrentMode(self):
         currentIndex = self.StackedWidget.currentIndex()
@@ -443,6 +462,9 @@ class MenuStacker(QWidget):
             return "auto"
         else:
             return "test"
+    
+    def setNextTarget(self, target):
+        self.nextTargetLable.setText(f"{target}")
     
     def switchWorkMode(self):
         # Switch to AutoMenue
