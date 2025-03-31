@@ -168,8 +168,6 @@ def baseFrameChanged(index):
     currentCalibrationFrame = baseFrames[index]
     print("Base frame changed to:", currentCalibrationFrame.name)
 
-def u
-
 def updateProgramProgress():
     while True:
         currentMode = window.controlMenu.getCurrentMode() 
