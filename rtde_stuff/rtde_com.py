@@ -18,7 +18,11 @@ class resetCalled(Exception):
 class RTDEConnection:
     config_filename = "rtde_stuff/control_loop_configuration.xml"
     killed = False
-    stopped = False   
+    stopped = False  
+    targets = []
+    moving = False
+    reset = False 
+    
     #constructor
     def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(-91.772925), np.radians(-99.491749), np.radians(-126.807916), np.radians(-45.229147), np.radians(91.748872), np.radians(-1.796248)]):
         
@@ -28,10 +32,6 @@ class RTDEConnection:
         print("Connected to robot")
 
         self.con.get_controller_version()
-        
-        self.targets = []
-        self.moving = False
-        self.reset = False
         
         self.startPos = startPos
         
@@ -75,8 +75,7 @@ class RTDEConnection:
         #Start a thread to keep the server running
         self.server_thread = th.Thread(target=self.serverThread)
         self.server_thread.daemon = True
-        self.server_thread.start()
-       
+        self.server_thread.start()  
         
         while not program_running:
             state = self.con.receive()
@@ -90,8 +89,6 @@ class RTDEConnection:
     def moveTCP(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
-
-    
     def moveTCPandWait(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
@@ -134,47 +131,20 @@ class RTDEConnection:
         print("Homing robot")
         self.moveJointandWait(self.startPos) 
     
+    def isStopped(self):
+        return self.stopped
     
     def resetProgram(self):
         self.reset = True
-    
-    def runningProgram(self):
-        self.status = "running"
-        #print("Moving to target")
-        target = self.targets[0]
-        #print(target)
-        moveDone = False
-        
-        self.setPos.input_int_register_1 = 0 if target["joint"] else 1
-        self.setPos.input_int_register_2 = 0 if target["type"] == "j" else 1
-            
-        list_to_setPos(self.setPos, target["position"])
-        self.con.send(self.setPos)
-        self.watchdog.input_int_register_0 = 1
-        state = self.con.receive()
-            
-        while not moveDone:
-            state = self.con.receive()
-            #print(f"Robot out: {state.output_int_register_0}")
-            if state.output_int_register_0 == 0 or self.reset: 
-                print("Move done")
-                moveDone = True
-                self.watchdog.input_int_register_0 = 0
-            
-            if self.reset:
-                raise resetCalled
-                    
-            self.con.send(self.watchdog)
-            
-            while state.output_int_register_0 == 0:
-                state = self.con.receive()
-        
-        self.targets.pop(0)
-        
+        self.stopped = False
     
     #Keep the server running in the background
     def serverThread(self):
         while not self.killed:
+            if self.reset:
+                self.targets = []
+                self.reset = False
+                
             if len(self.targets) > 0 and not self.stopped: #If there are targets in the queue
                 self.status = "running"
                 #print("Moving to target")
@@ -203,11 +173,7 @@ class RTDEConnection:
                     while state.output_int_register_0 == 0:
                         state = self.con.receive()
                         
-                if self.reset:
-                    self.targets = []
-                    self.reset = False
-                else:
-                    self.targets.pop(0)
+                self.targets.pop(0)
             else:
                 self.status = "idle"
                 state = self.con.receive()
