@@ -260,23 +260,8 @@ class Calibrator(QWidget):
         self.buttonRotLeft = QPushButton("←")
         self.buttonRotRight = QPushButton("→")
 
-        #connecting buttons to terminal print
-        self.buttonUp.pressed.connect(self.up)
-        self.buttonUp.released.connect(self.stopAction)
-        self.buttonDown.pressed.connect(self.down)
-        self.buttonDown.released.connect(self.stopAction)
-        self.buttonLeft.pressed.connect(self.left)
-        self.buttonLeft.released.connect(self.stopAction)
-        self.buttonRight.pressed.connect(self.right)
-        self.buttonRight.released.connect(self.stopAction)
-        self.buttonRotLeft.pressed.connect(self.rotLeft)
-        self.buttonRotLeft.released.connect(self.stopAction)
-        self.buttonRotRight.pressed.connect(self.rotRight)
-        self.buttonRotRight.released.connect(self.stopAction)
-
         self.dropdown = QComboBox()
         self.dropdown.currentIndexChanged.connect(self.base)
-
          # Main vertical layout
         vbox = QVBoxLayout()
 
@@ -336,7 +321,10 @@ class Calibrator(QWidget):
         self.rotateRightFunc = function
         self.currentAction = "rotate right"
         self.timer.start(100)
-
+    
+    def setFunctionChangeBase(self,function):
+        self.dropdown.currentIndexChanged.connect(function)
+        
     def setFunctionStopAction(self,function):
         self.buttonUp.released.connect(function)
         self.buttonDown.released.connect(function)
@@ -353,36 +341,43 @@ class Calibrator(QWidget):
                 print("Up not defined")
                 return
             print("Up")
+            self.upFunc()
         elif self.currentAction == "down":
             if self.downFunc == None:
                 print("Down not defined")
                 return
             print("Down")
+            self.downFunc()
         elif self.currentAction == "left":
             if self.leftFunc == None:   
                 print("Left not defined")
                 return
             print("Left")
+            self.leftFunc() 
         elif self.currentAction == "right":
             if self.rightFunc == None:
                 print("Right not defined")
                 return
             print("Right")
+            self.rightFunc()
         elif self.currentAction == "rotate left":
             if self.rotateLeftFunc == None:
                 print("Rotate Left not defined")
                 return
             print("Rotate Left")
+            self.rotateLeftFunc()
         elif self.currentAction == "rotate right":
             if self.rotateRightFunc == None:
                 print("Rotate Right not defined")
                 return
             print("Rotate Right")
+            self.rotateRightFunc()  
         else:
             print("No action")
 
     def base(self, index):
-        print(index)
+        print("Base changed to:", index)
+        
 
 # This class lets us switch between the TestMenue and AutoMenue classes
 class MenuStacker(QWidget):
@@ -502,6 +497,7 @@ class DropdownStacker(QWidget):
 
     def switchMode(self, index):
         self.StackedWidget.setCurrentIndex(index)
+    
     
 # This class is the main window of the GUI
 class MainWindow(QWidget):
