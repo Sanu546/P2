@@ -20,6 +20,15 @@ currentMove = 0
 
 clearHeight = -0.05
 
+
+ur5Frame = Pose("UR5", np.array([[1,     0,     0,   0],
+                                [0,     1,     0,   0],
+                                [0,     0,     1,   0],
+                                [0,     0,     0,   1]])) # The frame for the UR5 robot
+
+
+currentCalibrationFrame = ur5Frame # The current calibration frame
+
 # The frame for the ramp
 rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
     [-0.023483,     0.765548,    -0.642950,  -.657846558],
@@ -35,8 +44,8 @@ dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.5],
                               [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
 
 baseFrames: List[Pose] = [
+    ur5Frame,
     rampFrame,
-    
     ]
 
 def generateCellFrames():
@@ -155,6 +164,12 @@ def resetDebug():
     updateUI()
     generateMoves()
 
+def baseFrameChanged(index):
+    currentCalibrationFrame = baseFrames[index]
+    print("Base frame changed to:", currentCalibrationFrame.name)
+
+def u
+
 def updateProgramProgress():
     while True:
         currentMode = window.controlMenu.getCurrentMode() 
@@ -177,7 +192,7 @@ def updateProgramProgress():
             window.controlMenu.setProgress(currentMove, len(moves))
             window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
             window.controlMenu.setNextTarget(moves[currentAutoMove]["name"])
-           
+        
         time.sleep(0.1)
 
     
@@ -186,6 +201,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 def main():
+    
     generateCellFrames()
     generateMoves()
     progressThread.start()
@@ -196,8 +212,7 @@ def main():
     window.controlMenu.autoMenu.setFunctionReset(resetAuto)
     window.controlMenu.testMenu.setFunctionReset(resetAuto)
     window.dropdownStacker.calibrator.dropdown.addItems(map(lambda base: base.name, baseFrames)) # Add the base frames to the dropdown menu
-    
-    
+    window.dropdownStacker.calibrator.setFunctionChangeBase(baseFrameChanged) # Connect the dropdown menu to the function
     
     updateUI()
     
