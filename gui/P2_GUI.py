@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit
 from PyQt6.QtGui import QFont, QImage, QPixmap
 import sys
 from PyQt6.QtCore import Qt, QTimer
