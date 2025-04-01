@@ -8,6 +8,7 @@ from pose import Pose
 from typing import List
 import threading as th
 from numpy.linalg import inv
+import matrixConversion as mc
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
@@ -28,6 +29,8 @@ ur5Frame = Pose("UR5", np.array([[1,     0,     0,   0],
 
 
 currentCalibrationFrame = ur5Frame # The current calibration frame
+
+calibrationActive = False
 
 # The frame for the ramp
 rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
@@ -72,6 +75,7 @@ def runAutoRobot():
     movesLeft = len(UR5.getAllTargets())
     window.controlMenu.buttonTest.setEnabled(False)
     window.controlMenu.buttonWork.setEnabled(False)
+    window.dropdownStacker.calibrator.startCal.setEnabled(False)
     
 
     if movesLeft != 0 and status == "running":
@@ -95,6 +99,8 @@ def priorMove():
     if currentMove == 1:
         UR5.home()
         window.controlMenu.testMenu.buttonBack.setEnabled(False)
+        window.controlMenu.buttonTest.setEnabled(True)
+        window.controlMenu.buttonWork.setEnabled(True)
         currentMove = 0
         return   
         
@@ -113,6 +119,8 @@ def nextMove():
     if currentMove == len(moves):
         window.controlMenu.testMenu.buttonNext.setEnabled(False)
     
+    window.controlMenu.buttonTest.setEnabled(False)
+    window.controlMenu.buttonWork.setEnabled(False)
 
 def updateUI():
     colors = objRec.get_colors()
@@ -165,8 +173,18 @@ def resetDebug():
     generateMoves()
 
 def baseFrameChanged(index):
+    global currentCalibrationFrame
     currentCalibrationFrame = baseFrames[index]
     print("Base frame changed to:", currentCalibrationFrame.name)
+    
+def calibrateRobot():
+    global calibrationActive
+    window.controlMenu.testMenu.buttonNext.setEnabled(False)
+    window.controlMenu.testMenu.buttonBack.setEnabled(False)
+    window.controlMenu.testMenu.buttonReset.setEnabled(False)
+    
+    calibrationActive = True
+        
 
 def updateProgramProgress():
     while True:
@@ -180,6 +198,9 @@ def updateProgramProgress():
             currentAutoMove = len(moves) - len(UR5.getAllTargets())  
             window.controlMenu.setProgress(currentAutoMove + 1, len(moves))
             window.controlMenu.setCurrentTarget(moves[currentAutoMove]["name"])
+            if(currentAutoMove + 1) >= len(moves):
+                window.controlMenu.setNextTarget("None")
+                continue
             window.controlMenu.setNextTarget(moves[currentAutoMove+1]["name"])
         else:
             if(currentMove == 0):
@@ -191,9 +212,11 @@ def updateProgramProgress():
             window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
             window.controlMenu.setNextTarget(moves[currentAutoMove]["name"])
         
+        currentPosition = inv(currentCalibrationFrame.getGlobalPos()) @ UR5.getCurrentPos()
+        currentRPY =  mc.matrixToRPY(currentPosition)
+        window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
         time.sleep(0.1)
-
-    
+        
 window = MainWindow()
 progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
