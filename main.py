@@ -9,47 +9,54 @@ from typing import List
 import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
+from PyQt6.QtCore import Qt, QTimer
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
 moves = [] # The moves that the robot will make
-
-cellSpacingX = 0.1 # The spacing between the cells in the x direction
-cellSpacingY = 0.1 # The spacing between the cells in the y direction
-
 currentMove = 0
-
 clearHeight = -0.05
 
-
+# The frames for the robot and the ramp
 ur5Frame = Pose("UR5", np.array([[1,     0,     0,   0],
                                 [0,     1,     0,   0],
                                 [0,     0,     1,   0],
                                 [0,     0,     0,   1]])) # The frame for the UR5 robot
-
-
-currentCalibrationFrame = ur5Frame # The current calibration frame
-
-calibrationActive = False
-
-# The frame for the ramp
 rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
     [-0.023483,     0.765548,    -0.642950,  -.657846558],
     [0.010124,    -0.642913,    -0.765873,   .283486816],
     [0.000000,     0.000000,     0.000000,     1.000000 ]]
 ))
-
-cellFrames: List[Pose] = [] # The frames for the cells
-
 dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.5],
                               [0, 1, 0, 0],
                               [0, 0, 1, 0],
                               [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
-
 baseFrames: List[Pose] = [
     ur5Frame,
     rampFrame,
     ]
+cellFrames: List[Pose] = [] # The frames for the cells
+cellSpacingX = 0.1 # The spacing between the cells in the x direction
+cellSpacingY = 0.1 # The spacing between the cells in the y direction
+
+
+#Calibration variables
+currentCalibrationFrame = ur5Frame # The current calibration frame
+calibrationActive = False
+tempFrame = None # The temporary frame for the calibration(of type np.array)
+xTranslationStep = np.array([[1, 0, 0, 0.001],
+                              [0, 1, 0, 0],
+                              [0, 0, 1, 0],
+                              [0, 0, 0, 1]])
+yTranslationStep = np.array([[1, 0, 0, 0],
+                                [0, 1, 0, 0.001],
+                                [0, 0, 1, 0],
+                                [0, 0, 0, 1]])
+zTranslationStep = np.array([[1, 0, 0, 0],
+                                [0, 1, 0, 0],
+                                [0, 0, 1, 0.001],
+                                [0, 0, 0, 1]])
+
 
 def generateCellFrames():
     for i in range(4):  
@@ -75,7 +82,6 @@ def runAutoRobot():
     movesLeft = len(UR5.getAllTargets())
     window.controlMenu.buttonTest.setEnabled(False)
     window.controlMenu.buttonWork.setEnabled(False)
-    window.dropdownStacker.calibrator.startCal.setEnabled(False)
     
 
     if movesLeft != 0 and status == "running":
@@ -125,9 +131,8 @@ def nextMove():
 def updateUI():
     colors = objRec.get_colors()
     window.dropdownStacker.cellDisplay.update_colors(colors)
-    
 
-def resetAuto():
+def reset():
     global currentMove
     global moves
     
@@ -144,9 +149,7 @@ def resetAuto():
     zValue = posInBaseFrame[2][3]# The z axis of the base frame
     
     if zValue > clearHeight:
-        print(posInBaseFrame,"Before adjustment")
         posInBaseFrame[2][3] = clearHeight # Set the z axis to the clear height
-        print(posInBaseFrame,"After adjustment")
         
     UR5.moveTCPandWait(getGlobalPos(posInBaseFrame, rampFrame), "l") # Move the robot to the clear height
     UR5.home()
@@ -155,22 +158,18 @@ def resetAuto():
     window.controlMenu.buttonTest.setEnabled(True)
     window.controlMenu.buttonWork.setEnabled(True)
 
+def onChangeToAutoMode():
+    window.dropdownStacker.calibrator.startCal.setEnabled(False) # Disable the calibrator button
+    
+def onChangeToCalMode():
+    window.dropdownStacker.calibrator.startCal.setEnabled(True) # Enable the calibrator button
+
 def posInBase(frame: np.array, pose: Pose):
     base = pose.matrix
     return  inv(base) @ frame # The position of the frame in the base frame
 
 def getGlobalPos(frame: np.array, pose: Pose):
     return pose.getGlobalPos() @ frame # The position of the frame in the global frame
-
-def resetDebug():
-    global currentMove
-    global moves
-    currentMove = 0
-    moves = []
-    
-    UR5.home()
-    updateUI()
-    generateMoves()
 
 def baseFrameChanged(index):
     global currentCalibrationFrame
@@ -179,15 +178,43 @@ def baseFrameChanged(index):
     
 def calibrateRobot():
     global calibrationActive
+    global tempFrame
     window.controlMenu.testMenu.buttonNext.setEnabled(False)
     window.controlMenu.testMenu.buttonBack.setEnabled(False)
     window.controlMenu.testMenu.buttonReset.setEnabled(False)
-    
     calibrationActive = True
-        
+    tempFrame = UR5.getCurrentPos() # Get the current position of the robot
 
+def stopCalibration():
+    global calibrationActive
+    window.controlMenu.testMenu.buttonNext.setEnabled(True)
+    window.controlMenu.testMenu.buttonBack.setEnabled(True)
+    window.controlMenu.testMenu.buttonReset.setEnabled(True)
+    calibrationActive = False
+
+def translateFrame(axis, value):
+    print("Translating along:", axis, "by:", value)
+    # if type == "xTranslation":
+    #     tempFrame[0][3] = value * 0.001
+    # elif type == "yTranslation":
+    #     tempFrame[1][3] = value * 0.001
+    # elif type == "zTranslation":
+    #     tempFrame[2][3] = value * 0.001
+    # UR5.moveTCPandWait(tempFrame, "l") # Move the robot to the new position
+
+def rotateFrame(axis, value):
+    print("Rotation along axis:", axis, "by:", value)
+    
+def updateUIPosition():
+    currentPosition = inv(currentCalibrationFrame.getGlobalPos()) @ UR5.getCurrentPos()
+    currentRPY =  mc.matrixToRPY(currentPosition)
+    window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
+    
 def updateProgramProgress():
     while True:
+        if not calibrationActive:
+            updateUIPosition() # Update the current pose in the UI
+            
         currentMode = window.controlMenu.getCurrentMode() 
         if currentMode == "auto":
             if len(UR5.getAllTargets()) == 0 or len(moves) == 0:
@@ -210,11 +237,7 @@ def updateProgramProgress():
                 continue
             window.controlMenu.setProgress(currentMove, len(moves))
             window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
-            window.controlMenu.setNextTarget(moves[currentAutoMove]["name"])
-        
-        currentPosition = inv(currentCalibrationFrame.getGlobalPos()) @ UR5.getCurrentPos()
-        currentRPY =  mc.matrixToRPY(currentPosition)
-        window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
+            window.controlMenu.setNextTarget(moves[currentMove]["name"])
         time.sleep(0.1)
         
 window = MainWindow()
@@ -230,8 +253,20 @@ def main():
     window.controlMenu.testMenu.setFunctionNext(nextMove) # Set the function to be called when the button is pressed
     window.controlMenu.autoMenu.setFunctionStop(stopAutoRobot) # Set the function to be called when the button is pressed
     window.controlMenu.testMenu.setFunctionBack(priorMove) # Set the function to be called when the button is pressed
-    window.controlMenu.autoMenu.setFunctionReset(resetAuto)
-    window.controlMenu.testMenu.setFunctionReset(resetAuto)
+    window.controlMenu.autoMenu.setFunctionReset(reset)
+    window.controlMenu.testMenu.setFunctionReset(reset)
+    window.controlMenu.setFunctionChangeToAuto(onChangeToAutoMode) # Set the function to be called when the button is pressed
+    window.controlMenu.setFunctionChangeToCal(onChangeToCalMode) # Set the function to be called when the button is pressed
+    
+    window.dropdownStacker.calibrator.setStartCalibration(calibrateRobot) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setStopCalibration(stopCalibration) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setTranslateY(translateFrame, "y") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setTranslateZ(translateFrame, "z") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setRotateX(rotateFrame, "x") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setRotateY(rotateFrame, "y") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setRotateZ(rotateFrame, "z") # Set the function to be called when the button is pressed
+    
     window.dropdownStacker.calibrator.dropdown.addItems(map(lambda base: base.name, baseFrames)) # Add the base frames to the dropdown menu
     window.dropdownStacker.calibrator.setFunctionChangeBase(baseFrameChanged) # Connect the dropdown menu to the function
     

@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit
 from PyQt6.QtGui import QFont, QImage, QPixmap
 import sys
 from PyQt6.QtCore import Qt, QTimer
 import cv2 as cv
+import numpy as np
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -137,8 +138,8 @@ class TestMenu(QWidget):
         self.buttonReset = QPushButton("Reset")
     
         # Set color of the buttons
-        self.buttonNext.setStyleSheet("background-color: gray")
-        self.buttonBack.setStyleSheet("background-color: gray")
+        self.buttonNext.setStyleSheet("background-color: white; color : black")
+        self.buttonBack.setStyleSheet("background-color: white; color : black")
         self.buttonReset.setStyleSheet("background-color: blue")
 
         # Set the size of the buttons
@@ -276,15 +277,12 @@ class AutoMenu(QWidget):
 
 class Calibrator(QWidget):
     
-    rotateRightFunc = None
-    rotateLeftFunc = None
-    upFunc = None
-    downFunc = None
-    leftFunc = None
-    rightFunc = None
-    stopActionFunc = None
-    upUpFunc = None
-    downDownFunc = None
+    translateX = None
+    translateY = None
+    translateZ = None
+    rotateX = None
+    rotateY = None
+    rotateZ = None
     
     def __init__(self):
         super().__init__()
@@ -373,74 +371,27 @@ class Calibrator(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.labelLeft = QLabel("Rotate Left:")
         self.labelRight = QLabel(":Rotate Right")
-
-        self.buttonUp = QPushButton("↑")
-        self.buttonDown = QPushButton("↓")
-        self.buttonLeft = QPushButton("←")
-        self.buttonRight = QPushButton("→")
-        self.buttonUpUp = QPushButton("↑")
-        self.buttonDownDown = QPushButton("↓")
         
-        self.buttonRotLeft = QPushButton("←")
-        self.buttonRotRight = QPushButton("→")
-        
-        self.buttonDownDown.setFixedWidth(23)
-        self.buttonUpUp.setFixedWidth(23)
-        self.buttonUpUp.setFixedHeight(58)
-        self.buttonDownDown.setFixedHeight(58)
-        
-        self.buttonUp.setEnabled(False)
-        self.buttonDown.setEnabled(False)
-        self.buttonLeft.setEnabled(False)
-        self.buttonRight.setEnabled(False)
-        self.buttonRotLeft.setEnabled(False)
-        self.buttonRotRight.setEnabled(False)
-        self.startCal.setEnabled(True)
+        self.startCal.setEnabled(False)
         self.stopCal.setEnabled(False)
         self.saveCal.setEnabled(False)
         self.resetCal.setEnabled(False)
-        self.buttonUpUp.setEnabled(False)
-        self.buttonDownDown.setEnabled(False)
         
         self.startCal.clicked.connect(self.startCalibration)
         self.stopCal.clicked.connect(self.stopCalibration)
         self.resetCal.clicked.connect(self.resetCalibration)
         
-        self.buttonUp.released.connect(self.adjustmentStop)
-        self.buttonDown.released.connect(self.adjustmentStop)
-        self.buttonLeft.released.connect(self.adjustmentStop)
-        self.buttonRight.released.connect(self.adjustmentStop)
-        self.buttonRotLeft.released.connect(self.adjustmentStop)
-        self.buttonRotRight.released.connect(self.adjustmentStop)
+        self.xValue.editingFinished.connect(self.xValueChanged)
+        self.yValue.editingFinished.connect(self.yValueChanged)
+        self.zValue.editingFinished.connect(self.zValueChanged)
+        self.rotXValue.editingFinished.connect(self.rotXValueChanged)
+        self.rotYValue.editingFinished.connect(self.rotYValueChanged)
+        self.rotZValue.editingFinished.connect(self.rotZValueChanged)
 
         self.dropdown = QComboBox()
         self.dropdown.currentIndexChanged.connect(self.base)
          # Main vertical layout
         vbox = QVBoxLayout()
-
-        # Horizontal layout for rotator buttons
-        rot = QHBoxLayout()
-        rot.addWidget(self.labelLeft)
-        rot.addWidget(self.buttonRotLeft)
-        rot.addWidget(self.buttonRotRight)
-        rot.addWidget(self.labelRight)
-
-        # Horizontal layout for arrow buttons
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.buttonLeft)
-        hbox.addWidget(self.buttonDown)
-        hbox.addWidget(self.buttonRight)
-        
-        xyTranslationBox = QVBoxLayout()
-        
-        xyTranslationBox.addWidget(self.buttonUp)
-        xyTranslationBox.addLayout(hbox)
-        
-        translationBox = QHBoxLayout()
-        translationBox.addWidget(self.buttonUpUp)
-        translationBox.addLayout(xyTranslationBox)  
-        translationBox.addWidget(self.buttonDownDown)
-        
         
         startSaveBox = QHBoxLayout()
         startSaveBox.addWidget(self.startCal)
@@ -501,20 +452,13 @@ class Calibrator(QWidget):
         
         # Add widgets and layouts to the main vertical layout in the desired order
         vbox.addWidget(self.dropdown) 
-        vbox.addWidget(self.spacing)
+        vbox.addLayout(cooradinateBox)
         vbox.addLayout(startSaveBox)
         vbox.addLayout(stopResetBox)
         vbox.addWidget(self.spacing2)
-        vbox.addLayout(cooradinateBox)
-        vbox.addLayout(rot)          
-        vbox.addLayout(translationBox)
         
-        self.setLayout(vbox)
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.performAction)
-
-        self.currentAction = None    
+        
+        self.setLayout(vbox) 
         
     def setStartCalibration(self, function):
         self.startCal.clicked.connect(function)
@@ -528,48 +472,44 @@ class Calibrator(QWidget):
     def setStopCalibration(self, function):
         self.stopCal.clicked.connect(function)
     
-    def setFunctionUp(self,function):
-        self.upFunc = function 
-        self.currentAction = "up"
-        self.timer.start(100)
-    
-    def setFunctionDown(self,function):
-        self.downFunc = function
-        self.currentAction = "down"
-        self.timer.start(100)
-    
-    def setFunctionLeft(self,function):
-        self.leftFunc = function
-        self.currentAction = "left"
-        self.timer.start(100)
-    
-    def setFunctionRight(self,function):
-        self.rightFunc = function
-        self.currentAction = "right"
-        self.timer.start(100)        
-        
-    def setFunctionUpUp(self,function):
-        self.upUpFunc = function 
-        self.currentAction = "upup"
-        self.timer.start(100)
-    
-    def setFunctionDownDown(self,function):
-        self.downDownFunc = function
-        self.currentAction = "downdown"
-        self.timer.start(100)
-        
-    def setFunctionRotLeft(self,function):
-        self.rotateLeftFunc = function
-        self.currentAction = "rotate left"
-        self.timer.start(100)
-    
-    def setFunctionRotRight(self,function):
-        self.rotateRightFunc = function
-        self.currentAction = "rotate right"
-        self.timer.start(100)
-    
     def setFunctionChangeBase(self,function):
         self.dropdown.currentIndexChanged.connect(function)
+    
+    def xValueChanged(self):
+        self.translateX()
+
+    def yValueChanged(self):
+        self.translateY()
+    
+    def zValueChanged(self):
+        self.translateZ()
+    
+    def rotXValueChanged(self):
+        self.rotateX()
+    
+    def rotYValueChanged(self):
+        self.rotateY()
+    
+    def rotZValueChanged(self):
+        self.rotateZ()
+    
+    def setTranslateX(self, function, type):
+        self.translateX = lambda: function(type, self.xValue.text())
+        
+    def setTranslateY(self, function, type):
+        self.translateY = lambda: function(type, self.yValue.text())
+        
+    def setTranslateZ(self, function, type):
+        self.translateZ = lambda: function(type, self.zValue.text())
+    
+    def setRotateX(self, function, type):
+        self.rotateX = lambda: function(type, self.rotXValue.text())
+    
+    def setRotateY(self, function, type):
+        self.rotateY = lambda: function(type, self.rotYValue.text())
+    
+    def setRotateZ(self, function, type):
+        self.rotateZ = lambda: function(type, self.rotZValue.text())
         
     def setCurrentPose(self, pose):
         self.rotXValue.setText(f"{pose[0]:.2f}")
@@ -579,20 +519,8 @@ class Calibrator(QWidget):
         self.yValue.setText(f"{pose[4]*100:.2f}")
         self.zValue.setText(f"{pose[5]*100:.2f}")
         
-    def adjustmentStop(self):
-        self.currentAction = None
-        self.timer.stop()
-
     def startCalibration(self):
         print("Calibration started")
-        self.buttonUp.setEnabled(True)
-        self.buttonDown.setEnabled(True)
-        self.buttonLeft.setEnabled(True)
-        self.buttonRight.setEnabled(True)
-        self.buttonRotLeft.setEnabled(True)
-        self.buttonRotRight.setEnabled(True)
-        self.buttonUpUp.setEnabled(True)
-        self.buttonDownDown.setEnabled(True)
         self.startCal.setEnabled(False)
         self.stopCal.setEnabled(True)
         self.saveCal.setEnabled(True)
@@ -606,14 +534,6 @@ class Calibrator(QWidget):
     
     def stopCalibration(self):
         print("Calibration stopped")
-        self.buttonUp.setEnabled(False)
-        self.buttonDown.setEnabled(False)
-        self.buttonLeft.setEnabled(False)
-        self.buttonRight.setEnabled(False)
-        self.buttonRotLeft.setEnabled(False)
-        self.buttonRotRight.setEnabled(False)
-        self.buttonUpUp.setEnabled(False)
-        self.buttonDownDown.setEnabled(False)
         self.startCal.setEnabled(True)
         self.stopCal.setEnabled(False)
         self.saveCal.setEnabled(False)
@@ -627,14 +547,6 @@ class Calibrator(QWidget):
     
     def resetCalibration(self):
         print("Calibration reset")
-        self.buttonUp.setEnabled(False)
-        self.buttonDown.setEnabled(False)
-        self.buttonLeft.setEnabled(False)
-        self.buttonRight.setEnabled(False)
-        self.buttonRotLeft.setEnabled(False)
-        self.buttonRotRight.setEnabled(False)
-        self.buttonUpUp.setEnabled(False)   
-        self.buttonDownDown.setEnabled(False)
         self.startCal.setEnabled(True)
         self.stopCal.setEnabled(False)
         self.saveCal.setEnabled(False)
@@ -645,59 +557,6 @@ class Calibrator(QWidget):
         self.rotXValue.setReadOnly(False)
         self.rotYValue.setReadOnly(False)
         self.rotZValue.setReadOnly(False)
-        
-    
-    def performAction(self):
-        if self.currentAction == "up":
-            if self.upFunc == None:
-                print("Up not defined")
-                return
-            print("Up")
-            self.upFunc()
-        elif self.currentAction == "down":
-            if self.downFunc == None:
-                print("Down not defined")
-                return
-            print("Down")
-            self.downFunc()
-        elif self.currentAction == "left":
-            if self.leftFunc == None:   
-                print("Left not defined")
-                return
-            print("Left")
-            self.leftFunc() 
-        elif self.currentAction == "right":
-            if self.rightFunc == None:
-                print("Right not defined")
-                return
-            print("Right")
-            self.rightFunc()
-        elif self.currentAction == "rotate left":
-            if self.rotateLeftFunc == None:
-                print("Rotate Left not defined")
-                return
-            print("Rotate Left")
-            self.rotateLeftFunc()
-        elif self.currentAction == "rotate right":
-            if self.rotateRightFunc == None:
-                print("Rotate Right not defined")
-                return
-            print("Rotate Right")
-            self.rotateRightFunc()  
-        elif self.currentAction == "upup":
-            if self.upUpFunc == None:
-                print("Up Up not defined")
-                return
-            print("Up Up")
-            self.upUpFunc()
-        elif self.currentAction == "downdown":
-            if self.downDownFunc == None:
-                print("Down Down not defined")
-                return
-            print("Down Down")
-            self.downDownFunc()
-        else:
-            print("No action")
 
     def base(self, index):
         print("Base changed to:", index)
@@ -774,6 +633,12 @@ class MenuStacker(QWidget):
     
     def setCurrentTarget(self, target):
         self.currentTargetLable.setText(f"{target}")
+        
+    def setFunctionChangeToAuto(self, function):
+        self.buttonWork.clicked.connect(function)
+    
+    def setFunctionChangeToCal(self, function):
+        self.buttonTest.clicked.connect(function)
     
     def getCurrentMode(self):
         currentIndex = self.StackedWidget.currentIndex()
