@@ -6,3 +6,4 @@ PyQt6==6.8.1
 PyQt6_sip==13.10.0
 spatialmath_python==1.1.11
 rtde_stuff/rtde-2.7.2-release.zip
+
