@@ -476,21 +476,39 @@ class Calibrator(QWidget):
         self.dropdown.currentIndexChanged.connect(function)
     
     def xValueChanged(self):
+        if(self.xValue.text() == "" or self.xValue.isReadOnly()):
+            return
+        
         self.translateX()
 
     def yValueChanged(self):
+        if(self.yValue.text() == "" or self.yValue.isReadOnly()):
+            return
+        
         self.translateY()
     
     def zValueChanged(self):
+        if(self.zValue.text() == "" or self.zValue.isReadOnly()):
+            return
+        
         self.translateZ()
     
     def rotXValueChanged(self):
+        if(self.rotXValue.text() == "" or self.rotXValue.isReadOnly()):
+            return
+        
         self.rotateX()
     
     def rotYValueChanged(self):
+        if(self.rotYValue.text() == "" or self.rotYValue.isReadOnly()):
+            return
+        
         self.rotateY()
     
     def rotZValueChanged(self):
+        if(self.rotZValue.text() == "" or self.rotZValue.isReadOnly()):
+            return
+        
         self.rotateZ()
     
     def setTranslateX(self, function, type):
@@ -512,12 +530,13 @@ class Calibrator(QWidget):
         self.rotateZ = lambda: function(type, self.rotZValue.text())
         
     def setCurrentPose(self, pose):
-        self.rotXValue.setText(f"{pose[0]:.2f}")
-        self.rotYValue.setText(f"{pose[1]:.2f}")
-        self.rotZValue.setText(f"{pose[2]:.2f}")
-        self.xValue.setText(f"{pose[3]*100:.2f}")
-        self.yValue.setText(f"{pose[4]*100:.2f}")
-        self.zValue.setText(f"{pose[5]*100:.2f}")
+        print("Current pose set to:", pose)
+        self.rotXValue.setText(f"{round(pose[0],2)}")
+        self.rotYValue.setText(f"{round(pose[1],2)}")
+        self.rotZValue.setText(f"{round(pose[2],2)}")
+        self.xValue.setText(f"{pose[3]*1000:.2f}")
+        self.yValue.setText(f"{pose[4]*1000:.2f}")
+        self.zValue.setText(f"{pose[5]*1000:.2f}")
         
     def startCalibration(self):
         print("Calibration started")
@@ -525,12 +544,7 @@ class Calibrator(QWidget):
         self.stopCal.setEnabled(True)
         self.saveCal.setEnabled(True)
         self.resetCal.setEnabled(True)
-        self.xValue.setReadOnly(False)
-        self.yValue.setReadOnly(False)
-        self.zValue.setReadOnly(False)
-        self.rotXValue.setReadOnly(False)
-        self.rotYValue.setReadOnly(False)
-        self.rotZValue.setReadOnly(False)
+        self.enableInput(True)
     
     def stopCalibration(self):
         print("Calibration stopped")
@@ -538,12 +552,8 @@ class Calibrator(QWidget):
         self.stopCal.setEnabled(False)
         self.saveCal.setEnabled(False)
         self.resetCal.setEnabled(False)
-        self.xValue.setReadOnly(True)
-        self.yValue.setReadOnly(True)
-        self.zValue.setReadOnly(True)
-        self.rotXValue.setReadOnly(True)
-        self.rotYValue.setReadOnly(True)
-        self.rotZValue.setReadOnly(True)    
+        self.enableInput(False)
+        
     
     def resetCalibration(self):
         print("Calibration reset")
@@ -551,13 +561,16 @@ class Calibrator(QWidget):
         self.stopCal.setEnabled(False)
         self.saveCal.setEnabled(False)
         self.resetCal.setEnabled(False)
-        self.xValue.setReadOnly(False)
-        self.yValue.setReadOnly(False)
-        self.zValue.setReadOnly(False)
-        self.rotXValue.setReadOnly(False)
-        self.rotYValue.setReadOnly(False)
-        self.rotZValue.setReadOnly(False)
-
+        self.enableInput(False)
+        
+    def enableInput(self, enable = True):
+        self.xValue.setReadOnly(not enable)
+        self.yValue.setReadOnly(not enable)
+        self.zValue.setReadOnly(not enable)
+        self.rotXValue.setReadOnly(not enable)
+        self.rotYValue.setReadOnly(not enable)
+        self.rotZValue.setReadOnly(not enable)    
+        
     def base(self, index):
         print("Base changed to:", index)
         

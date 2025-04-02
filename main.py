@@ -31,6 +31,7 @@ dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.5],
                               [0, 1, 0, 0],
                               [0, 0, 1, 0],
                               [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
+
 baseFrames: List[Pose] = [
     ur5Frame,
     rampFrame,
@@ -41,21 +42,8 @@ cellSpacingY = 0.1 # The spacing between the cells in the y direction
 
 
 #Calibration variables
-currentCalibrationFrame = ur5Frame # The current calibration frame
+currentCalibrationFrame: Pose = ur5Frame # The current calibration frame
 calibrationActive = False
-tempFrame = None # The temporary frame for the calibration(of type np.array)
-xTranslationStep = np.array([[1, 0, 0, 0.001],
-                              [0, 1, 0, 0],
-                              [0, 0, 1, 0],
-                              [0, 0, 0, 1]])
-yTranslationStep = np.array([[1, 0, 0, 0],
-                                [0, 1, 0, 0.001],
-                                [0, 0, 1, 0],
-                                [0, 0, 0, 1]])
-zTranslationStep = np.array([[1, 0, 0, 0],
-                                [0, 1, 0, 0],
-                                [0, 0, 1, 0.001],
-                                [0, 0, 0, 1]])
 
 
 def generateCellFrames():
@@ -178,12 +166,10 @@ def baseFrameChanged(index):
     
 def calibrateRobot():
     global calibrationActive
-    global tempFrame
     window.controlMenu.testMenu.buttonNext.setEnabled(False)
     window.controlMenu.testMenu.buttonBack.setEnabled(False)
     window.controlMenu.testMenu.buttonReset.setEnabled(False)
     calibrationActive = True
-    tempFrame = UR5.getCurrentPos() # Get the current position of the robot
 
 def stopCalibration():
     global calibrationActive
@@ -193,14 +179,39 @@ def stopCalibration():
     calibrationActive = False
 
 def translateFrame(axis, value):
-    print("Translating along:", axis, "by:", value)
-    # if type == "xTranslation":
-    #     tempFrame[0][3] = value * 0.001
-    # elif type == "yTranslation":
-    #     tempFrame[1][3] = value * 0.001
-    # elif type == "zTranslation":
-    #     tempFrame[2][3] = value * 0.001
-    # UR5.moveTCPandWait(tempFrame, "l") # Move the robot to the new position
+    
+    try:
+        value = float(value)
+    except ValueError:
+        print("Invalid value:", value)
+        return
+    
+    tempFrame = UR5.getCurrentPos() # The current position of the robot
+
+    #print("Translating along:", axis, "by:", value)
+    
+    window.dropdownStacker.calibrator.enableInput(False)
+    
+    if axis == "x":
+        tempFrame[0][3] = value * 0.001
+    elif axis == "y":
+        tempFrame[1][3] = value * 0.001
+    elif axis == "z":
+        tempFrame[2][3] = value * 0.001
+    
+    if currentCalibrationFrame.base != None:
+        targetPos = currentCalibrationFrame.base.getGlobalPos() @ tempFrame # The position of the frame in the base frame
+    
+    targetPos = tempFrame # The target position of the robot in the base frame 
+    
+    #print("Target position:", targetPos)
+    
+    UR5.moveTCPandWait(targetPos, "l") # Move the robot to the new position
+    
+    #print("Moved to:", UR5.getCurrentPos())
+    window.dropdownStacker.calibrator.enableInput(True)
+    
+    
 
 def rotateFrame(axis, value):
     print("Rotation along axis:", axis, "by:", value)
