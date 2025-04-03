@@ -162,6 +162,7 @@ def getGlobalPos(frame: np.array, pose: Pose):
 def baseFrameChanged(index):
     global currentCalibrationFrame
     currentCalibrationFrame = baseFrames[index]
+    updateUIPosition()
     print("Base frame changed to:", currentCalibrationFrame.name)
     
 def calibrateRobot():
@@ -179,45 +180,61 @@ def stopCalibration():
     calibrationActive = False
 
 def translateFrame(axis, value):
-    
     try:
         value = float(value)
     except ValueError:
         print("Invalid value:", value)
         return
-    
-    tempFrame = UR5.getCurrentPos() # The current position of the robot
-
     #print("Translating along:", axis, "by:", value)
+    tempFrame = Pose("temp", getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
     
     window.dropdownStacker.calibrator.enableInput(False)
     
     if axis == "x":
-        tempFrame[0][3] = value * 0.001
+        tempFrame.matrix[0][3] = value * 0.001
     elif axis == "y":
-        tempFrame[1][3] = value * 0.001
+        tempFrame.matrix[1][3] = value * 0.001
     elif axis == "z":
-        tempFrame[2][3] = value * 0.001
+        tempFrame.matrix[2][3] = value * 0.001
     
-    if currentCalibrationFrame.base != None:
-        targetPos = currentCalibrationFrame.base.getGlobalPos() @ tempFrame # The position of the frame in the base frame
-    
-    targetPos = tempFrame # The target position of the robot in the base frame 
-    
-    #print("Target position:", targetPos)
-    
-    UR5.moveTCPandWait(targetPos, "l") # Move the robot to the new position
-    
+    UR5.moveTCPandWait(tempFrame.getGlobalPos(), "l") # Move the robot to the new position
     #print("Moved to:", UR5.getCurrentPos())
     window.dropdownStacker.calibrator.enableInput(True)
     
     
 
-def rotateFrame(axis, value):
-    print("Rotation along axis:", axis, "by:", value)
+def rotateFrame(values):
+    
+    try:
+        values[0] = np.radians(float(values[0]))
+        values[1] = np.radians(float(values[1]))
+        values[2] = np.radians(float(values[2]))
+    except ValueError:
+        print("Invalid values:", values)
+        return
+    
+    window.dropdownStacker.calibrator.enableInput(False)
+    
+    tempFrame = Pose("temp", getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
+    newR = mc.RPYtoRMatrix(values) # The new rotation matrix
+    tempFrame.matrix[:3, :3] = newR # Set the rotation matrix in Frame matirx to the new rotation matrix
+    
+    UR5.moveTCPandWait(tempFrame.getGlobalPos(), "l") # Move the robot to the new position
+    
+    window.dropdownStacker.calibrator.enableInput(True)
+    
+    
+    
+    
+    
+def getPostionInBase(position: np.array, base: Pose):
+    base = base.getGlobalPos()
+    return inv(base) @ position # The position of the frame in the base frame
+    
+    
     
 def updateUIPosition():
-    currentPosition = inv(currentCalibrationFrame.getGlobalPos()) @ UR5.getCurrentPos()
+    currentPosition = getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame) # The current position of the robot in the base frame
     currentRPY =  mc.matrixToRPY(currentPosition)
     window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
     
@@ -274,9 +291,7 @@ def main():
     window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateY(translateFrame, "y") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateZ(translateFrame, "z") # Set the function to be called when the button is pressed
-    window.dropdownStacker.calibrator.setRotateX(rotateFrame, "x") # Set the function to be called when the button is pressed
-    window.dropdownStacker.calibrator.setRotateY(rotateFrame, "y") # Set the function to be called when the button is pressed
-    window.dropdownStacker.calibrator.setRotateZ(rotateFrame, "z") # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setRotate(rotateFrame)
     
     window.dropdownStacker.calibrator.dropdown.addItems(map(lambda base: base.name, baseFrames)) # Add the base frames to the dropdown menu
     window.dropdownStacker.calibrator.setFunctionChangeBase(baseFrameChanged) # Connect the dropdown menu to the function

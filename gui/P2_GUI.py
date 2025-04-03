@@ -280,9 +280,7 @@ class Calibrator(QWidget):
     translateX = None
     translateY = None
     translateZ = None
-    rotateX = None
-    rotateY = None
-    rotateZ = None
+    rotate = None
     
     def __init__(self):
         super().__init__()
@@ -497,19 +495,20 @@ class Calibrator(QWidget):
         if(self.rotXValue.text() == "" or self.rotXValue.isReadOnly()):
             return
         
-        self.rotateX()
+        self.rotate()
     
     def rotYValueChanged(self):
         if(self.rotYValue.text() == "" or self.rotYValue.isReadOnly()):
             return
         
-        self.rotateY()
+        self.rotate()
     
     def rotZValueChanged(self):
         if(self.rotZValue.text() == "" or self.rotZValue.isReadOnly()):
             return
         
-        self.rotateZ()
+        self.rotate()
+
     
     def setTranslateX(self, function, type):
         self.translateX = lambda: function(type, self.xValue.text())
@@ -520,20 +519,13 @@ class Calibrator(QWidget):
     def setTranslateZ(self, function, type):
         self.translateZ = lambda: function(type, self.zValue.text())
     
-    def setRotateX(self, function, type):
-        self.rotateX = lambda: function(type, self.rotXValue.text())
-    
-    def setRotateY(self, function, type):
-        self.rotateY = lambda: function(type, self.rotYValue.text())
-    
-    def setRotateZ(self, function, type):
-        self.rotateZ = lambda: function(type, self.rotZValue.text())
+    def setRotate(self, function):
+        self.rotate = lambda: function([self.rotXValue.text(), self.rotYValue.text(), self.rotZValue.text()])
         
     def setCurrentPose(self, pose):
-        print("Current pose set to:", pose)
-        self.rotXValue.setText(f"{round(pose[0],2)}")
-        self.rotYValue.setText(f"{round(pose[1],2)}")
-        self.rotZValue.setText(f"{round(pose[2],2)}")
+        self.rotXValue.setText(f"{round(np.degrees(pose[0]),2)}")
+        self.rotYValue.setText(f"{round(np.degrees(pose[1]),2)}")
+        self.rotZValue.setText(f"{round(np.degrees(pose[2]),2)}")
         self.xValue.setText(f"{pose[3]*1000:.2f}")
         self.yValue.setText(f"{pose[4]*1000:.2f}")
         self.zValue.setText(f"{pose[5]*1000:.2f}")
