@@ -1,6 +1,5 @@
 from time import sleep
-from rtde_stuff.rtde_com import RTDEConnection
-
+from main import UR5
 """
 This function can actuate the gripper, the gripper can operate in 3 different modes.
 
@@ -34,7 +33,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
     
     if(mode == "force"):
         while(abs(actual_force - force) <= 10):
-            tool_current = RTDEConnection.getToolCurrent()
+            tool_current = UR5.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
@@ -48,7 +47,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
 
     if(mode == "force_thresh"):
         while(abs(actual_force - force) <= 10):
-            tool_current = RTDEConnection.getToolCurrent()
+            tool_current = UR5.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
@@ -65,7 +64,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
 
     if(mode == "position"):
         while(actual_pos > position):
-            tool_current = RTDEConnection.getToolCurrent()
+            tool_current = UR5.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
