@@ -6,18 +6,19 @@ from gui.P2_GUI import MainWindow
 import vision.objRec as objRec
 from pose import Pose
 from typing import List
+from end_effector_control import endEffector
 import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
 
-moves = [] # The moves that the robot will make
+actions = [] # The moves that the robot will make
 
 cellSpacingX = 0.1 # The spacing between the cells in the x direction
 cellSpacingY = 0.1 # The spacing between the cells in the y direction
 
-currentMove = 0
+currentAction = 0
 
 clearHeight = -0.05
 
@@ -63,60 +64,73 @@ def generateMoves():
     for cell in cellFrames:
         if cell.isEmpty:
             continue
-        moves.append({"name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-        moves.append({"name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-        moves.append({"name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-        moves.append({"name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
-        moves.append({"name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-        moves.append({"name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+        actions.append({"type": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+        actions.append({"type": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+        actions.append({"type": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+        actions.append({"type": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+        actions.append({"type": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+        actions.append({"type": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
 
 def runAutoRobot():
     status = UR5.getStatus()
-    movesLeft = len(UR5.getAllTargets())
+    actionsLeft = len(UR5.getAllTargets())
     window.controlMenu.buttonTest.setEnabled(False)
     window.controlMenu.buttonWork.setEnabled(False)
     window.dropdownStacker.calibrator.startCal.setEnabled(False)
     
 
-    if movesLeft != 0 and status == "running":
+    if actionsLeft != 0 and status == "running":
         print("Robot is already running")
         return
     
-    if movesLeft !=0 and status == "idle":
+    if actionsLeft !=0 and status == "idle":
         UR5.resume()
         return
     
-    for move in moves:
-        UR5.moveTCP(move["move"], move["type"])
+    for action in actions:
+        executeAction(action)
+
+def executeAction(action):
+    if(action["type"] == "moveTCP"):
+        UR5.moveTCP(action["move"], action["type"])
         
+    if(action["type"] == "gripper"):
+        endEffector(action["mode"], action["position"], action["force"] )
+        
+    if(action["type"] == "vision"):
+        pass
+
 def stopAutoRobot():
     UR5.stop()  
 
 def priorMove():
-    global currentMove
+    global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
     
-    if currentMove == 1:
+    if currentAction == 1:
         UR5.home()
         window.controlMenu.testMenu.buttonBack.setEnabled(False)
         window.controlMenu.buttonTest.setEnabled(True)
         window.controlMenu.buttonWork.setEnabled(True)
-        currentMove = 0
+        currentAction = 0
         return   
         
-    if currentMove > 0 and not moving:
-        currentMove -= 1
-        UR5.moveTCP(moves[currentMove-1]["move"], moves[currentMove]["type"])
+    if currentAction > 0 and not moving:
+        currentAction -= 1
+        executeAction(actions[currentAction-1])
 
 def nextMove():
-    global currentMove
+    global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
     
-    if currentMove < len(moves) and not moving:
-        UR5.moveTCP(moves[currentMove]["move"], moves[currentMove]["type"])
-        currentMove += 1
+    if currentAction < len(actions) and not moving:
+        executeAction(actions[currentAction-1])
+        currentAction += 1
     
-    if currentMove == len(moves):
+    if currentAction == len(actions):
         window.controlMenu.testMenu.buttonNext.setEnabled(False)
     
     window.controlMenu.buttonTest.setEnabled(False)
@@ -128,11 +142,11 @@ def updateUI():
     
 
 def resetAuto():
-    global currentMove
-    global moves
+    global currentAction
+    global actions
     
-    moves = []
-    currentMove = 0
+    actions = []
+    currentAction = 0
     
     if window.controlMenu.getCurrentMode() == "auto":
         UR5.resetProgram()
@@ -163,10 +177,10 @@ def getGlobalPos(frame: np.array, pose: Pose):
     return pose.getGlobalPos() @ frame # The position of the frame in the global frame
 
 def resetDebug():
-    global currentMove
-    global moves
-    currentMove = 0
-    moves = []
+    global currentAction
+    global actions
+    currentAction = 0
+    actions = []
     
     UR5.home()
     updateUI()
@@ -190,27 +204,27 @@ def updateProgramProgress():
     while True:
         currentMode = window.controlMenu.getCurrentMode() 
         if currentMode == "auto":
-            if len(UR5.getAllTargets()) == 0 or len(moves) == 0:
+            if len(UR5.getAllTargets()) == 0 or len(actions) == 0:
                 window.controlMenu.setProgress(0,0)
                 window.controlMenu.setCurrentTarget("None")
                 window.controlMenu.setNextTarget("None")
                 continue
-            currentAutoMove = len(moves) - len(UR5.getAllTargets())  
-            window.controlMenu.setProgress(currentAutoMove + 1, len(moves))
-            window.controlMenu.setCurrentTarget(moves[currentAutoMove]["name"])
-            if(currentAutoMove + 1) >= len(moves):
+            currentAutoMove = len(actions) - len(UR5.getAllTargets())  
+            window.controlMenu.setProgress(currentAutoMove + 1, len(actions))
+            window.controlMenu.setCurrentTarget(actions[currentAutoMove]["name"])
+            if(currentAutoMove + 1) >= len(actions):
                 window.controlMenu.setNextTarget("None")
                 continue
-            window.controlMenu.setNextTarget(moves[currentAutoMove+1]["name"])
+            window.controlMenu.setNextTarget(actions[currentAutoMove+1]["name"])
         else:
-            if(currentMove == 0):
-                window.controlMenu.setProgress(0,len(moves))
+            if(currentAction == 0):
+                window.controlMenu.setProgress(0,len(actions))
                 window.controlMenu.setCurrentTarget("None")
                 window.controlMenu.setNextTarget("None")
                 continue
-            window.controlMenu.setProgress(currentMove, len(moves))
-            window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
-            window.controlMenu.setNextTarget(moves[currentAutoMove]["name"])
+            window.controlMenu.setProgress(currentAction, len(actions))
+            window.controlMenu.setCurrentTarget(actions[currentAction-1]["name"])
+            window.controlMenu.setNextTarget(actions[currentAutoMove]["name"])
         
         currentPosition = inv(currentCalibrationFrame.getGlobalPos()) @ UR5.getCurrentPos()
         currentRPY =  mc.matrixToRPY(currentPosition)
