@@ -112,6 +112,11 @@ class RTDEConnection:
         state = self.con.receive()
         return mc.axisAngleToMatrix(state.target_TCP_pose)
     
+        #Get the tool current
+    def getToolCurrent(self):
+        state = self.con.receive()
+        return state.tool_output_current
+    
     def getAllTargets(self):
         return self.targets
     
