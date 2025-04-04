@@ -6,6 +6,7 @@
 		<field name="target_TCP_pose" type="VECTOR6D"/>
 		<field name="actual_TCP_pose" type="VECTOR6D"/>
 		<field name="output_int_register_0" type="INT32"/>
+		<field name="tool_output_current" type="DOUBLE"/>
 	</recipe>
 
 	<recipe key="setPose">

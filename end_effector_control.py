@@ -1,4 +1,5 @@
 from time import sleep
+from rtde_stuff.rtde_com import RTDEConnection
 
 """
 This function can actuate the gripper, the gripper can operate in 3 different modes.
@@ -25,7 +26,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
     force = 0-100, the target force that the gripper should apply when mode = "force" or "force_thresh"
     """
     speed = 10 # In percent pr. sec.
-    global tool_current, pos_out # Global vars to get the tool current and set the tool output to the robot
+    pos_out # Global vars to get the tool current and set the tool output to the robot
     servo_at_0 = 30 # When robot receives this number, the gripper is fully closed
     servo_at_100 = 75 # When robot receives this number, the gripper is fully open
     update_freq = 0.1 # The refresh rate of the gripper pos and force measurement in seconds.
@@ -33,6 +34,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
     
     if(mode == "force"):
         while(abs(actual_force - force) <= 10):
+            tool_current = RTDEConnection.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
@@ -46,6 +48,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
 
     if(mode == "force_thresh"):
         while(abs(actual_force - force) <= 10):
+            tool_current = RTDEConnection.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
@@ -62,6 +65,7 @@ def endEffector(mode:str, position:int, force:int) -> bool:
 
     if(mode == "position"):
         while(actual_pos > position):
+            tool_current = RTDEConnection.getToolCurrent()
             actual_force = scaleWithParams(tool_current, 0, 600, 0, 100)
             if(actual_force > 80):
                 return False
