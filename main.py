@@ -200,11 +200,8 @@ def translateFrame(axis, value):
     UR5.moveTCPandWait(tempFrame.getGlobalPos(), "l") # Move the robot to the new position
     #print("Moved to:", UR5.getCurrentPos())
     window.dropdownStacker.calibrator.enableInput(True)
-    
-    
 
-def rotateFrame(values):
-    
+def rotateFrame(values): 
     try:
         values[0] = np.radians(float(values[0]))
         values[1] = np.radians(float(values[1]))
@@ -218,20 +215,18 @@ def rotateFrame(values):
     tempFrame = Pose("temp", getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
     newR = mc.RPYtoRMatrix(values) # The new rotation matrix
     tempFrame.matrix[:3, :3] = newR # Set the rotation matrix in Frame matirx to the new rotation matrix
+    R = tempFrame.matrix[:3, :3]
+    
     
     UR5.moveTCPandWait(tempFrame.getGlobalPos(), "l") # Move the robot to the new position
     
-    window.dropdownStacker.calibrator.enableInput(True)
-    
-    
-    
-    
+    window.dropdownStacker.calibrator.enableInput(True)  
     
 def getPostionInBase(position: np.array, base: Pose):
     base = base.getGlobalPos()
-    return inv(base) @ position # The position of the frame in the base frame
-    
-    
+    pos = inv(base) @ position # The position of the frame in the base frame
+    print("Position in base frame:", mc.matrixToRPY(pos))
+    return pos
     
 def updateUIPosition():
     currentPosition = getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame) # The current position of the robot in the base frame
