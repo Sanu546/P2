@@ -6,12 +6,13 @@ from gui.P2_GUI import MainWindow
 import vision.objRec as objRec
 from pose import Pose
 from typing import List
-from end_effector_control import endEffector
+from end_effector_control import GripperController
 import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
 
 UR5 = RTDEConnection() # Connnect to the UR5 robot
+gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
 
 actions = [] # The moves that the robot will make
 
@@ -91,14 +92,14 @@ def runAutoRobot():
         return
     
     for action in actions:
-        executeAction(action)
+        executeAction(action) # Where the magic hapens
 
 def executeAction(action):
     if(action["type"] == "moveTCP"):
         UR5.moveTCP(action["move"], action["type"])
         
     if(action["type"] == "gripper"):
-        endEffector(action["mode"], action["position"], action["force"] )
+        gripper.endEffector(action["mode"], action["position"], action["force"] )
         
     if(action["type"] == "vision"):
         pass
