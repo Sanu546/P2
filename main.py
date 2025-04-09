@@ -22,23 +22,27 @@ ur5Frame = Pose("UR5", np.array([[1,     0,     0,   0],
                                 [0,     1,     0,   0],
                                 [0,     0,     1,   0],
                                 [0,     0,     0,   1]])) # The frame for the UR5 robot
-rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
-    [-0.023483,     0.765548,    -0.642950,  -.657846558],
-    [0.010124,    -0.642913,    -0.765873,   .283486816],
-    [0.000000,     0.000000,     0.000000,     1.000000 ]]
+rampFrame = Pose("Ramp", np.array([[     0.000001,    -0.906308,     0.422617,   .301577727 ],
+     [-1.000000,    -0.000001,    -0.000000,   .168199697 ],
+      [0.000001,    -0.422617,    -0.906308,    .044323521 ],
+      [0.000000,     0.000000,     0.000000,     1.000000 ]]
 ))
-dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.5],
-                              [0, 1, 0, 0],
-                              [0, 0, 1, 0],
+dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.0285],
+                              [0, 1, 0, -.27091],
+                              [0, 0, 1, .009917],
                               [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
+evbFrame = Pose("EVB", np.array([[1, 0, 0, 0.11745],
+                                [0, 1, 0, -.018136],
+                                [0, 0, 1, .009917],
+                                [0, 0, 0, 1]]), rampFrame) # The frame for the EVB location
 
 baseFrames: List[Pose] = [
     ur5Frame,
     rampFrame,
     ]
 cellFrames: List[Pose] = [] # The frames for the cells
-cellSpacingX = 0.1 # The spacing between the cells in the x direction
-cellSpacingY = 0.1 # The spacing between the cells in the y direction
+cellSpacingX = 0.070 # The spacing between the cells in the x direction
+cellSpacingY = 0.046 # The spacing between the cells in the y direction
 
 
 #Calibration variables
@@ -47,10 +51,12 @@ calibrationActive = False
 
 
 def generateCellFrames():
+    evbX = evbFrame.matrix[0][3] # The x position of the EVB frame
+    evbY = evbFrame.matrix[1][3] # The y position of the EVB frame
     for i in range(4):  
         for j in range(2):
-            cellFrames.append(Pose(f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX ],
-            [0,     1,     0,   i*cellSpacingY ],
+            cellFrames.append(Pose(f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
+            [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   0 ],
             [0,     0,     0,     1 ]]), rampFrame, isCell = True, color = "blue"))
 
@@ -82,6 +88,7 @@ def runAutoRobot():
     
     for move in moves:
         UR5.moveTCP(move["move"], move["type"])
+    
         
 def stopAutoRobot():
     UR5.stop()  
@@ -186,7 +193,7 @@ def translateFrame(axis, value):
         print("Invalid value:", value)
         return
     #print("Translating along:", axis, "by:", value)
-    tempFrame = Pose("temp", getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose("temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
     
     window.dropdownStacker.calibrator.enableInput(False)
     
@@ -212,7 +219,7 @@ def rotateFrame(values):
     
     window.dropdownStacker.calibrator.enableInput(False)
     
-    tempFrame = Pose("temp", getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose("temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
     newR = mc.RPYtoRMatrix(values) # The new rotation matrix
     tempFrame.matrix[:3, :3] = newR # Set the rotation matrix in Frame matirx to the new rotation matrix
     R = tempFrame.matrix[:3, :3]
@@ -222,15 +229,11 @@ def rotateFrame(values):
     
     window.dropdownStacker.calibrator.enableInput(True)  
     
-def getPostionInBase(position: np.array, base: Pose):
-    base = base.getGlobalPos()
-    pos = inv(base) @ position # The position of the frame in the base frame
-    print("Position in base frame:", mc.matrixToRPY(pos))
-    return pos
-    
 def updateUIPosition():
-    currentPosition = getPostionInBase(UR5.getCurrentPos(), currentCalibrationFrame) # The current position of the robot in the base frame
+    currentPosition = posInBase(UR5.getCurrentPos(), currentCalibrationFrame) # The current position of the robot in the base frame
     currentRPY =  mc.matrixToRPY(currentPosition)
+    print("Current position in base frame:", currentPosition)
+    print("Current position:", currentRPY)
     window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
     
 def updateProgramProgress():

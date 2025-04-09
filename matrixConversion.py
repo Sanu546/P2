@@ -5,7 +5,7 @@ def matrixToAxisAngle(pose):
     
     theta = np.arccos((R[0][0]+R[1][1]+R[2][2]-1)/2)
     
-    k = (1/(2*np.sin(theta))*np.array([R[1][2]-R[2][1],R[2][0]-R[0][2],R[0][1]-R[1][0]]))
+    k = (1/(2*np.sin(theta))*np.array([R[2][1]-R[1][2],R[0][2]-R[2][0],R[1][0]-R[0][1]]))
     ku = 1/np.sqrt(k[0]**2+k[1]**2+k[2]**2)*k
     
     return [pose[0][3],pose[1][3],pose[2][3],ku[0]*theta,ku[1]*theta,ku[2]*theta]
@@ -26,9 +26,9 @@ def axisAngleToMatrix(pose):
                     k[1]*k[2]*(1-np.cos(theta))-k[0]*np.sin(theta),
                     k[2]**2*(1-np.cos(theta))+np.cos(theta)])
     
-    T = np.array([[r1[0],r1[1],r1[2],pose[0]],
-                     [r2[0],r2[1],r2[2],pose[1]],
-                     [r3[0],r3[1],r3[2],pose[2]],
+    T = np.array([[r1[0],r2[0],r3[0],pose[0]],
+                     [r1[1],r2[1],r3[1],pose[1]],
+                     [r1[2],r2[2],r3[2],pose[2]],
                      [0,0,0,1]])
     return np.round(T,6)
 
@@ -60,7 +60,15 @@ def RPYtoRMatrix(pose):
     
     return R
 
-matrix = RPYtoRMatrix([0,40,20])
+ur5pos = [-.288579832,  -.582838966,   .495898987,    -0.103287,    -2.100478,    -0.110654]
+
+ur5pos = axisAngleToMatrix(ur5pos)
+
+print(ur5pos)
+
+matrix = matrixToRPY(ur5pos)
+
+print(matrix)
 # matrix = np.array([[matrix[0][0],matrix[0][1],matrix[0][2],0],
 #                     [matrix[1][0],matrix[1][1],matrix[1][2],0],
 #                     [matrix[2][0],matrix[2][1],matrix[2][2],0],
