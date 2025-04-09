@@ -115,13 +115,14 @@ class RTDEConnection:
         #Get the tool current
     def getToolCurrent(self):
         state = self.con.receive()
+        # print(f"getToolCurrent returned state.tool_output_current = {state.tool_output_current}")
         return state.tool_output_current
     
     def getAllTargets(self):
         return self.targets
     
     def setToolPos(self, tool):
-        self.setTool.input_int_register_3 = tool
+        self.setTool.input_int_register_3 = int(tool)
     
     def resume(self):
         self.stopped = False
