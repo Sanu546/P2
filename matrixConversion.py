@@ -60,15 +60,15 @@ def RPYtoRMatrix(pose):
     
     return R
 
-ur5pos = [-.288579832,  -.582838966,   .495898987,    -0.103287,    -2.100478,    -0.110654]
+# ur5pos = [-.288579832,  -.582838966,   .495898987,    -0.103287,    -2.100478,    -0.110654]
 
-ur5pos = axisAngleToMatrix(ur5pos)
+# ur5pos = axisAngleToMatrix(ur5pos)
 
-print(ur5pos)
+# print(ur5pos)
 
-matrix = matrixToRPY(ur5pos)
+# matrix = matrixToRPY(ur5pos)
 
-print(matrix)
+# print(matrix)
 # matrix = np.array([[matrix[0][0],matrix[0][1],matrix[0][2],0],
 #                     [matrix[1][0],matrix[1][1],matrix[1][2],0],
 #                     [matrix[2][0],matrix[2][1],matrix[2][2],0],
