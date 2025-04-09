@@ -11,7 +11,7 @@ import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
 
-UR5 = RTDEConnection() # Connnect to the UR5 robot
+UR5 = RTDEConnection() # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
 
 actions = [] # The moves that the robot will make
@@ -35,7 +35,8 @@ currentCalibrationFrame = ur5Frame # The current calibration frame
 calibrationActive = False
 
 # The frame for the ramp
-rampFrame = Pose("Ramp", np.array([[    -0.999673,    -0.024494,     0.007347,   .201236369], 
+rampFrame = Pose("Ramp", np.array([
+    [    -0.999673,    -0.024494,     0.007347,   .201236369], 
     [-0.023483,     0.765548,    -0.642950,  -.657846558],
     [0.010124,    -0.642913,    -0.765873,   .283486816],
     [0.000000,     0.000000,     0.000000,     1.000000 ]]
@@ -65,15 +66,15 @@ def generateMoves():
     for cell in cellFrames:
         if cell.isEmpty:
             continue
-        actions.append({"type": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
-        actions.append({"type": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-        actions.append({"type": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-        actions.append({"type": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
-        actions.append({"type": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
-        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-        actions.append({"type": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
-        actions.append({"type": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+        actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+        actions.append({"actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+        actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+        actions.append({"actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
 
 def runAutoRobot():
     status = UR5.getStatus()
@@ -92,16 +93,17 @@ def runAutoRobot():
         return
     
     for action in actions:
+        print(f"TS: {time.time()} Action: {action}")
         executeAction(action) # Where the magic hapens
 
 def executeAction(action):
-    if(action["type"] == "moveTCP"):
-        UR5.moveTCP(action["move"], action["type"])
+    if(action["actionType"] == "moveTCP"):
+        UR5.moveTCPandWait(action["move"], action["type"])
         
-    if(action["type"] == "gripper"):
-        gripper.endEffector(action["mode"], action["position"], action["force"] )
+    if(action["actionType"] == "gripper"):
+        gripper.endEffector(action["mode"], action.get("position"), action.get("force"))
         
-    if(action["type"] == "vision"):
+    if(action["actionType"] == "vision"):
         pass
 
 def stopAutoRobot():
