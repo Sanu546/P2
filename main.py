@@ -232,8 +232,8 @@ def rotateFrame(values):
 def updateUIPosition():
     currentPosition = posInBase(UR5.getCurrentPos(), currentCalibrationFrame) # The current position of the robot in the base frame
     currentRPY =  mc.matrixToRPY(currentPosition)
-    print("Current position in base frame:", currentPosition)
-    print("Current position:", currentRPY)
+    # print("Current position in base frame:", currentPosition)
+    # print("Current position:", currentRPY)
     window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
     
 def updateProgramProgress():
