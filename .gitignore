@@ -3,3 +3,5 @@
 *./__pycache__
 
 
+gui/__pycache__/P2_GUI.cpython-312.pyc
+rtde_stuff/__pycache__/rtde_com.cpython-312.pyc
