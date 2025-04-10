@@ -2,7 +2,7 @@ import numpy as np
 import matrixConversion as mc
 
 class Pose:
-    def __init__(self, id, name, matrix, description, base=None, approach=0.05, isCell=False, color=None ) :
+    def __init__(self, id, name, matrix, description="", base=None, approach=0.05, isCell=False, color=None ) :
         self.name = name
         self.isCell = isCell
         self.matrix = matrix
