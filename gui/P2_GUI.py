@@ -1,16 +1,16 @@
+import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit
 from PyQt6.QtGui import QFont, QImage, QPixmap
-import sys
 from PyQt6.QtCore import Qt, QTimer
 import cv2 as cv
 import numpy as np
 
 """
 The first 3 classes is what will be displayed on the GUI.
-the classes TestMenue and AutoMenue is for the interactive buttons, that we will be using to control the robot cell.
+the classes TestMenu and AutoMenu is for the interactive buttons, that we will be using to control the robot cell.
 The last 2 classes if for the layout of the GUI. 
-The MenueStacker class is for the buttons that will switch between the TestMenue and AutoMenue. 
+The MenuStacker class is for the buttons that will switch between the TestMenu and AutoMenu. 
 the CellDisplay class shows the detected battery cells.  
 """
 
@@ -698,10 +698,10 @@ class DropdownStacker(QWidget):
 # This class is the main window of the GUI
 class MainWindow(QWidget):
     app = QApplication(sys.argv)
-    def __init__(self, minSize = (500, 500), title = 'P2 GUI'):
+    def __init__(self, title = 'P2 GUI'):
         super().__init__()
         self.initUI()
-        self.setMinimumSize(minSize[0], minSize[1])
+        self.setWindowState(Qt.WindowState.WindowMaximized)
         self.setWindowTitle(title)
        
 
