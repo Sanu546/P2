@@ -40,6 +40,7 @@ class GripperController:
         """
         servoAt0 = 0 # When robot receives this number, the gripper is fully closed
         servoAt100 = 100 # When robot receives this number, the gripper is fully open
+        defaultPanicPos = 35
 
         actualPos = scaleWithParams(self.posOut, servoAt0, servoAt100, 0, 100) # Get actual pos from instance specific variable
         toolCurrent = self.arm.getToolCurrent() # Get tool current from robot
@@ -54,6 +55,7 @@ class GripperController:
                     toolCurrent = self.arm.getToolCurrent()
                     actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100)
                     if actualForce > 80:
+                        self.arm.setToolPos(defaultPanicPos)
                         return False
 
                     actualPos -= (GripperController.SPEED * GripperController.UPDATE_INTERVAL)
@@ -71,6 +73,7 @@ class GripperController:
                     toolCurrent = self.arm.getToolCurrent()
                     actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100)
                     if actualForce > 80:
+                        self.arm.setToolPos(defaultPanicPos)
                         return False
 
                     actualPos -= (GripperController.SPEED * GripperController.UPDATE_INTERVAL)
@@ -78,6 +81,7 @@ class GripperController:
                     self.arm.setToolPos(self.posOut)
 
                     if actualPos < endPosition + 10:
+                        self.arm.setToolPos(defaultPanicPos)
                         return False
 
                     sleep(GripperController.UPDATE_INTERVAL)
@@ -93,6 +97,7 @@ class GripperController:
 
                     # Watch for over-current
                     if actualForce > 80:
+                        self.arm.setToolPos(defaultPanicPos)
                         return False
 
                     increment = GripperController.SPEED * GripperController.UPDATE_INTERVAL
