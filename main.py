@@ -11,7 +11,7 @@ import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
 import pickle # nyt sanu
-from PyQt6.QtCore import Qt, QTimer
+#from PyQt6.QtCore import Qt, QTimer
 
 UR5 = RTDEConnection() # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
@@ -165,20 +165,27 @@ def showFramesInList():
 
  
 def generateMoves():
-    for cell in cellFrames:
-        if cell.isEmpty:
-            continue
-        actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
-        actions.append({"actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-        actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
-        actions.append({"actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
-        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
-        actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
-
+    for i in range(4):
+        for j in range(2):
+            cell = seachlist(f"Cell [{i}, {j}]")
+            print(cell.name)
+            if cell.isEmpty:
+                continue
+            actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+            actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
+            actions.append({"actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+            actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+            actions.append({"actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+            actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+        
+        
+    print(actions)
+    
 def runAutoRobot():
+    
     status = UR5.getStatus()
     actionsLeft = len(UR5.getAllTargets())
     window.controlMenu.buttonTest.setEnabled(False)
@@ -194,7 +201,8 @@ def runAutoRobot():
         return
     
     for action in actions:
-        print(f"TS: {time.time()} Action: {action}")
+        #print(f"TS: {time.time()} Action: {action}") # Debugging
+        print(f"Made it here, action: {action}")
         executeAction(action) # Where the magic hapens
 
 def executeAction(action):
@@ -386,9 +394,9 @@ def updateProgramProgress():
                 window.controlMenu.setCurrentTarget("None")
                 window.controlMenu.setNextTarget("None")
                 continue
-            window.controlMenu.setProgress(currentMove, len(moves))
-            window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
-            window.controlMenu.setNextTarget(moves[currentMove]["name"])
+            window.controlMenu.setProgress(currentAction, len(actions))
+            window.controlMenu.setCurrentTarget(actions[currentAction-1]["name"])
+            window.controlMenu.setNextTarget(actions[currentAction]["name"])
         time.sleep(0.1)
 
 
