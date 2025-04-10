@@ -36,7 +36,7 @@ calibrationActive = False
 
 # The frame for the ramp
 rampFrame = Pose("Ramp", np.array([
-    [    -0.999673,    -0.024494,     0.007347,   .201236369], 
+    [    -0.999673,    -0.024494,     0.007347,   .201236369],
     [-0.023483,     0.765548,    -0.642950,  -.657846558],
     [0.010124,    -0.642913,    -0.765873,   .283486816],
     [0.000000,     0.000000,     0.000000,     1.000000 ]]
@@ -66,8 +66,8 @@ def generateMoves():
     for cell in cellFrames:
         if cell.isEmpty:
             continue
-        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
         actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+        actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
         actions.append({"actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
         actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
         actions.append({"actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})

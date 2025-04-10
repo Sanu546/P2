@@ -1,8 +1,9 @@
 [FORMAT]
 variable-naming-style=camelCase
 function-naming-style=camelCase
-const-naming-style=camelCase
+const-naming-style=UPPER_CASE
 class-naming-style=PascalCase
 method-naming-style=camelCase
 attr-naming-style=camelCase
 argument-naming-style=camelCase
+max-line-length=150
