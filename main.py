@@ -1,5 +1,5 @@
 import sys
-from rtde_stuff.rtde_com import RTDEConnection
+from rtde_stuff.rtde_com import RTDEConnection # Connect to the UR5 robot
 import time
 import numpy as np
 from gui.P2_GUI import MainWindow
@@ -9,67 +9,173 @@ from typing import List
 import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
+import pickle # nyt sanu
 from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection() # Connnect to the UR5 robot
+UR5 = RTDEConnection() # Connnect to the UR5 robot   
 
 moves = [] # The moves that the robot will make
+
+cellSpacingX = 0.07 # The spacing between the cells in the x direction in meters
+cellSpacingY = 0.046 # The spacing between the cells in the y direction in meters
+
 currentMove = 0
 clearHeight = -0.05
 
+# List for every frame
+Frames: List[Pose] = [] # The frames for the robot
+
+# Give the seachlist a name and id if need to get the specific object you want to use    
+def seachlist(name,id = None):
+    number = []
+    ideList:List[Pose] = []
+    
+    if id != None: # check if there are id
+        for i in range(len(Frames)):
+            if Frames[i].name == name and Frames[i].id == id: 
+                number.append(i) #save index of object in the list 
+                ideList.append(Frames[i])  
+                if len(ideList) > 1 : #check if more object with same name 
+                    print("There somthing wrong with the id you manuel felter the list")
+                    for i in range(len(ideList)): # show diffent object with same name and id
+                        print(f"Object {i}: {ideList[i].name} with id: {ideList[i].id} and description: {ideList[i].description}")
+                        print(f"Object in the list is: Frames[{number[i]}]")
+                        print("============================================================================")
+                        print("                                                                            ")
+                    print("Please change the id or name to the object you want to use wih funktion") 
+                return
+            elif(len(ideList) == 0):
+                print("There are no object with that id and name")
+                return 
+        
+    else:
+        ideList = list(filter(lambda x: x.name == name, Frames))# The funtion filter list for name. The put in the list. If didn't use list it would be object with diffent items
+        if len(ideList) > 1 : #check if there more object with the same name 
+            print("There are more object with same name in the list")
+            print(f"There are {len(ideList)} object with same name give more id !!!!!!!!")
+            for i in range(len(ideList)): # show diffent object with same name
+                print(f"Object {i}: {ideList[i].name} with id: {ideList[i].id} and description: {ideList[i].description}")
+                print("============================================================================")
+                print("                                                                            ")
+            return
+        elif(len(ideList) == 0):
+            print("There are no object with name")
+            return
+               
+       
+         
+   
+    
+    return ideList[0] # return the first object in the list
+
+
+def deleteFrame(index):
+    Frames.pop(index)
+    
+def replaceFrames(oldFrame,newFrame):
+    Frames[Frames.index(oldFrame)] = newFrame 
+    saveList() # Save the the new frame to the list  
+
+
+
+
+cellFrames: List[Pose] = [] # The frames for the cells
+ # The frame for the drop off location
 # The frames for the robot and the ramp
-ur5Frame = Pose("UR5", np.array([[1,     0,     0,   0],
+
+ur5Frame = Pose(1 ,"UR5", np.array([[1,     0,     0,   0],
                                 [0,     1,     0,   0],
                                 [0,     0,     1,   0],
-                                [0,     0,     0,   1]])) # The frame for the UR5 robot
-rampFrame = Pose("Ramp", np.array([[     0.000001,    -0.906308,     0.422617,   .301577727 ],
+                                [0,     0,     0,   1]]),"UR5 frame for the robot for simulation Final_BetaBackup Date: 09-04-2025") # The frame for the UR5 robot
+rampFrame = Pose(2, "Ramp", np.array([[     0.000001,    -0.906308,     0.422617,   .301577727 ],
      [-1.000000,    -0.000001,    -0.000000,   .168199697 ],
       [0.000001,    -0.422617,    -0.906308,    .044323521 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]
-))
-dropOffFrame = Pose("Dropoff", np.array([[1, 0, 0, 0.0285],
+),"Ramp frame for the robot for simulation Final_BetaBackup Date: 09-04-2025")
+
+
+dropOffFrame = Pose(3, "Dropoff", np.array([[1, 0, 0, 0.0285],
                               [0, 1, 0, -.27091],
                               [0, 0, 1, .009917],
-                              [0, 0, 0, 1]]), rampFrame) # The frame for the drop off location
-evbFrame = Pose("EVB", np.array([[1, 0, 0, 0.11745],
+                              [0, 0, 0, 1]]), "Dropoff frame for the used cell", rampFrame) # The frame for the drop off location
+evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.11745],
                                 [0, 1, 0, -.018136],
                                 [0, 0, 1, .009917],
-                                [0, 0, 0, 1]]), rampFrame) # The frame for the EVB location
+                                [0, 0, 0, 1]]),"EVB frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", rampFrame) # The frame for the EVB location
 
+Frames.append(ur5Frame) # Add the UR5 frame to the list of frames
+Frames.append(rampFrame) # Add the ramp frame to the list of frames
+Frames.append(dropOffFrame) # Add the drop off frame to the list of frames
+Frames.append(evbFrame) # Add the EVB frame to the list of frames
+
+        
+def saveList():   
+    with open('Frames.pkl', "wb") as file:
+        pickle.dump(Frames, file)  # Save Pose to a file 
+        print("Frames saved successfully")
+       
+
+
+def loadList():
+    with open('Frames.pkl', "rb") as file:
+        return pickle.load(file)  # Load Pose from the file
+
+
+#Frames = loadList() # Load the frames from the file
 baseFrames: List[Pose] = [
     ur5Frame,
     rampFrame,
     ]
-cellFrames: List[Pose] = [] # The frames for the cells
-cellSpacingX = 0.070 # The spacing between the cells in the x direction
-cellSpacingY = 0.046 # The spacing between the cells in the y direction
-
-
-#Calibration variables
-currentCalibrationFrame: Pose = ur5Frame # The current calibration frame
-calibrationActive = False
-
-
+# Er den ikke forkte da det skal være realtive første bokse.
 def generateCellFrames():
+    rampFrame = seachlist("Ramp") # The frame for the ramp
+ 
     evbX = evbFrame.matrix[0][3] # The x position of the EVB frame
     evbY = evbFrame.matrix[1][3] # The y position of the EVB frame
     for i in range(4):  
         for j in range(2):
-            cellFrames.append(Pose(f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
+            Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   0 ],
-            [0,     0,     0,     1 ]]), rampFrame, isCell = True, color = "blue"))
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" ,rampFrame, isCell = True, color = "blue"))   
 
+
+
+
+#Calibration variables
+currentCalibrationFrame: Pose = seachlist("UR5") # tidligere: ur5Frame # The current calibration frame
+calibrationActive = False
+            
+# is show every object in the list of frames. Where can se name,id,matrix and description
+def showFramesInList():
+    print(f"There are {len(Frames)} frames in the list")
+    print("============================================================================")
+    for i in range(len(Frames)):
+        print(f"Frame {i}: {Frames[i].name}")
+        print(f"Is cell: {Frames[i].id}")
+        print("Matrix: ")
+        print(Frames[i].matrix)
+        print(f"Description: {Frames[i].description}")
+        print("============================================================================")
+        print("                                                                            ")
+            
+
+ 
 def generateMoves():
-    for cell in cellFrames:
-        if cell.isEmpty:
-            continue
-        moves.append({"name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-        moves.append({"name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-        moves.append({"name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-        moves.append({"name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
-        moves.append({"name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-        moves.append({"name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+    for i in range(4):  
+        for j in range(2):
+            cell = seachlist(f"Cell [{i}, {j}]")
+            print(cell.name)# The frame for the cell
+            if cell.isEmpty:
+                continue
+            moves.append({"name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+            moves.append({"name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+            moves.append({"name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+            moves.append({"name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+            moves.append({"name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+            moves.append({"name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+   
+           
 
 def runAutoRobot():
     status = UR5.getStatus()
@@ -130,7 +236,7 @@ def updateUI():
 def reset():
     global currentMove
     global moves
-    
+    rampFrame = seachlist("Ramp") # The frame for the ramp sanu 
     moves = []
     currentMove = 0
     
@@ -140,7 +246,7 @@ def reset():
             pass
     
     currentPosition = UR5.getCurrentPos() 
-    posInBaseFrame = posInBase(currentPosition, rampFrame) # The position of the robot in the base frame
+    posInBaseFrame = posInBase(currentPosition, rampFrame) # The position of the robot in the base frame 
     zValue = posInBaseFrame[2][3]# The z axis of the base frame
     
     if zValue > clearHeight:
@@ -179,6 +285,14 @@ def calibrateRobot():
     window.controlMenu.testMenu.buttonReset.setEnabled(False)
     calibrationActive = True
 
+# the frame you want in the list remeber to change every thing 
+replace = Pose(len(Frames)+1,"Dropoff", np.array([[1, 0, 0, 0.5],
+                              [0, 1, 0, 0],
+                              [0, 0, 1, 0],
+                              [0, 0, 0, 1]]),"Dropoff first frame for the robot Date: 04-04-2025",Frames[1])
+  
+
+# skal listen moves
 def stopCalibration():
     global calibrationActive
     window.controlMenu.testMenu.buttonNext.setEnabled(True)
@@ -193,7 +307,7 @@ def translateFrame(axis, value):
         print("Invalid value:", value)
         return
     #print("Translating along:", axis, "by:", value)
-    tempFrame = Pose("temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose(99, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
     
     window.dropdownStacker.calibrator.enableInput(False)
     
@@ -219,7 +333,7 @@ def rotateFrame(values):
     
     window.dropdownStacker.calibrator.enableInput(False)
     
-    tempFrame = Pose("temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose(99, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
     newR = mc.RPYtoRMatrix(values) # The new rotation matrix
     tempFrame.matrix[:3, :3] = newR # Set the rotation matrix in Frame matirx to the new rotation matrix
     R = tempFrame.matrix[:3, :3]
@@ -265,14 +379,28 @@ def updateProgramProgress():
             window.controlMenu.setCurrentTarget(moves[currentMove-1]["name"])
             window.controlMenu.setNextTarget(moves[currentMove]["name"])
         time.sleep(0.1)
+
+
+def pmatrix():
+    with open('calibrationFrame.pkl', "rb") as file:
+        loaded_rampFrame = pickle.load(file)
+        print(loaded_rampFrame.matrix)  # Print matrix from loaded rampFrame
+        
+
+        
         
 window = MainWindow()
 progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
+# To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
+Frames = loadList() # Load the frames from the file (1)
+#showFramesInList()
 def main():
     
-    generateCellFrames()
+    #generateCellFrames()# If you want to generate other cells on comentar this code (2)
+    #saveList()# (3)
+    showFramesInList()
     generateMoves()
     progressThread.start()
     window.controlMenu.autoMenu.setFunctionStart(runAutoRobot) # Set the function to be called when the button is pressed
@@ -298,7 +426,9 @@ def main():
     
     window.runUI() # Run the GUI
     
+ # Show the frames in the list
 main()
+
 
 
 
