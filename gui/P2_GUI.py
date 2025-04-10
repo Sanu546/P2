@@ -621,16 +621,29 @@ class MenuStacker(QWidget):
         self.buttonWork.clicked.connect(self.switchWorkMode)
         self.buttonTest.clicked.connect(self.switchTestMode)
 
+        # vertical stack work and test button
+        buttonLayout = QVBoxLayout()
+        buttonLayout.addWidget(self.buttonWork)
+        buttonLayout.addWidget(self.buttonTest)
+
+        # stacking status update
+        statusLayout = QVBoxLayout()
+        statusLayout.addWidget(self.progressTitleLable)
+        statusLayout.addWidget(self.progressLable)
+        statusLayout.addWidget(self.currentTargetTitleLable)
+        statusLayout.addWidget(self.currentTargetLable)
+        statusLayout.addWidget(self.nextTargetTitleLable)
+        statusLayout.addWidget(self.nextTargetLable)
+
+        # putting buttons and status side by side
+        putTogether = QHBoxLayout()
+        putTogether.addLayout(buttonLayout)
+        putTogether.addLayout(statusLayout)
         # Add buttons to the layout
-        layout.addWidget(self.progressTitleLable)
-        layout.addWidget(self.progressLable)
-        layout.addWidget(self.currentTargetTitleLable)
-        layout.addWidget(self.currentTargetLable)
-        layout.addWidget(self.nextTargetTitleLable)
-        layout.addWidget(self.nextTargetLable)
-        layout.addWidget(self.spaceing)
-        layout.addWidget(self.buttonWork)
-        layout.addWidget(self.buttonTest)
+        
+        layout.addLayout(putTogether)
+        
+        
         self.setLayout(layout) 
     
     def setProgress(self, currentStep, totalSteps):
@@ -701,7 +714,7 @@ class MainWindow(QWidget):
     def __init__(self, title = 'P2 GUI'):
         super().__init__()
         self.initUI()
-        self.setWindowState(Qt.WindowState.WindowMaximized)
+        self.setMinimumSize(730,420)
         self.setWindowTitle(title)
        
 
@@ -728,6 +741,6 @@ class MainWindow(QWidget):
          self.app.exec() 
 
 # Run the GUI
-#window = MainWindow()
-#window.runUI() 
+window = MainWindow()
+window.runUI() 
 
