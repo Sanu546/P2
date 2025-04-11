@@ -1,3 +1,3 @@
 import objRec
 
-objRec.debug()
+objRec.update_frame(True)
