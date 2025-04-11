@@ -2,15 +2,17 @@ import cv2
 import numpy as np
 import tkinter as tk
 
+
+
 # Constants
 capture_x, capture_y, capture_w, capture_h = 300, 300, 300, 700
 box_size = 60
 
 # Measurement box values
-x_spacing = 92
-y_spacing = 52
-x_offset = 20
-y_offset = 79
+x_spacing = 52
+y_spacing = 12
+x_offset = 137
+y_offset = 123
 tilt_h = 0
 tilt_v = 0
 
@@ -90,37 +92,53 @@ win.protocol("WM_DELETE_WINDOW", lambda: closed(None))  # Catch window close eve
 # UI Elements
 tk.Button(win, text="Toggle background", command=update_btn).pack(padx=50, pady=20)
 
-slider_spacing_x = tk.Scale(win, from_=0, to=100, label="Spacing X", command=update_scale, orient="horizontal", length=200)
+slider_spacing_x = tk.Scale(win, from_=0, to=200, label="Spacing X", command=update_scale, orient="horizontal", length=200)
 slider_spacing_x.pack()
 
-slider_spacing_y = tk.Scale(win, from_=0, to=100, label="Spacing Y", command=update_scale, orient="horizontal", length=200)
+slider_spacing_y = tk.Scale(win, from_=0, to=200, label="Spacing Y", command=update_scale, orient="horizontal", length=200)
 slider_spacing_y.pack()
 
-slider_offset_x = tk.Scale(win, from_=0, to=100, label="Offset X", command=update_scale, orient="horizontal", length=200)
+slider_offset_x = tk.Scale(win, from_=0, to=200, label="Offset X", command=update_scale, orient="horizontal", length=200)
 slider_offset_x.pack()
 
-slider_offset_y = tk.Scale(win, from_=0, to=100, label="Offset Y", command=update_scale, orient="horizontal", length=200)
+slider_offset_y = tk.Scale(win, from_=0, to=200, label="Offset Y", command=update_scale, orient="horizontal", length=200)
 slider_offset_y.pack()
 
-slider_tilt_h = tk.Scale(win, from_=0, to=100, label="Tilt horisontal", command=update_scale, orient="horizontal", length=200)
+slider_tilt_h = tk.Scale(win, from_=0, to=200, label="Tilt horisontal", command=update_scale, orient="horizontal", length=200)
 slider_tilt_h.pack()
 
-slider_tilt_v = tk.Scale(win, from_=0, to=100, label="Tilt vertical", command=update_scale, orient="horizontal", length=200)
+slider_tilt_v = tk.Scale(win, from_=0, to=200, label="Tilt vertical", command=update_scale, orient="horizontal", length=200)
 slider_tilt_v.pack()
-    
-# Main loop
+
+# Declare which camera to use
+screen = cv2.VideoCapture(0)
+
 def update_frame(debug=False):
-    if closed_tk and debug:
-        win.quit()
-        return
+    
+    if debug:
+        while True:
+            update_cam(True)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break  
+    else:
+        return update_cam()
+    
+    win.quit()
+    screen.release()
+    cv2.destroyAllWindows()
+    return color_res
 
-    # Frames
-    screen = pyautogui.screenshot(region=(capture_x, capture_y, capture_w, capture_h))
-    frame = cv2.cvtColor(np.array(screen), cv2.COLOR_RGB2BGR)
-    frame = tilt_image(frame, tilt_h, tilt_v)
+def update_cam(debug=False):
+    ret, image = screen.read()
+    if not ret:
+        print("Failed to grab frame")
+        return None
+    
+    
+    frame = tilt_image(image, tilt_h, tilt_v)
+    frame = image
+    
     blank_frame = np.zeros_like(frame)
-
-    # Color reckgonition
     for row in range(4):
         for col in range(2):
             x = x_offset + col * (box_size + x_spacing)
@@ -131,7 +149,7 @@ def update_frame(debug=False):
                 roi_hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
                 mean_hsv = cv2.mean(roi_hsv)[:3]                
                 mean_color = cv2.mean(roi)[:3]
-                
+            
                 detected_color = "N/A"
                 for color, ranges in BGR_color_limits.items():
                     for lower, upper in ranges:
@@ -149,20 +167,18 @@ def update_frame(debug=False):
                 cv2.rectangle(blank_frame, (x, y), (x + box_size, y + box_size), (0, 255, 0), 1)
                 cv2.putText(frame, detected_color, (x, y-5), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0))
                 cv2.putText(blank_frame, detected_color, (x, y-5), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0))
-                
+    
+    # Opdater Tkinter GUI
     if debug:
-        cv2.imshow("Frame", blank_frame if no_background else frame)
-        win.after(10, update_frame, True)  # Schedule next frame update
-        #print_debug(color_val)
+        win.update_idletasks()
+        win.update()
+        
         print(color_res)
+        cv2.imshow("Tester", image)
     else:
         return color_res
-
-def debug():
-    update_frame(True)
-    win.mainloop()
-    cv2.destroyAllWindows()
     
+
 def get_colors(): 
     colors = update_frame()
     return colors
