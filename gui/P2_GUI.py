@@ -741,6 +741,6 @@ class MainWindow(QWidget):
          self.app.exec() 
 
 # Run the GUI
-window = MainWindow()
-window.runUI() 
+#window = MainWindow()
+#window.runUI() 
 

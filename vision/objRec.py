@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import pyautogui
 import tkinter as tk
 
 # Constants
