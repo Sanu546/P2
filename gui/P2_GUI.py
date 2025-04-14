@@ -224,11 +224,11 @@ class AutoMenu(QWidget):
 
         # Set colors of the buttons
         self.buttonStart.setStyleSheet("background-color: white; color : black")
-        self.buttonStop.setStyleSheet("background-color: black")
+        self.buttonStop.setStyleSheet("background-color: black; color : white")
         self.buttonReset.setStyleSheet("background-color: blue")
 
         # Set the size of the buttons
-        self.buttonStart.setFixedHeight(50)
+        self.buttonStart.setFixedHeight(50) 
         self.buttonStop.setFixedHeight(50)
         self.buttonReset.setFixedHeight(50)
 
