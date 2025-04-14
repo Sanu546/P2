@@ -14,7 +14,7 @@ import pickle # nyt sanu
 #from PyQt6.QtCore import Qt, QTimer
 
 UR5 = RTDEConnection() # Connect to the UR5 robot
-gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
+gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
 
@@ -199,12 +199,15 @@ def runAutoRobot():
     if actionsLeft !=0 and status == "idle":
         UR5.resume()
         return
-    
+    executeThread.start() # Start the thread
+
+def executeActions():
     for action in actions:
         #print(f"TS: {time.time()} Action: {action}") # Debugging
         print(f"Made it here, action: {action}")
         executeAction(action) # Where the magic hapens
-
+    executeThread.join() # Wait for the thread to finish before continuing
+        
 def executeAction(action):
     if(action["actionType"] == "moveTCP"):
         UR5.moveTCPandWait(action["move"], action["type"])
@@ -411,6 +414,9 @@ def pmatrix():
 window = MainWindow()
 progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
+
+executeThread = th.Thread(target=executeActions)
+executeThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
 Frames = loadList() # Load the frames from the file (1)
