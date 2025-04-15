@@ -146,9 +146,6 @@ class TestMenu(QWidget):
         self.buttonNext.setFixedHeight(50)
         self.buttonBack.setFixedHeight(50)
         self.buttonReset.setFixedHeight(50)
-        
-        #Disable the back button
-        self.buttonBack.setEnabled(False)
 
         # Set the font size of the buttons
         self.buttonNext.setFont(QFont("Arial", 20, QFont.Weight.Bold))
@@ -168,6 +165,9 @@ class TestMenu(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
+        
+        #Disable the back button
+        self.buttonBack.setEnabled(False)
     #set function to button
     def setFunctionNext(self, function):
         self.buttonNext.clicked.connect(function)
@@ -180,7 +180,9 @@ class TestMenu(QWidget):
     
     def NextProccesStep(self):
         print("Next Procces Step")
-        self.buttonBack.setEnabled(True)
+        self.buttonBack.setEnabled(False)
+        self.buttonNext.setEnabled(False)
+        self.buttonReset.setEnabled(False)
     
     def Back(self):
         self.buttonNext.setEnabled(True)
