@@ -262,6 +262,7 @@ def nextMove():
 
 def updateUI():
     colors = objRec.get_colors()
+    print("Colors: ", colors)
     window.dropdownStacker.cellDisplay.update_colors(colors)
     
 def reset():
