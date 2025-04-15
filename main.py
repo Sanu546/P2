@@ -11,6 +11,9 @@ import threading as th
 from numpy.linalg import inv
 import matrixConversion as mc
 import pickle # nyt sanu
+from executeThread import ExcecuteThread# Import the execute thread class
+from execureSeriesThread import ExcecuteSeriesThread # Import the execute series thread class
+
 #from PyQt6.QtCore import Qt, QTimer
 
 UR5 = RTDEConnection() # Connect to the UR5 robot
@@ -27,6 +30,9 @@ clearHeight = -0.05
 
 # List for every frame
 Frames: List[Pose] = [] # The frames for the robot
+
+resetEvent = th.Event() # Create a reset event
+autoThread = None # Create a thread to execute the actions
 
 # Give the seachlist a name and id if need to get the specific object you want to use    
 def seachlist(name,id = None):
@@ -89,25 +95,24 @@ cellFrames: List[Pose] = [] # The frames for the cells
 ur5Frame = Pose(1 ,"UR5", np.array([[1,     0,     0,   0],
                                 [0,     1,     0,   0],
                                 [0,     0,     1,   0],
-                                [0,     0,     0,   1]]),"UR5 frame for the robot for simulation Final_BetaBackup Date: 09-04-2025") # The frame for the UR5 robot
-rampFrame = Pose(2, "Ramp", np.array([[     0.000001,    -0.906308,     0.422617,   .301577727 ],
-     [-1.000000,    -0.000001,    -0.000000,   .168199697 ],
-      [0.000001,    -0.422617,    -0.906308,    .044323521 ],
-      [0.000000,     0.000000,     0.000000,     1.000000 ]]
-),"Ramp frame for the robot for simulation Final_BetaBackup Date: 09-04-2025")
-
+                                [0,     0,     0,   1]]),"UR5 frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base=None) # The frame for the UR5 robot
+rampFrame = Pose(2, "Ramp", np.array([[    -1.000000,    -0.000001,    -0.000000,   .168199992],
+     [-0.000001,     0.906308,    -0.422618,  -.301577378 ],
+      [0.000001,    -0.422618,    -0.906308,    0.044323861 ],
+     [ 0.000000,     0.000000,     0.000000,     1.000000 ]]),"Ramp frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = None)
+Frames.append(ur5Frame) # Add the UR5 frame to the list of frames
+Frames.append(rampFrame) # Add the ramp frame to the list of frames
 
 dropOffFrame = Pose(3, "Dropoff", np.array([[1, 0, 0, 0.0285],
                               [0, 1, 0, -.27091],
                               [0, 0, 1, .009917],
-                              [0, 0, 0, 1]]), "Dropoff frame for the used cell", rampFrame) # The frame for the drop off location
-evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.11745],
-                                [0, 1, 0, -.018136],
+                              [0, 0, 0, 1]]), "Dropoff frame for the used cell", base = seachlist("Ramp")) # The frame for the drop off location
+evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.14545],
+                                [0, 1, 0, -.044857],
                                 [0, 0, 1, .009917],
-                                [0, 0, 0, 1]]),"EVB frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", rampFrame) # The frame for the EVB location
+                                [0, 0, 0, 1]]),"EVB frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = seachlist("Ramp")) # The frame for the EVB location
 
-Frames.append(ur5Frame) # Add the UR5 frame to the list of frames
-Frames.append(rampFrame) # Add the ramp frame to the list of frames
+
 Frames.append(dropOffFrame) # Add the drop off frame to the list of frames
 Frames.append(evbFrame) # Add the EVB frame to the list of frames
 
@@ -127,7 +132,7 @@ def loadList():
 #Frames = loadList() # Load the frames from the file
 baseFrames: List[Pose] = [
     ur5Frame,
-    rampFrame,
+    seachlist("Ramp"),
     ]
 # Er den ikke forkte da det skal være realtive første bokse.
 def generateCellFrames():
@@ -140,7 +145,7 @@ def generateCellFrames():
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   0 ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" ,rampFrame, isCell = True, color = "blue"))   
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = "blue"))   
 
 
 
@@ -168,7 +173,6 @@ def generateMoves():
     for i in range(4):
         for j in range(2):
             cell = seachlist(f"Cell [{i}, {j}]")
-            print(cell.name)
             if cell.isEmpty:
                 continue
             actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
@@ -180,17 +184,19 @@ def generateMoves():
             actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
             actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
             actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
-        
-        
-    print(actions)
+    #print(actions)
+
+def singleAction(action):
+    exeThread = ExcecuteThread(action, UR5, gripper, window) # Create a thread to execute the action
+    exeThread.start()
     
 def runAutoRobot():
+    global autoThread
     
     status = UR5.getStatus()
     actionsLeft = len(UR5.getAllTargets())
     window.controlMenu.buttonTest.setEnabled(False)
     window.controlMenu.buttonWork.setEnabled(False)
-    
 
     if actionsLeft != 0 and status == "running":
         print("Robot is already running")
@@ -199,15 +205,17 @@ def runAutoRobot():
     if actionsLeft !=0 and status == "idle":
         UR5.resume()
         return
-    executeThread.start() # Start the thread
+    autoThread = ExcecuteSeriesThread(actions, UR5, gripper, resetEvent) # Create a thread to execute the actions
+    autoThread.start() # Start the thread
 
 def executeActions():
+    global currentAction
     for action in actions:
         #print(f"TS: {time.time()} Action: {action}") # Debugging
         print(f"Made it here, action: {action}")
         executeAction(action) # Where the magic hapens
-    executeThread.join() # Wait for the thread to finish before continuing
-        
+        currentAction += 1 # Increment the current action>
+      
 def executeAction(action):
     if(action["actionType"] == "moveTCP"):
         UR5.moveTCPandWait(action["move"], action["type"])
@@ -235,14 +243,15 @@ def priorMove():
         
     if currentAction > 0 and not moving:
         currentAction -= 1
-        executeAction(actions[currentAction-1])
+        singleAction(actions[currentAction-1])
 
 def nextMove():
     global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
-    
+    print("Current action: ", currentAction)
     if currentAction < len(actions) and not moving:
-        executeAction(actions[currentAction-1])
+        singleAction(actions[currentAction])
+        # executeAction(actions[currentAction-1])
         currentAction += 1
     
     if currentAction == len(actions):
@@ -254,18 +263,28 @@ def nextMove():
 def updateUI():
     colors = objRec.get_colors()
     window.dropdownStacker.cellDisplay.update_colors(colors)
-
+    
 def reset():
     global currentAction
     global actions
+    global autoThread
     rampFrame = seachlist("Ramp") # The frame for the ramp sanu 
     actions = []
     currentAction = 0
     
     if window.controlMenu.getCurrentMode() == "auto":
-        UR5.resetProgram()
+        resetEvent.set() # Set the reset event to stop the auto thread
+        print("Waiting for auto thread to finish...")
+        
+        if(UR5.isStopped()):
+            UR5.resetRobot()
+        
+        autoThread.join()
+        print("Auto thread finished.")
         while len(UR5.getAllTargets()) != 0:
             pass
+        
+        
     
     currentPosition = UR5.getCurrentPos() 
     posInBaseFrame = posInBase(currentPosition, rampFrame) # The position of the robot in the base frame 
@@ -274,8 +293,15 @@ def reset():
     if zValue > clearHeight:
         posInBaseFrame[2][3] = clearHeight # Set the z axis to the clear height
         
-    UR5.moveTCPandWait(getGlobalPos(posInBaseFrame, rampFrame), "l") # Move the robot to the clear height
-    UR5.home()
+    
+    homeActions = []
+    homeActions.append({"actionType": "moveTCP", "name": "ClearHeight", "move": getGlobalPos(posInBaseFrame, rampFrame), "type": "j"})
+    homeActions.append({"actionType": "home"})
+    
+    homingThread = ExcecuteSeriesThread(homeActions, UR5, gripper) # Create a thread to execute the actions
+    homingThread.start() # Start the thread
+    homingThread.join()
+    
     updateUI()
     generateMoves()
     window.controlMenu.buttonTest.setEnabled(True)
@@ -378,28 +404,32 @@ def updateProgramProgress():
             updateUIPosition() # Update the current pose in the UI
             
         currentMode = window.controlMenu.getCurrentMode() 
-        if currentMode == "auto":
-            if len(UR5.getAllTargets()) == 0 or len(actions) == 0:
-                window.controlMenu.setProgress(0,0)
-                window.controlMenu.setCurrentTarget("None")
-                window.controlMenu.setNextTarget("None")
-                continue
-            currentAutoMove = len(actions) - len(UR5.getAllTargets())  
-            window.controlMenu.setProgress(currentAutoMove + 1, len(actions))
-            window.controlMenu.setCurrentTarget(actions[currentAutoMove]["name"])
-            if(currentAutoMove + 1) >= len(actions):
-                window.controlMenu.setNextTarget("None")
-                continue
-            window.controlMenu.setNextTarget(actions[currentAutoMove+1]["name"])
-        else:
-            if(currentAction == 0):
-                window.controlMenu.setProgress(0,len(actions))
-                window.controlMenu.setCurrentTarget("None")
-                window.controlMenu.setNextTarget("None")
-                continue
-            window.controlMenu.setProgress(currentAction, len(actions))
-            window.controlMenu.setCurrentTarget(actions[currentAction-1]["name"])
-            window.controlMenu.setNextTarget(actions[currentAction]["name"])
+        # if currentMode == "auto":
+        #     if len(UR5.getAllTargets()) == 0 or len(actions) == 0:
+        #         window.controlMenu.setProgress(0,0)
+        #         window.controlMenu.setCurrentTarget("None")
+        #         window.controlMenu.setNextTarget("None")
+        #         continue
+        #     currentAutoMove = len(actions) - len(UR5.getAllTargets())  
+        #     window.controlMenu.setProgress(currentAutoMove + 1, len(actions))
+        #     window.controlMenu.setCurrentTarget(actions[currentAutoMove]["name"])
+        #     if(currentAutoMove + 1) >= len(actions):
+        #         window.controlMenu.setNextTarget("None")
+        #         continue
+        #     window.controlMenu.setNextTarget(actions[currentAutoMove+1]["name"])
+        # else:
+        if(currentAction == 0):
+            window.controlMenu.setProgress(0,len(actions))
+            window.controlMenu.setCurrentTarget("None")
+            window.controlMenu.setNextTarget("None")
+            continue
+        currentProgress = currentAction + 1 if currentMode == "auto" else currentAction
+        window.controlMenu.setProgress(currentProgress, len(actions))
+        
+        currentTarget = actions[currentAction]["name"] if currentMode == "auto" else actions[currentAction-1]["name"]
+        nextTarget = actions[currentAction+1]["name"] if currentMode == "auto" else actions[currentAction]["name"]
+        window.controlMenu.setCurrentTarget(currentTarget)
+        window.controlMenu.setNextTarget(nextTarget)
         time.sleep(0.1)
 
 
@@ -408,25 +438,21 @@ def pmatrix():
         loaded_rampFrame = pickle.load(file)
         print(loaded_rampFrame.matrix)  # Print matrix from loaded rampFrame
         
-
-        
         
 window = MainWindow()
 progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
-executeThread = th.Thread(target=executeActions)
-executeThread.daemon = True
-
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-Frames = loadList() # Load the frames from the file (1)
+#Frames = loadList() # Load the frames from the file (1)
 #showFramesInList()
 def main():
     
-    #generateCellFrames()# If you want to generate other cells on comentar this code (2)
-    #saveList()# (3)
-    showFramesInList()
+    generateCellFrames()# If you want to generate other cells on comentar this code (2)
+    saveList()# (3)
+    #showFramesInList()
     generateMoves()
+    print("Actions: ", actions)
     progressThread.start()
     window.controlMenu.autoMenu.setFunctionStart(runAutoRobot) # Set the function to be called when the button is pressed
     window.controlMenu.testMenu.setFunctionNext(nextMove) # Set the function to be called when the button is pressed
@@ -448,7 +474,7 @@ def main():
     window.dropdownStacker.calibrator.setFunctionChangeBase(baseFrameChanged) # Connect the dropdown menu to the function
     
     updateUI()
-    
+    window.controlMenu.testMenu.buttonBack.setEnabled(False) # Disable the back button
     window.runUI() # Run the GUI
     
  # Show the frames in the list

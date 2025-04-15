@@ -12,9 +12,6 @@ import threading as th #Import treading to keep the server running in the backgr
 import numpy as np
 import matrixConversion as mc
 
-class resetCalled(Exception):
-    pass
-
 class RTDEConnection:
     config_filename = "rtde_stuff/control_loop_configuration.xml"
     killed = False
@@ -89,8 +86,10 @@ class RTDEConnection:
     def moveTCP(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
+        
     def moveTCPandWait(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
+        print(f"moveTCPandWait: position = {position}")
         self.targets.append({"position": position, "joint": False, "type": type})
         while len(self.targets) > 0:
             pass
@@ -133,6 +132,10 @@ class RTDEConnection:
     def getStatus(self):
         return self.status
     
+    def resetRobot(self):
+        self.targets = []
+        self.stopped = False
+    
     def home(self):
         print("Homing robot")
         self.moveJointandWait(self.startPos) 
@@ -140,17 +143,9 @@ class RTDEConnection:
     def isStopped(self):
         return self.stopped
     
-    def resetProgram(self):
-        self.reset = True
-        self.stopped = False
-    
     #Keep the server running in the background
     def serverThread(self):
         while not self.killed:
-            if self.reset:
-                self.targets = []
-                self.reset = False
-                
             if len(self.targets) > 0 and not self.stopped: #If there are targets in the queue
                 self.status = "running"
                 #print("Moving to target")
