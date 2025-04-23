@@ -1,12 +1,16 @@
 def ToolScript(value):
-    FREQ = 200 #Hz
-    UP_TIME = (1/FREQ)*(value/100)
-    DOWN_TIME = (1/FREQ)-UP_TIME
+  MIN_PULSE = 0.001
+  MAX_PULSE = 0.002
+  FREQ = 200 #Hz
 
-    set_tool_digital_out(0, True)
-    sleep(UP_TIME)
-    set_tool_digital_out(0, False)
-    sleep(DOWN_TIME)
+  UP_TIME = MIN_PULSE + ((value/100)*(MAX_PULSE - MIN_PULSW))
+  DOWN_TIME = (1/FREQ)-UP_TIME
+
+  set_tool_digital_out(0, True)
+  sleep(UP_TIME)
+  set_tool_digital_out(0, False)
+  sleep(DOWN_TIME)
 end
 
 ToolScript(value=toolValue)
+sync()
