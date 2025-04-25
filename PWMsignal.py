@@ -1,20 +1,20 @@
-import RPi.GPIO as GPIO
+from gpiozero import PWMLED
 import time
 
 # Vælg GPIO pin
-ledpin = 12
-
-value = 50 # PWM værdi (0-100)
-
-# Opsætning
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(ledpin, GPIO.OUT)
+pwm = PWMLED(12)
 
 
-def ToolValue(value):
-    # Opret PWM objekt
-    pi_pwm = GPIO.PWM(ledpin, 20)
-    pi_pwm.start(value)
-    time.sleep(10)
-    pi_pwm.stop()
+
+def setPwm(dutyCycle):
+    pwm.value = dutyCycle
+    time.sleep(2)
+
+# dutycycle kan være mellem 0 og 1 
+while True:
+    setPwm(0.5)
+
+
+
+
+
