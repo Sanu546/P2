@@ -25,9 +25,9 @@ color_res = [[""] * 2 for _ in range(4)]
 color_val = [[""] * 2 for _ in range(4)]
 
 BGR_color_limits = {
-    "Red": [((0, 0, 200), (150, 150, 255))],
-    "Blue": [((160, 0, 0), (255, 150, 150))],
-    "Grey": [((100, 100, 100), (200, 200, 200))]
+    "red": [((0, 0, 200), (150, 150, 255))],
+    "blue": [((160, 0, 0), (255, 150, 150))],
+    "grey": [((100, 100, 100), (200, 200, 200))]
 }
 
 # Callback function for updating scale values

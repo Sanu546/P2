@@ -28,5 +28,11 @@ class ExcecuteThread(threading.Thread):
         if(self.action["actionType"] == "vision"):
             pass
         
+        if(self.action["actionType"] == "setJoints"):
+            self.robot.moveJointandWait(self.action["move"])
+            self.window.controlMenu.testMenu.buttonNext.setEnabled(True)
+            self.window.controlMenu.testMenu.buttonReset.setEnabled(True)
+            self.window.controlMenu.testMenu.buttonBack.setEnabled(True)
+        
         
         
