@@ -21,13 +21,12 @@ class RTDEConnection:
     reset = False 
     
     #constructor
-    def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(-91.772925), np.radians(-99.491749), np.radians(-126.807916), np.radians(-45.229147), np.radians(91.748872), np.radians(-1.796248)]):
+    def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(-52.720192), np.radians(-48.458749), np.radians(-137.123207), np.radians(-74.611789), np.radians(84.804325), np.radians(37.028859)]):
         
         #Establish a connection to the UR robot
         self.con = rtde.RTDE(ip_address, port)
         self.con.connect()
         print("Connected to robot")
-
         self.con.get_controller_version()
         
         self.startPos = startPos

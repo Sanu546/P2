@@ -28,52 +28,43 @@ currentAction = 0
 
 clearHeight = -0.05
 
+colors = [['blue', 'blue'], ['red', 'red'], ['grey', 'grey'], ['red', 'blue']]
+
 # List for every frame
 Frames: List[Pose] = [] # The frames for the robot
+
+# Store the last frame before calibration
+lastFrame = None
+calibrationReset = False #Bool to check if the calibration is resetting
+calibrationActive = False
 
 resetEvent = th.Event() # Create a reset event
 autoThread = None # Create a thread to execute the actions
 
 # Give the seachlist a name and id if need to get the specific object you want to use    
-def seachlist(name,id = None):
+def seachlist(name = "",id = None, matrix = []):
     number = []
     ideList:List[Pose] = []
     
+    
     if id != None: # check if there are id
-        for i in range(len(Frames)):
-            if Frames[i].name == name and Frames[i].id == id: 
-                number.append(i) #save index of object in the list 
-                ideList.append(Frames[i])  
-                if len(ideList) > 1 : #check if more object with same name 
-                    print("There somthing wrong with the id you manuel felter the list")
-                    for i in range(len(ideList)): # show diffent object with same name and id
-                        print(f"Object {i}: {ideList[i].name} with id: {ideList[i].id} and description: {ideList[i].description}")
-                        print(f"Object in the list is: Frames[{number[i]}]")
-                        print("============================================================================")
-                        print("                                                                            ")
-                    print("Please change the id or name to the object you want to use wih funktion") 
-                return
-            elif(len(ideList) == 0):
-                print("There are no object with that id and name")
-                return 
-        
+        ideList = list(filter(lambda x: x.id == id, Frames)) # The funtion filter list for id. The put in the list. If didn't use list it would be object with diffent items
+    elif matrix != []: # check if there are matrix
+        ideList = list(filter(lambda x: np.array_equal(x.getGlobalPos(), matrix), Frames)) # The funtion filter list for matrix. The put in the list. If didn't use list it would be object with diffent items
     else:
         ideList = list(filter(lambda x: x.name == name, Frames))# The funtion filter list for name. The put in the list. If didn't use list it would be object with diffent items
-        if len(ideList) > 1 : #check if there more object with the same name 
-            print("There are more object with same name in the list")
-            print(f"There are {len(ideList)} object with same name give more id !!!!!!!!")
-            for i in range(len(ideList)): # show diffent object with same name
-                print(f"Object {i}: {ideList[i].name} with id: {ideList[i].id} and description: {ideList[i].description}")
-                print("============================================================================")
-                print("                                                                            ")
-            return
-        elif(len(ideList) == 0):
-            print("There are no object with name")
-            return
-               
-       
-         
-   
+    
+    if len(ideList) > 1 : #check if there more object with the same name 
+        print("There are more object with same propty in the list")
+        print(f"There are {len(ideList)} object with same name give more id !!!!!!!!")
+        for i in range(len(ideList)): # show diffent object with same name
+            print(f"Object {i}: {ideList[i].name} with id: {ideList[i].id} and description: {ideList[i].description}")
+            print("============================================================================")
+            print("                                                                            ")
+        return
+    elif(len(ideList) == 0):
+        print("There are no object with the property in the list")
+        return
     
     return ideList[0] # return the first object in the list
 
@@ -83,7 +74,7 @@ def deleteFrame(index):
     
 def replaceFrames(oldFrame,newFrame):
     Frames[Frames.index(oldFrame)] = newFrame 
-    saveList() # Save the the new frame to the list  
+    #saveList() # Save the the new frame to the list  
 
 
 
@@ -111,48 +102,67 @@ evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.14545],
                                 [0, 1, 0, -.044857],
                                 [0, 0, 1, .009917],
                                 [0, 0, 0, 1]]),"EVB frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = seachlist("Ramp")) # The frame for the EVB location
-
-
 Frames.append(dropOffFrame) # Add the drop off frame to the list of frames
 Frames.append(evbFrame) # Add the EVB frame to the list of frames
 
-        
+pickUpFrame = Pose(5, "Pickup", np.array([[     1.000000,    -0.000001,    -0.000000,    .081497 ],
+      [0.000001,     1.000000,    -0.000001,  -.025008 ],
+      [0.000000,     0.000001,     1.000000,     .009917 ],
+      [0.000000,     0.000000,     0.000000,     1.000000 ]
+]),"Lid pickup frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = seachlist("Ramp")) # The frame for the lid pickup location
+Frames.append(pickUpFrame) # Add the lid pickup frame to the list of frames  
+     
+lidOnEvbFrame = Pose(6, "LidOnEvb", np.array([[    -0.000000,    -1.000000,     0.000000,   .182353000 ],
+      [1.000000,     0.000000,     0.000000,  -.113741000 ],
+      [0.000000,     0.000000,     1.000000,   -.013627000 ],
+      [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is on the EVB", base = seachlist("Ramp"), approach=0.15) # The frame for the lid location
+Frames.append(lidOnEvbFrame) # Add the lid frame to the list of frames
+
+lidStorageFrame = Pose(7, "LidStorage", np.array([[    -0.000001,    -0.000001,     1.000000,   -.093699807 ],
+     [-0.000001,     1.000000,     0.000001,  -.590749488 ],
+     [-1.000000,    -0.000001,    -0.000001,   .111500172 ],
+      [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is in the storage") # The frame for the lid location
+Frames.append(lidStorageFrame) # Add the lid frame to the list of frames
+
+lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   -.145143],
+    [0,     1,    0,    0],
+    [0,     0,    1,    0 ],
+    [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
+Frames.append(lidStorageAproachFrame) # Add the lid frame to the list of frames
+
+lidStorageViaFrame = Pose(9, "LidStorageVia", np.array([[     1,    0,    0,   -.2],
+    [0,     1,    0,  0],
+    [0,     0,    1,    0 ],
+    [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
+Frames.append(lidStorageViaFrame) # Add the lid frame to the list of frames
+
 def saveList():   
     with open('Frames.pkl', "wb") as file:
         pickle.dump(Frames, file)  # Save Pose to a file 
         print("Frames saved successfully")
-       
-
 
 def loadList():
     with open('Frames.pkl', "rb") as file:
         return pickle.load(file)  # Load Pose from the file
 
-
-#Frames = loadList() # Load the frames from the file
-baseFrames: List[Pose] = [
-    ur5Frame,
-    seachlist("Ramp"),
-    ]
 # Er den ikke forkte da det skal være realtive første bokse.
 def generateCellFrames():
     rampFrame = seachlist("Ramp") # The frame for the ramp
- 
+    evbFrame = seachlist("EVB") # The frame for the EVB location
+
     evbX = evbFrame.matrix[0][3] # The x position of the EVB frame
     evbY = evbFrame.matrix[1][3] # The y position of the EVB frame
+    
     for i in range(4):  
         for j in range(2):
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   0 ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = "blue"))   
-
-
-
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
 
 #Calibration variables
-currentCalibrationFrame: Pose = seachlist("UR5") # tidligere: ur5Frame # The current calibration frame
-calibrationActive = False
+# tidligere: ur5Frame # The current calibration frame
+
             
 # is show every object in the list of frames. Where can se name,id,matrix and description
 def showFramesInList():
@@ -166,24 +176,50 @@ def showFramesInList():
         print(f"Description: {Frames[i].description}")
         print("============================================================================")
         print("                                                                            ")
-            
-
  
 def generateMoves():
+    lidOnEvbFrame = seachlist("LidOnEvb") # The frame for the lid on the EVB location
+    lidStorageFrame = seachlist("LidStorage") # The frame for the lid in the storage location
+    lidStorageViaFrame = seachlist("LidStorageVia") # The frame for the lid in the storage location
+    lidStorageAproachFrame = seachlist("LidStorageAproach") # The frame for the lid in the storage location
+    
+    actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB ingoing approach", "move": lidOnEvbFrame.getApproach(), "type": "j"})
+    actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB", "move": lidOnEvbFrame.getGlobalPos(), "type": "l"}) # Move to the lid on the EVB location
+    actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40}) # Close the gripper
+    actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB outgoing approach", "move": lidOnEvbFrame.getApproach(), "type": "l"}) # Move to the lid on the EVB location
+    actions.append({"frameID":lidStorageAproachFrame.id , "actionType": "moveTCP", "name": "Lid storage ingoing approach", "move": lidStorageAproachFrame.getGlobalPos(), "type": "j"}) # Move to the lid storage location
+    actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage", "move": lidStorageFrame.getGlobalPos(), "type": "l"}) # Move to the lid storage location
+    actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25}) # Open the gripper
+    actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing approach", "move": lidStorageFrame.getApproach(), "type": "l"}) # Move to the lid storage location
+    actions.append({"frameID":lidStorageAproachFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing via approach", "move": lidStorageViaFrame.getApproach(), "type": "j"}) # Move to the lid storage location
+
+    
     for i in range(4):
         for j in range(2):
             cell = seachlist(f"Cell [{i}, {j}]")
-            if cell.isEmpty:
-                continue
-            actions.append({"actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-            actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
-            actions.append({"actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-            actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
-            actions.append({"actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
-            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-            actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
-            actions.append({"actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+            dropOffFrame = seachlist("Dropoff")
+            pickUpFrame = seachlist("Pickup")
+            if cell.replace: # Check if the cell is a replace cell
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+                actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
+                actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+                actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
+                
+            if cell.isEmpty or cell.replace: # Check if the cell is empty and not a replace cell
+                actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name} ingoing approach","move": pickUpFrame.getApproach(), "type": "j"})
+                actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name}","move": pickUpFrame.getGlobalPos(), "type": "l"})  
+                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+                actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name} outgoing approach","move": pickUpFrame.getApproach(), "type": "l"})
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} ingoing approach","move": cell.getApproach(), "type": "j"})
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
+                actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
+                
     #print(actions)
 
 def singleAction(action):
@@ -248,6 +284,12 @@ def priorMove():
 def nextMove():
     global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
+    if actions[currentAction]["actionType"] == "moveTCP":
+        print("Current id: ", actions[currentAction]["frameID"])
+        currentFrame = seachlist(id=int(actions[currentAction]["frameID"]))
+        print("Setting current frame: ", currentFrame.name)
+        window.dropdownStacker.calibrator.setCurrentFrame(seachlist(id=actions[currentAction]["frameID"]))
+
     print("Current action: ", currentAction)
     if currentAction < len(actions) and not moving:
         singleAction(actions[currentAction])
@@ -261,7 +303,8 @@ def nextMove():
     window.controlMenu.buttonWork.setEnabled(False)
 
 def updateUI():
-    colors = objRec.get_colors()
+    global colors
+    ##colors = objRec.get_colors()
     print("Colors: ", colors)
     window.dropdownStacker.cellDisplay.update_colors(colors)
     
@@ -297,7 +340,7 @@ def reset():
     
     homeActions = []
     homeActions.append({"actionType": "moveTCP", "name": "ClearHeight", "move": getGlobalPos(posInBaseFrame, rampFrame), "type": "j"})
-    homeActions.append({"actionType": "home"})
+    homeActions.append({"actionType": "home", "name": "Homing"})
     
     homingThread = ExcecuteSeriesThread(homeActions, UR5, gripper) # Create a thread to execute the actions
     homingThread.start() # Start the thread
@@ -319,6 +362,9 @@ def posInBase(frame: np.array, pose: Pose):
     return  inv(base) @ frame # The position of the frame in the base frame
 
 def getGlobalPos(frame: np.array, pose: Pose):
+    if(pose == None):
+        return frame # If the pose is None, return the frame
+    
     return pose.getGlobalPos() @ frame # The position of the frame in the global frame
 
 def baseFrameChanged(index):
@@ -329,16 +375,19 @@ def baseFrameChanged(index):
     
 def calibrateRobot():
     global calibrationActive
+    global lastFrame
+    
+    lastFrame = UR5.getCurrentPos() # The last frame before calibration
     window.controlMenu.testMenu.buttonNext.setEnabled(False)
     window.controlMenu.testMenu.buttonBack.setEnabled(False)
     window.controlMenu.testMenu.buttonReset.setEnabled(False)
     calibrationActive = True
 
 # the frame you want in the list remeber to change every thing 
-replace = Pose(len(Frames)+1,"Dropoff", np.array([[1, 0, 0, 0.5],
-                              [0, 1, 0, 0],
-                              [0, 0, 1, 0],
-                              [0, 0, 0, 1]]),"Dropoff first frame for the robot Date: 04-04-2025",Frames[1])
+# replace = Pose(len(Frames)+1,"Dropoff", np.array([[1, 0, 0, 0.5],
+#                               [0, 1, 0, 0],
+#                               [0, 0, 1, 0],
+#                               [0, 0, 0, 1]]),"Dropoff first frame for the robot Date: 04-04-2025",Frames[1])
   
 
 # skal listen moves
@@ -349,6 +398,75 @@ def stopCalibration():
     window.controlMenu.testMenu.buttonReset.setEnabled(True)
     calibrationActive = False
 
+def resetCalibration():
+    global lastFrame
+    
+    print("Last Frame:", lastFrame)
+    if lastFrame[0][0] == None or not calibrationActive:
+        print("Reset calibration: No last frame or not in calibration mode")
+        print("Laste frame:", lastFrame)
+        print("Calibration active:", calibrationActive)
+        return
+    
+    lastFrame = Pose(999, "temp", lastFrame) # The last frame before calibration
+    resetAction = {"actionType": "moveTCP", "name": "Reset calibration", "move": lastFrame.getGlobalPos(), "type": "l"}
+    
+    
+    singleAction(resetAction) # Move the robot to the last frame
+    stopCalibration() # Stop the calibration
+    lastFrame = None # Reset the last frame
+
+def saveSingeCalibrationFrame():
+    global actions
+    print("Saving single calibration frame")
+    
+    newMatrix = window.dropdownStacker.calibrator.getCalPosition()
+
+    foundFrame = False
+    actionIndexer = currentAction - 1
+    
+    while not foundFrame:
+        if actions[actionIndexer]["actionType"] == "moveTCP":
+            foundFrame = True
+            oldFrameID = actions[actionIndexer]["frameID"]
+        else:
+            actionIndexer -= 1
+    
+    oldFrame: Pose = seachlist(id=oldFrameID) # The frame to be replaced
+    newFrame: Pose = oldFrame
+    
+    if not np.array_equal(newFrame.getGlobalPos(), actions[actionIndexer]["move"]):
+        print("This is an approach frame")
+        newMatrix = newMatrix @ inv(oldFrame.approach) # The new matrix is the old matrix multiplied by the approach matrix
+    
+    if newFrame.base != currentCalibrationFrame.base:
+        globalPos = getGlobalPos(newMatrix, currentCalibrationFrame.base) # The global position of the new matrix in the base frame
+        newMatrix = posInBase(globalPos, newFrame.base) # The new matrix is the old matrix multiplied by the base matrix
+    
+    newFrame.matrix = newMatrix # Update the calibration frame with the new matrix
+    replaceFrames(oldFrame, newFrame) # Replace the calibration frame with the new matrix
+    
+    
+    actions = []
+    generateMoves()
+    stopCalibration()
+    print("Calibration frame saved, and cal stopped")
+    
+def saveBaseCalibrationFrame():
+    currentCalibrationMatrix = window.dropdownStacker.calibrator.getCalPosition()
+    
+    newCalibrationFrame = Pose(999, "temp", currentCalibrationMatrix, base = currentCalibrationFrame) # The current calibration frame
+    
+    newBaseMatrix = newCalibrationFrame.getGlobalPos() @ inv(currentCalibrationFrame.matrix)
+    newBaseFrame = currentCalibrationFrame.base
+    if(newBaseFrame.name == "UR5"):
+        print("UR5 frame cannot be updated")
+        return
+    newBaseFrame.matrix = newBaseMatrix # Update the base frame with the new matrix
+    replaceFrames(currentCalibrationFrame.base, newBaseFrame) # Replace the base frame with the new matrix
+    
+    stopCalibration()
+
 def translateFrame(axis, value):
     try:
         value = float(value)
@@ -356,7 +474,7 @@ def translateFrame(axis, value):
         print("Invalid value:", value)
         return
     #print("Translating along:", axis, "by:", value)
-    tempFrame = Pose(99, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose(999, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
     
     window.dropdownStacker.calibrator.enableInput(False)
     
@@ -382,7 +500,7 @@ def rotateFrame(values):
     
     window.dropdownStacker.calibrator.enableInput(False)
     
-    tempFrame = Pose(99, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
+    tempFrame = Pose(999, "temp", posInBase(UR5.getCurrentPos(), currentCalibrationFrame), base = currentCalibrationFrame) # The current position of the robot
     newR = mc.RPYtoRMatrix(values) # The new rotation matrix
     tempFrame.matrix[:3, :3] = newR # Set the rotation matrix in Frame matirx to the new rotation matrix
     R = tempFrame.matrix[:3, :3]
@@ -401,36 +519,46 @@ def updateUIPosition():
     
 def updateProgramProgress():
     while True:
+        global calibrationReset
         if not calibrationActive:
             updateUIPosition() # Update the current pose in the UI
             
         currentMode = window.controlMenu.getCurrentMode() 
-        # if currentMode == "auto":
-        #     if len(UR5.getAllTargets()) == 0 or len(actions) == 0:
-        #         window.controlMenu.setProgress(0,0)
-        #         window.controlMenu.setCurrentTarget("None")
-        #         window.controlMenu.setNextTarget("None")
-        #         continue
-        #     currentAutoMove = len(actions) - len(UR5.getAllTargets())  
-        #     window.controlMenu.setProgress(currentAutoMove + 1, len(actions))
-        #     window.controlMenu.setCurrentTarget(actions[currentAutoMove]["name"])
-        #     if(currentAutoMove + 1) >= len(actions):
-        #         window.controlMenu.setNextTarget("None")
-        #         continue
-        #     window.controlMenu.setNextTarget(actions[currentAutoMove+1]["name"])
-        # else:
-        if(currentAction == 0):
-            window.controlMenu.setProgress(0,len(actions))
-            window.controlMenu.setCurrentTarget("None")
-            window.controlMenu.setNextTarget("None")
-            continue
-        currentProgress = currentAction + 1 if currentMode == "auto" else currentAction
-        window.controlMenu.setProgress(currentProgress, len(actions))
-        
-        currentTarget = actions[currentAction]["name"] if currentMode == "auto" else actions[currentAction-1]["name"]
-        nextTarget = actions[currentAction+1]["name"] if currentMode == "auto" else actions[currentAction]["name"]
-        window.controlMenu.setCurrentTarget(currentTarget)
-        window.controlMenu.setNextTarget(nextTarget)
+        if currentMode == "auto":
+            if autoThread == None or not autoThread.is_alive():
+                window.controlMenu.setProgress(0,0)
+                window.controlMenu.setCurrentTarget("None")
+                window.controlMenu.setNextTarget("None")
+                continue
+            
+            currentTarget, nextTarget, currentProgress = autoThread.getState()
+            
+            if currentTarget == None or currentProgress == None:
+                window.controlMenu.setProgress(0,0)
+                window.controlMenu.setCurrentTarget("None")
+                window.controlMenu.setNextTarget("None")
+                continue
+            
+            window.controlMenu.setProgress(currentProgress + 1, len(actions))
+            window.controlMenu.setCurrentTarget(currentTarget)
+            if(nextTarget == None):
+                window.controlMenu.setNextTarget("None")
+            
+            window.controlMenu.setNextTarget(nextTarget)
+        else:
+            if(currentAction == 0):
+                window.controlMenu.setProgress(0,len(actions))
+                window.controlMenu.setCurrentTarget("None")
+                window.controlMenu.setNextTarget("None")
+                continue
+            currentProgress = currentAction
+            window.controlMenu.setProgress(currentProgress, len(actions))
+            
+            currentTarget = actions[currentAction-1]["name"]
+            nextTarget = actions[currentAction]["name"]
+            window.controlMenu.setCurrentTarget(currentTarget)
+            window.controlMenu.setNextTarget(nextTarget)
+            
         time.sleep(0.1)
 
 
@@ -446,9 +574,16 @@ progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
 #Frames = loadList() # Load the frames from the file (1)
+
+baseFrames: List[Pose] = [
+    seachlist("UR5"),
+    seachlist("Ramp"),
+    ]
+
+currentCalibrationFrame: Pose = seachlist("UR5")
+
 #showFramesInList()
 def main():
-    
     generateCellFrames()# If you want to generate other cells on comentar this code (2)
     saveList()# (3)
     #showFramesInList()
@@ -466,12 +601,17 @@ def main():
     
     window.dropdownStacker.calibrator.setStartCalibration(calibrateRobot) # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setStopCalibration(stopCalibration) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.setResetCalibration(resetCalibration) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.saveCalDialog.setFunctionBaseUpdate(saveBaseCalibrationFrame) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.saveCalDialog.setFunctionSingleFrameUpdate(saveSingeCalibrationFrame) # Set the function to be called when the button is pressed
+    
+    window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateY(translateFrame, "y") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateZ(translateFrame, "z") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setRotate(rotateFrame)
     
-    window.dropdownStacker.calibrator.dropdown.addItems(map(lambda base: base.name, baseFrames)) # Add the base frames to the dropdown menu
+    window.dropdownStacker.calibrator.setBaseFrames(baseFrames)
     window.dropdownStacker.calibrator.setFunctionChangeBase(baseFrameChanged) # Connect the dropdown menu to the function
     
     updateUI()

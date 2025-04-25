@@ -1,10 +1,12 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit, QDialog, QDialogButtonBox
 from PyQt6.QtGui import QFont, QImage, QPixmap
 from PyQt6.QtCore import Qt, QTimer
 import cv2 as cv
 import numpy as np
+import matrixConversion as mc
+from pose import Pose
 
 """
 The first 3 classes is what will be displayed on the GUI.
@@ -71,51 +73,15 @@ class CellDisplay(QWidget):
         #     return
 
         # Update the colors of the boxes
-        
-        
-        for i, box in enumerate(self.boxes):
-            x = 0 if i % 2 == 0 else 1
-            y = i // 2
-            color = colors[y][x].strip()
-            box.setStyleSheet(f'background-color: {color};')
-
-class CameraView(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-    
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        self.camera = cv.VideoCapture(0)
-
-        self.label = QLabel()
-        
-        layout.addWidget(self.label)
-        self.setLayout(layout)
-    
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.runCamera)
-        self.timer.start(30)
-
-    def runCamera(self):
-        ret, frame = self.camera.read()
-        if ret:
-            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            frame = cv.flip(frame, 1)
-            frame = cv.resize(frame,(300,300))
+        try:
+            for i, box in enumerate(self.boxes):
+                x = 0 if i % 2 == 0 else 1
+                y = i // 2
+                color = colors[y][x].strip()
+                box.setStyleSheet(f'background-color: {color};')
+        except (IndexError, TypeError) as e:
+            print("Error: Invalid color or index out of range.")
             
-
-            h, w, ch = frame.shape
-            bytesPerLine = ch * w
-            qImg = QImage(frame.data, w, h, bytesPerLine, QImage.Format.Format_RGB888)
-
-            self.label.setPixmap(QPixmap.fromImage(qImg))
-
-    def closeEvent(self,event):
-        self.camera.release()
-        event.accept()
-    
 class TestMenu(QWidget):
     def __init__(self):
         super().__init__()
@@ -277,8 +243,84 @@ class AutoMenu(QWidget):
         self.buttonStop.setEnabled(False)
         self.buttonStart.setEnabled(True)
 
-class Calibrator(QWidget):
+
+class SaveCalDialog(QDialog):
+    saveSingleFunction = None
+    saveBaseFunction = None
     
+    def __init__(self, hasBaseFrame = False):
+        super().__init__()
+        
+        self.setWindowTitle("Save Calibration")
+
+        # Create a label and a line edit for the file name
+        if(hasBaseFrame):
+            self.label = QLabel("Do you want to update the base, \nor the current frame?")
+        else:
+            self.label = QLabel("Do you want to update the current frame?")
+            
+        self.label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFixedHeight(80)
+        
+        # Create a button to save the calibration
+        self.baseFrameButton = QPushButton("Base", self)
+        self.baseFrameButton.clicked.connect(self.baseUpdate)
+        self.baseFrameButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        self.baseFrameButton.setFixedHeight(25)
+        
+        if(not hasBaseFrame):
+            self.baseFrameButton.hide()
+        
+        if(hasBaseFrame):
+            self.singleFrameButton = QPushButton("Frame", self)
+        else:
+            self.singleFrameButton = QPushButton("Yes", self)
+        
+        self.singleFrameButton.clicked.connect(self.singleFrameUpdate)
+        self.singleFrameButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        self.singleFrameButton.setFixedHeight(25)
+        
+        self.cancelButton = QPushButton("Cancel", self)
+        self.cancelButton.clicked.connect(self.reject)  # Close the dialog without saving
+        self.cancelButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        self.cancelButton.setFixedHeight(25)
+        
+        self.buttonBox = QDialogButtonBox(Qt.Orientation.Horizontal)
+        self.buttonBox.addButton(self.singleFrameButton, QDialogButtonBox.ButtonRole.ApplyRole)
+        
+        if(hasBaseFrame):
+            self.buttonBox.addButton(self.baseFrameButton, QDialogButtonBox.ButtonRole.ApplyRole)   
+        
+        self.buttonBox.addButton(self.cancelButton, QDialogButtonBox.ButtonRole.RejectRole)
+        
+        # Create a layout and add widgets
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.buttonBox)
+
+        self.setLayout(layout)
+        
+    def setHasBaseFrame(self, hasBaseFrame):
+        self.hasBaseFrame = hasBaseFrame
+        
+    def setFunctionBaseUpdate(self, function):
+        self.saveBaseFunction = function
+        self.baseFrameButton.clicked.connect(function)
+    
+    def setFunctionSingleFrameUpdate(self, function):
+        self.saveSingleFunction = function
+        self.singleFrameButton.clicked.connect(function)
+
+    def baseUpdate(self):
+        print(f"Base update selected")
+        self.accept()  # Close the dialog
+        
+    def singleFrameUpdate(self):
+        print(f"Single frame update selected")
+        self.accept()
+
+class Calibrator(QWidget):
     translateX = None
     translateY = None
     translateZ = None
@@ -380,6 +422,7 @@ class Calibrator(QWidget):
         self.startCal.clicked.connect(self.startCalibration)
         self.stopCal.clicked.connect(self.stopCalibration)
         self.resetCal.clicked.connect(self.resetCalibration)
+        self.saveCal.clicked.connect(self.saveCalibration)
         
         self.xValue.editingFinished.connect(self.xValueChanged)
         self.yValue.editingFinished.connect(self.yValueChanged)
@@ -460,6 +503,11 @@ class Calibrator(QWidget):
         
         self.setLayout(vbox) 
         
+        self.saveCalDialog = SaveCalDialog()
+        
+        self.baseFrames: Pose = None
+        self.currentFrame: Pose = None
+        
     def setStartCalibration(self, function):
         self.startCal.clicked.connect(function)
     
@@ -523,7 +571,15 @@ class Calibrator(QWidget):
     
     def setRotate(self, function):
         self.rotate = lambda: function([self.rotXValue.text(), self.rotYValue.text(), self.rotZValue.text()])
-        
+    
+    def getCalPosition(self):
+        R = mc.RPYtoRMatrix([np.radians(float(self.rotXValue.text())), np.radians(float(self.rotYValue.text())), np.radians(float(self.rotZValue.text()))])
+        T = np.array([[R[0][0], R[0][1], R[0][2], float(self.xValue.text())* 0.001],
+                     [R[1][0], R[1][1], R[1][2], float(self.yValue.text())* 0.001],
+                     [R[2][0], R[2][1], R[2][2], float(self.zValue.text())* 0.001],
+                     [0, 0, 0, 1]])
+        return T
+      
     def setCurrentPose(self, pose):
         self.rotXValue.setText(f"{round(np.degrees(pose[0]),2)}")
         self.rotYValue.setText(f"{round(np.degrees(pose[1]),2)}")
@@ -547,7 +603,6 @@ class Calibrator(QWidget):
         self.saveCal.setEnabled(False)
         self.resetCal.setEnabled(False)
         self.enableInput(False)
-        
     
     def resetCalibration(self):
         print("Calibration reset")
@@ -564,8 +619,29 @@ class Calibrator(QWidget):
         self.rotXValue.setReadOnly(not enable)
         self.rotYValue.setReadOnly(not enable)
         self.rotZValue.setReadOnly(not enable)    
+    
+    def saveCalibration(self):
+        print("Save calibration")
+        if(self.currentFrame.base == None):
+            newCalDialog = SaveCalDialog()
+        else:
+            newCalDialog = SaveCalDialog(True)
+            
+        newCalDialog.setFunctionSingleFrameUpdate(self.saveCalDialog.saveSingleFunction)
+        newCalDialog.setFunctionBaseUpdate(self.saveCalDialog.saveBaseFunction)
+        self.saveCalDialog = newCalDialog 
+        self.saveCalDialog.exec()
+    
+    def setBaseFrames(self, baseFrames: Pose = []):
+        self.dropdown.addItems(map(lambda base: base.name, baseFrames))
+        self.baseFrames = baseFrames
+       
+    def setCurrentFrame(self, frame: Pose):
+        self.currentFrame = frame
+        print("Current frame set to:", frame.name)
         
     def base(self, index):
+        self.baseIndex = index
         print("Base changed to:", index)
         
 
@@ -689,16 +765,14 @@ class DropdownStacker(QWidget):
         self.StackedWidget = QStackedWidget()
         self.cellDisplay = CellDisplay()
         self.calibrator = Calibrator()
-        self.CameraView = CameraView()
 
         self.StackedWidget.addWidget(self.cellDisplay)
         self.StackedWidget.addWidget(self.calibrator)
-        self.StackedWidget.addWidget(self.CameraView)
 
         # dropdown menu
         self.dropdown = QComboBox()
 
-        self.dropdown.addItems(["Cell Display","Calibrator","Camera View"])
+        self.dropdown.addItems(["Cell Display","Calibrator"])
         
         self.dropdown.currentIndexChanged.connect(self.switchMode)
         
