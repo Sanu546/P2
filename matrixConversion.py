@@ -1,14 +1,20 @@
 import numpy as np
+from spatialmath import SO3
+import spatialmath.base as smb
 
 def matrixToAxisAngle(pose):
-    R = np.array([[pose[0][0],pose[0][1],pose[0][2]],[pose[1][0],pose[1][1],pose[1][2]],[pose[2][0],pose[2][1],pose[2][2]]])
+    # Extract rotation matrix
+    R = SO3([
+        [pose[0][0], pose[0][1], pose[0][2]],
+        [pose[1][0], pose[1][1], pose[1][2]],
+        [pose[2][0], pose[2][1], pose[2][2]]
+    ])
     
-    theta = np.arccos((R[0][0]+R[1][1]+R[2][2]-1)/2)
+    angleAxis = R.angvec()
     
-    k = (1/(2*np.sin(theta))*np.array([R[2][1]-R[1][2],R[0][2]-R[2][0],R[1][0]-R[0][1]]))
-    ku = 1/np.sqrt(k[0]**2+k[1]**2+k[2]**2)*k
-    
-    return [pose[0][3],pose[1][3],pose[2][3],ku[0]*theta,ku[1]*theta,ku[2]*theta]
+    angleAxisVec = angleAxis[0] * angleAxis[1]
+    angleAxisVec = np.append([pose[0][3], pose[1][3], pose[2][3]], angleAxisVec)    
+    return angleAxisVec
 
 def axisAngleToMatrix(pose):
     theta = np.sqrt(pose[3]**2+pose[4]**2+pose[5]**2)
@@ -59,6 +65,24 @@ def RPYtoRMatrix(pose):
     R = Rz @ Ry @ Rx
     
     return R
+
+# matrix = np.array([[-1.00000000e+00, -1.00000000e-06,  0.00000000e+00,5.07500101e-02],
+#        [-1.00000000e-06,  9.06308000e-01, -4.22618000e-01, -2.96883397e-01],
+#        [ 1.00000000e-06, -4.22618000e-01, -9.06308000e-01, 9.73039785e-02],
+#        [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 1.00000000e+00]])
+
+# acMatrix = [[    -1.000000,    -0.000000,     0.000000,    50.551742],
+#      [-0.000000,     1.000000,    -0.000000,  -296.844405 ],
+#      [-0.000000,    -0.000000,    -1.000000,    97.231132 ],
+#       [0.000000,     0.000000,     0.000000,     1.000000 ]
+# ]
+
+# urPos = matrixToAxisAngle(matrix)
+# print(urPos, "urPos")
+# print(np.degrees(rpy), "rpy")
+# print(urPos, "urPos")
+
+
 
 # ur5pos = [-.288579832,  -.582838966,   .495898987,    -0.103287,    -2.100478,    -0.110654]
 
