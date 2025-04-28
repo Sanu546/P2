@@ -17,8 +17,9 @@ class Pose:
         if not self.isCell:
             return
         
-        if color == "grey":
+        if color == "grey" or color == "N/A":
             self.isEmpty = True
+            self.replace = False
         elif color == "red":
             self.isEmpty = False
             self.replace = True
