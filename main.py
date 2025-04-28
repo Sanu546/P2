@@ -73,7 +73,19 @@ def deleteFrame(index):
     Frames.pop(index)
     
 def replaceFrames(oldFrame,newFrame):
+    global Frames
     Frames[Frames.index(oldFrame)] = newFrame 
+    for index, baseFrame in enumerate(baseFrames):
+        if baseFrame.id == oldFrame.id:
+            baseFrames[index] = newFrame # Replace the base frame in the list of frames
+            for frameIndex, frame in enumerate(Frames):
+                if frame.base == None:
+                    continue
+                if frame.base.id == oldFrame.id:
+                    Frames[frameIndex].base = newFrame
+
+
+    
     #saveList() # Save the the new frame to the list  
 
 
@@ -265,6 +277,21 @@ def executeAction(action):
 def stopAutoRobot():
     UR5.stop()  
 
+def getCurrentFrame(action):
+    if action["actionType"] == "moveTCP":
+        print("Current id: ", action["frameID"])
+        currentFrame = seachlist(id=int(action["frameID"]))
+        print("Setting current frame: ", currentFrame.name)
+        isApproach = False
+        
+        if(not np.array_equal(currentFrame.getGlobalPos(), action["move"])):
+            isApproach = True
+            
+        return currentFrame, isApproach
+    
+    return None, False
+    
+
 def priorMove():
     global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
@@ -275,22 +302,26 @@ def priorMove():
         window.controlMenu.buttonTest.setEnabled(True)
         window.controlMenu.buttonWork.setEnabled(True)
         currentAction = 0
+        window.dropdownStacker.calibrator.setCurrentFrame(None, False) # Set the current frame in the UI
         return   
         
     if currentAction > 0 and not moving:
         currentAction -= 1
         singleAction(actions[currentAction-1])
+        
+        currentFrame, isApporach = getCurrentFrame(actions[currentAction-1])
+        if currentFrame != None:
+            window.dropdownStacker.calibrator.setCurrentFrame(currentFrame, isApporach)
+    
 
 def nextMove():
     global currentAction
     moving = False if len(UR5.getAllTargets()) == 0 else True
-    if actions[currentAction]["actionType"] == "moveTCP":
-        print("Current id: ", actions[currentAction]["frameID"])
-        currentFrame = seachlist(id=int(actions[currentAction]["frameID"]))
-        print("Setting current frame: ", currentFrame.name)
-        window.dropdownStacker.calibrator.setCurrentFrame(seachlist(id=actions[currentAction]["frameID"]))
-
-    print("Current action: ", currentAction)
+    
+    currentFrame, isApporach = getCurrentFrame(actions[currentAction])
+    if currentFrame != None:
+        window.dropdownStacker.calibrator.setCurrentFrame(currentFrame, isApporach) # Set the current frame in the UI
+    
     if currentAction < len(actions) and not moving:
         singleAction(actions[currentAction])
         # executeAction(actions[currentAction-1])
@@ -328,8 +359,6 @@ def reset():
         while len(UR5.getAllTargets()) != 0:
             pass
         
-        
-    
     currentPosition = UR5.getCurrentPos() 
     posInBaseFrame = posInBase(currentPosition, rampFrame) # The position of the robot in the base frame 
     zValue = posInBaseFrame[2][3]# The z axis of the base frame
@@ -422,50 +451,72 @@ def saveSingeCalibrationFrame():
     
     newMatrix = window.dropdownStacker.calibrator.getCalPosition()
 
-    foundFrame = False
-    actionIndexer = currentAction - 1
+    oldFrame: Pose = window.dropdownStacker.calibrator.currentFrame
+    isApproach = window.dropdownStacker.calibrator.currentFrameIsApproach # Check if the current frame is an approach frame
     
-    while not foundFrame:
-        if actions[actionIndexer]["actionType"] == "moveTCP":
-            foundFrame = True
-            oldFrameID = actions[actionIndexer]["frameID"]
-        else:
-            actionIndexer -= 1
-    
-    oldFrame: Pose = seachlist(id=oldFrameID) # The frame to be replaced
     newFrame: Pose = oldFrame
     
-    if not np.array_equal(newFrame.getGlobalPos(), actions[actionIndexer]["move"]):
+    if newFrame.base != currentCalibrationFrame:
+        globalPos = getGlobalPos(newMatrix, currentCalibrationFrame) # The global position of the new matrix in the base frame
+        newMatrix = posInBase(globalPos, newFrame.base) # The new matrix is the old matrix multiplied by the base matrix
+    
+    if isApproach:
         print("This is an approach frame")
         newMatrix = newMatrix @ inv(oldFrame.approach) # The new matrix is the old matrix multiplied by the approach matrix
-    
-    if newFrame.base != currentCalibrationFrame.base:
-        globalPos = getGlobalPos(newMatrix, currentCalibrationFrame.base) # The global position of the new matrix in the base frame
-        newMatrix = posInBase(globalPos, newFrame.base) # The new matrix is the old matrix multiplied by the base matrix
     
     newFrame.matrix = newMatrix # Update the calibration frame with the new matrix
     replaceFrames(oldFrame, newFrame) # Replace the calibration frame with the new matrix
     
+    actions = []
+    generateMoves()
+    stopCalibration()
+    window.dropdownStacker.calibrator.stopCalibration()
+    print("Calibration frame saved, and cal stopped")
+    
+def saveBaseCalibrationFrame():
+    global actions
+    
+    newMatrix = window.dropdownStacker.calibrator.getCalPosition()
+    oldFrame: Pose = window.dropdownStacker.calibrator.currentFrame # The current frame in the UI
+    newBase: Pose = oldFrame.base # The base frame of the current frame
+    
+    if currentCalibrationFrame.name != "UR5":
+        newMatrix = getGlobalPos(newMatrix, currentCalibrationFrame) # The global position of the new matrix in the base frame
+    
+    localPos = oldFrame.matrix
+    newBaseMatrix = newMatrix @ inv(localPos)
+    
+    newBase.matrix = newBaseMatrix # The new matrix is the old matrix multiplied by the base matrix
+    
+    replaceFrames(oldFrame.base, newBase) # Replace the base frame with the new matrix
     
     actions = []
     generateMoves()
     stopCalibration()
-    print("Calibration frame saved, and cal stopped")
+    window.dropdownStacker.calibrator.stopCalibration()
     
-def saveBaseCalibrationFrame():
-    currentCalibrationMatrix = window.dropdownStacker.calibrator.getCalPosition()
+def saveApproachCalibrationFrame():
+    print("Saving approach calibration frame")
+    global actions
     
-    newCalibrationFrame = Pose(999, "temp", currentCalibrationMatrix, base = currentCalibrationFrame) # The current calibration frame
+    newMatrix = window.dropdownStacker.calibrator.getCalPosition()
+    oldFrame: Pose = window.dropdownStacker.calibrator.currentFrame # The current frame in the UI
     
-    newBaseMatrix = newCalibrationFrame.getGlobalPos() @ inv(currentCalibrationFrame.matrix)
-    newBaseFrame = currentCalibrationFrame.base
-    if(newBaseFrame.name == "UR5"):
-        print("UR5 frame cannot be updated")
-        return
-    newBaseFrame.matrix = newBaseMatrix # Update the base frame with the new matrix
-    replaceFrames(currentCalibrationFrame.base, newBaseFrame) # Replace the base frame with the new matrix
+    if(currentCalibrationFrame.name != "UR5"):
+        newMatrix = getGlobalPos(newMatrix, currentCalibrationFrame)
     
+    newMatrix = inv(oldFrame.getGlobalPos()) @ newMatrix  # The new matrix is the old matrix multiplied by the base matrix
+    
+    newFrame: Pose = oldFrame # The new frame is the old frame
+    newFrame.approach = newMatrix # The new approach matrix is the new matrix
+    
+    replaceFrames(oldFrame, newFrame) # Replace the calibration frame with the new matrix
+    
+    actions = []
+    generateMoves()
     stopCalibration()
+    window.dropdownStacker.calibrator.stopCalibration()
+
 
 def translateFrame(axis, value):
     try:
@@ -604,6 +655,7 @@ def main():
     window.dropdownStacker.calibrator.setResetCalibration(resetCalibration) # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.saveCalDialog.setFunctionBaseUpdate(saveBaseCalibrationFrame) # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.saveCalDialog.setFunctionSingleFrameUpdate(saveSingeCalibrationFrame) # Set the function to be called when the button is pressed
+    window.dropdownStacker.calibrator.saveCalDialog.setFunctionApproachUpdate(saveApproachCalibrationFrame) # Set the function to be called when the button is pressed
     
     window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed
     window.dropdownStacker.calibrator.setTranslateX(translateFrame, "x") # Set the function to be called when the button is pressed

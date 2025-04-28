@@ -247,17 +247,27 @@ class AutoMenu(QWidget):
 class SaveCalDialog(QDialog):
     saveSingleFunction = None
     saveBaseFunction = None
+    saveApproachFunction = None
     
-    def __init__(self, hasBaseFrame = False):
+    def __init__(self, hasBaseFrame = False, frame: Pose = None, isApproach = False):
         super().__init__()
         
         self.setWindowTitle("Save Calibration")
 
         # Create a label and a line edit for the file name
-        if(hasBaseFrame):
-            self.label = QLabel("Do you want to update the base, \nor the current frame?")
+        
+        if(frame == None):
+            self.label = QLabel("No frame selected")
+            self.label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+            self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.label.setFixedHeight(80)
         else:
-            self.label = QLabel("Do you want to update the current frame?")
+            if(isApproach):
+                self.label = QLabel(f"Do you want to update the approach point for,\n{frame.name}(Current position), or the {frame.name} frame?")
+            elif(hasBaseFrame):
+                self.label = QLabel(f"Do you want to update the frame {frame.name}(Current position), \nor the base frame {frame.base.name}?")
+            else:
+                self.label = QLabel(f"Do you want to update the frame for {frame.name}?")
             
         self.label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -269,13 +279,22 @@ class SaveCalDialog(QDialog):
         self.baseFrameButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
         self.baseFrameButton.setFixedHeight(25)
         
-        if(not hasBaseFrame):
-            self.baseFrameButton.hide()
+        self.approachButton = QPushButton("Approach", self)
+        self.approachButton.clicked.connect(self.saveApproach)
+        self.approachButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        self.approachButton.setFixedHeight(25)
         
-        if(hasBaseFrame):
+        # Create a buttons to save the calibration    
+        if(isApproach):
             self.singleFrameButton = QPushButton("Frame", self)
+            self.baseFrameButton.hide()
+        elif(hasBaseFrame):
+            self.singleFrameButton = QPushButton(f"Frame", self)
+            self.approachButton.hide()
         else:
             self.singleFrameButton = QPushButton("Yes", self)
+            self.approachButton.hide()
+            self.baseFrameButton.hide()
         
         self.singleFrameButton.clicked.connect(self.singleFrameUpdate)
         self.singleFrameButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))
@@ -289,8 +308,10 @@ class SaveCalDialog(QDialog):
         self.buttonBox = QDialogButtonBox(Qt.Orientation.Horizontal)
         self.buttonBox.addButton(self.singleFrameButton, QDialogButtonBox.ButtonRole.ApplyRole)
         
-        if(hasBaseFrame):
-            self.buttonBox.addButton(self.baseFrameButton, QDialogButtonBox.ButtonRole.ApplyRole)   
+        if(isApproach):
+            self.buttonBox.addButton(self.approachButton, QDialogButtonBox.ButtonRole.ApplyRole)
+        elif(hasBaseFrame):
+            self.buttonBox.addButton(self.baseFrameButton, QDialogButtonBox.ButtonRole.ApplyRole)  
         
         self.buttonBox.addButton(self.cancelButton, QDialogButtonBox.ButtonRole.RejectRole)
         
@@ -301,12 +322,13 @@ class SaveCalDialog(QDialog):
 
         self.setLayout(layout)
         
-    def setHasBaseFrame(self, hasBaseFrame):
-        self.hasBaseFrame = hasBaseFrame
-        
     def setFunctionBaseUpdate(self, function):
         self.saveBaseFunction = function
         self.baseFrameButton.clicked.connect(function)
+    
+    def setFunctionApproachUpdate(self, function):
+        self.saveApproachFunction = function
+        self.approachButton.clicked.connect(function)
     
     def setFunctionSingleFrameUpdate(self, function):
         self.saveSingleFunction = function
@@ -319,6 +341,11 @@ class SaveCalDialog(QDialog):
     def singleFrameUpdate(self):
         print(f"Single frame update selected")
         self.accept()
+    
+    def saveApproach(self):
+        print(f"Approach update selected")
+        self.accept()
+    
 
 class Calibrator(QWidget):
     translateX = None
@@ -622,13 +649,19 @@ class Calibrator(QWidget):
     
     def saveCalibration(self):
         print("Save calibration")
+        
+        if(self.currentFrame == None):
+            print("No current frame set")
+            return
+        
         if(self.currentFrame.base == None):
-            newCalDialog = SaveCalDialog()
+            newCalDialog = SaveCalDialog(frame=self.currentFrame, isApproach=self.currentFrameIsApproach)
         else:
-            newCalDialog = SaveCalDialog(True)
+            newCalDialog = SaveCalDialog(True, self.currentFrame, self.currentFrameIsApproach)
             
         newCalDialog.setFunctionSingleFrameUpdate(self.saveCalDialog.saveSingleFunction)
         newCalDialog.setFunctionBaseUpdate(self.saveCalDialog.saveBaseFunction)
+        newCalDialog.setFunctionApproachUpdate(self.saveCalDialog.saveApproachFunction)
         self.saveCalDialog = newCalDialog 
         self.saveCalDialog.exec()
     
@@ -636,9 +669,11 @@ class Calibrator(QWidget):
         self.dropdown.addItems(map(lambda base: base.name, baseFrames))
         self.baseFrames = baseFrames
        
-    def setCurrentFrame(self, frame: Pose):
+    def setCurrentFrame(self, frame: Pose, isApproach):
         self.currentFrame = frame
-        print("Current frame set to:", frame.name)
+        self.currentFrameIsApproach = isApproach 
+        if(self.currentFrame.base != None):
+            print("Current frame set to:", frame.name)
         
     def base(self, index):
         self.baseIndex = index
