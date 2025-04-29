@@ -11,52 +11,29 @@ h = lgpio.gpiochip_open(0) # Åbn GPIO chip
 lgpio.gpio_claim_output(h, servo) # Sæt GPIO pin som output
 
 
-def setPwm(dutyCycle):
+def manualPwm():
+    # Initialiserer dutyCycle
+    dutyCycle = 0 
+    # dutyCycle 6 svarer til helt lukket gripper og 3 svarer til helt åben gripper
+    dutyCycle = input("Indtast dutycycle (3-6):")
+    dutyCycle = float(dutyCycle)
+    # Tjekker om input er gyldigt
+    if dutyCycle > 6 or dutyCycle < 3:
+        print("Ugyldigt input, prøv igen")
+        return manualPwm()
+
     lgpio.tx_pwm(h, servo, FREQ, dutyCycle)
     time.sleep(1)
 
-def gripperMove():
-    gripperNeutral = 5 # Neutral position for griberen
-    setPwm(gripperNeutral) # Sætter dutycycle til 5.5 for at sikre at griberen er i neutral position
+def pwm(value):
+    lgpio.tx_pwm(h, servo, FREQ, value)
     time.sleep(1)
-    print("Griber i neutral position")
 
-    print("Indtast dutycycle for åbning af griber (2-10)")
-    gripperValue = 0 # Initialiserer gripperValue
-    gripperValue = input("Indtast dutycycle for åbning af griber: ")
-    gripperValue = int(gripperValue) # Konverterer input til integer
-    
-    # Tjekker om input er gyldigt
-    if gripperValue > 10 or gripperValue < -10:
-        print("Ugyldigt input, prøv igen")
-        return gripperMove() # Kalder funktionen igen hvis input er ugyldigt
-    elif -1 <= gripperValue <= 1:
-        print("Ugyldig input, prøv igen")
-        return gripperMove()
-    elif gripperValue == 5:
-        print("Griber i neutral position")
-        return gripperMove() # Kalder funktionen igen hvis input er 5
 
-    if gripperValue > 0:
-        # Åbner gripperen
-        for i in range(5,2,-1):
-            setPwm(i)
-            time.sleep(0.5)
-            if i == gripperValue:
-                print("Griber åben")
-                break
-    elif gripperValue < 0:
-        # Lukker gripperen
-        for i in range(5,10,1): 
-            setPwm(i)
-            time.sleep(0.5)
-            if i == gripperValue*-1:
-                print("Griber lukket")
-                break
 
-# dutycycle kan være mellem 0 og 1 
-while True:
-    gripperMove()
+# dutycycle kan være mellem 2 og 10, på gripperen er 3 helt åben og 6 helt lukket 
+#while True:
+    #manualPwm()
 
 
 
