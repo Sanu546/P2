@@ -1,9 +1,11 @@
+
 import lgpio
 import time
 
 # Vælg GPIO pin
 servo = 12 # GPIO pin til servo, det svarer til pin 32 på Rapsberry Pi
 FREQ = 50 # Frekvens i Hz
+
 
 h = lgpio.gpiochip_open(0) # Åbn GPIO chip
 lgpio.gpio_claim_output(h, servo) # Sæt GPIO pin som output
@@ -55,6 +57,7 @@ def gripperMove():
 # dutycycle kan være mellem 0 og 1 
 while True:
     gripperMove()
+
 
 
 

@@ -12,9 +12,6 @@ import threading as th #Import treading to keep the server running in the backgr
 import numpy as np
 import matrixConversion as mc
 
-class resetCalled(Exception):
-    pass
-
 class RTDEConnection:
     config_filename = "rtde_stuff/control_loop_configuration.xml"
     killed = False
@@ -24,13 +21,12 @@ class RTDEConnection:
     reset = False 
     
     #constructor
-    def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(-91.772925), np.radians(-99.491749), np.radians(-126.807916), np.radians(-45.229147), np.radians(91.748872), np.radians(-1.796248)]):
+    def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(-52.720192), np.radians(-48.458749), np.radians(-137.123207), np.radians(-74.611789), np.radians(84.804325), np.radians(37.028859)]):
         
         #Establish a connection to the UR robot
         self.con = rtde.RTDE(ip_address, port)
         self.con.connect()
         print("Connected to robot")
-
         self.con.get_controller_version()
         
         self.startPos = startPos
@@ -89,8 +85,10 @@ class RTDEConnection:
     def moveTCP(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
         self.targets.append({"position": position, "joint": False, "type": type})
+        
     def moveTCPandWait(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
+        print(f"moveTCPandWait: position = {position}")
         self.targets.append({"position": position, "joint": False, "type": type})
         while len(self.targets) > 0:
             pass
@@ -133,6 +131,10 @@ class RTDEConnection:
     def getStatus(self):
         return self.status
     
+    def resetRobot(self):
+        self.targets = []
+        self.stopped = False
+    
     def home(self):
         print("Homing robot")
         self.moveJointandWait(self.startPos) 
@@ -140,17 +142,9 @@ class RTDEConnection:
     def isStopped(self):
         return self.stopped
     
-    def resetProgram(self):
-        self.reset = True
-        self.stopped = False
-    
     #Keep the server running in the background
     def serverThread(self):
         while not self.killed:
-            if self.reset:
-                self.targets = []
-                self.reset = False
-                
             if len(self.targets) > 0 and not self.stopped: #If there are targets in the queue
                 self.status = "running"
                 #print("Moving to target")
