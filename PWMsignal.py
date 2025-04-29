@@ -34,9 +34,3 @@ def pwm(value):
 # dutycycle kan være mellem 2 og 10, på gripperen er 3 helt åben og 6 helt lukket 
 #while True:
     #manualPwm()
-
-
-
-
-
-
