@@ -6,7 +6,7 @@ import tkinter as tk
 
 # Constants
 capture_x, capture_y, capture_w, capture_h = 300, 300, 300, 700
-box_size = 60
+box_size = 30
 
 # Measurement box values
 x_spacing = 52
@@ -104,14 +104,16 @@ slider_offset_x.pack()
 slider_offset_y = tk.Scale(win, from_=0, to=200, label="Offset Y", command=update_scale, orient="horizontal", length=200)
 slider_offset_y.pack()
 
-slider_tilt_h = tk.Scale(win, from_=0, to=200, label="Tilt horisontal", command=update_scale, orient="horizontal", length=200)
+slider_tilt_h = tk.Scale(win, from_=-500, to=200, label="Tilt horisontal", command=update_scale, orient="horizontal", length=200)
 slider_tilt_h.pack()
 
-slider_tilt_v = tk.Scale(win, from_=0, to=200, label="Tilt vertical", command=update_scale, orient="horizontal", length=200)
+slider_tilt_v = tk.Scale(win, from_=-500, to=200, label="Tilt vertical", command=update_scale, orient="horizontal", length=200)
 slider_tilt_v.pack()
 
 # Declare which camera to use
-screen = cv2.VideoCapture(0)
+print("Using camera 1")
+screen = cv2.VideoCapture(1)  # Change to 0 for the default camera
+print("Camera opened")
 
 def update_frame(debug=False):
     
@@ -136,7 +138,7 @@ def update_cam(debug=False):
     
     
     frame = tilt_image(image, tilt_h, tilt_v)
-    frame = image
+    #frame = image # no tilt for testing
     
     blank_frame = np.zeros_like(frame)
     for row in range(4):
@@ -174,7 +176,7 @@ def update_cam(debug=False):
         win.update()
         
         print(color_res)
-        cv2.imshow("Tester", image)
+        cv2.imshow("Tester", frame)
     else:
         return color_res
     
