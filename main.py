@@ -627,7 +627,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-Frames = loadList() # Load the frames from the file (1)
+#Frames = loadList() # Load the frames from the file (1)
 
 baseFrames: List[Pose] = [
     seachlist("UR5"),
@@ -638,8 +638,8 @@ currentCalibrationFrame: Pose = seachlist("UR5")
 
 #showFramesInList()
 def main():
-    #generateCellFrames()# If you want to generate other cells on comentar this code (2)
-    #saveList()# (3)
+    generateCellFrames()# If you want to generate other cells on comentar this code (2)
+    saveList()# (3)
     #showFramesInList()
     generateMoves()
     print("Actions: ", actions)
