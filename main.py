@@ -136,8 +136,8 @@ lidStorageFrame = Pose(7, "LidStorage", np.array([[     0.000001,    -0.000001, 
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is in the storage") # The frame for the lid location
 Frames.append(lidStorageFrame) # Add the lid frame to the list of frames
 
-lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   -.145143],
-    [0,     1,    0,    0],
+lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   0],
+    [0,     1,    0,    -.145143],
     [0,     0,    1,    0 ],
     [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
 Frames.append(lidStorageAproachFrame) # Add the lid frame to the list of frames
