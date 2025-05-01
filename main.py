@@ -16,7 +16,7 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection() # Connect to the UR5 robot
+UR5 = RTDEConnection(ip_address = '192.168.1.100') # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
@@ -172,7 +172,7 @@ def generateCellFrames():
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   evbZ ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1]))   
 
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
