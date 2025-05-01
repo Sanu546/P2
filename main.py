@@ -170,7 +170,7 @@ def generateCellFrames():
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   0 ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1])) # The frame for the cell location
 
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
@@ -335,7 +335,7 @@ def nextMove():
 
 def updateUI():
     global colors
-    ##colors = objRec.get_colors()
+    colors = objRec.get_colors()
     print("Colors: ", colors)
     window.dropdownStacker.cellDisplay.update_colors(colors)
     
@@ -638,6 +638,7 @@ currentCalibrationFrame: Pose = seachlist("UR5")
 
 #showFramesInList()
 def main():
+    updateUI()
     generateCellFrames()# If you want to generate other cells on comentar this code (2)
     saveList()# (3)
     #showFramesInList()
