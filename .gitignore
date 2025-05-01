@@ -1,6 +1,7 @@
 
 *.venv
-*./__pycache__
+*.pyc
+*__pycache__/.pyc
 
 
 gui/__pycache__/P2_GUI.cpython-312.pyc

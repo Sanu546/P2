@@ -6,7 +6,7 @@ Position, based on persentage, 0 is fully closed, 100 is fully open.
 """
 from time import sleep
 from rtde_stuff.rtde_com import RTDEConnection
-
+import PWMsignal
 
 class GripperController:
     """
@@ -25,6 +25,7 @@ class GripperController:
         # Local variables that follow each instance of the class
         self.arm = arm # Reference to the particular robot that the gripper is mounted on
         self.posOut = 0 # Store the current position between endEffector actions
+        
 
     def endEffector(self, mode:str, endPosition:int = None, force:int = None) -> bool:
         """
@@ -38,9 +39,9 @@ class GripperController:
         force = 0-100, the target force that the gripper should apply
         when mode = "force" or "force_thresh"
         """
-        servoAt0 = 0 # When robot receives this number, the gripper is fully closed
-        servoAt100 = 100 # When robot receives this number, the gripper is fully open
-        defaultPanicPos = 35
+        servoAt0 = 6 # When robot receives this number, the gripper is fully closed
+        servoAt100 = 3 # When robot receives this number, the gripper is fully open
+        defaultPanicPos = 4.5
 
         actualPos = scaleWithParams(self.posOut, servoAt0, servoAt100, 0, 100) # Get actual pos from instance specific variable
         toolCurrent = self.arm.getToolCurrent() # Get tool current from robot
@@ -55,12 +56,12 @@ class GripperController:
                     toolCurrent = self.arm.getToolCurrent()
                     actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100)
                     if actualForce > 80:
-                        self.arm.setToolPos(defaultPanicPos)
+                        PWMsignal.pwm(defaultPanicPos)
                         return False
 
                     actualPos -= (GripperController.SPEED * GripperController.UPDATE_INTERVAL)
                     self.posOut = scaleWithParams(actualPos, 0, 100, servoAt0, servoAt100)
-                    self.arm.setToolPos(self.posOut)
+                    PWMsignal.pwm(self.posOut)
 
                     sleep(GripperController.UPDATE_INTERVAL)
             else:
@@ -73,15 +74,15 @@ class GripperController:
                     toolCurrent = self.arm.getToolCurrent()
                     actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100)
                     if actualForce > 80:
-                        self.arm.setToolPos(defaultPanicPos)
+                        PWMsignal.pwm(self.posOut)
                         return False
 
                     actualPos -= (GripperController.SPEED * GripperController.UPDATE_INTERVAL)
                     self.posOut = scaleWithParams(actualPos, 0, 100, servoAt0, servoAt100)
-                    self.arm.setToolPos(self.posOut)
+                    PWMsignal.pwm(self.posOut)
 
                     if actualPos < endPosition + 10:
-                        self.arm.setToolPos(defaultPanicPos)
+                        PWMsignal.pwm(defaultPanicPos)
                         return False
 
                     sleep(GripperController.UPDATE_INTERVAL)
@@ -97,7 +98,7 @@ class GripperController:
 
                     # Watch for over-current
                     if actualForce > 80:
-                        self.arm.setToolPos(defaultPanicPos)
+                        PWMsignal.pwm(defaultPanicPos)
                         return False
 
                     increment = GripperController.SPEED * GripperController.UPDATE_INTERVAL
@@ -121,7 +122,7 @@ class GripperController:
                     # print(f"New gripper pos: {new_pos}")
 
                     self.posOut = scaleWithParams(actualPos, 0, 100, servoAt0, servoAt100)
-                    self.arm.setToolPos(self.posOut)
+                    PWMsignal.pwm(self.posOut)
 
                     sleep(GripperController.UPDATE_INTERVAL)
             else:

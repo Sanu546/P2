@@ -99,40 +99,40 @@ ur5Frame = Pose(1 ,"UR5", np.array([[1,     0,     0,   0],
                                 [0,     1,     0,   0],
                                 [0,     0,     1,   0],
                                 [0,     0,     0,   1]]),"UR5 frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base=None) # The frame for the UR5 robot
-rampFrame = Pose(2, "Ramp", np.array([[    -1.000000,    -0.000001,    -0.000000,   .168199992],
-     [-0.000001,     0.906308,    -0.422618,  -.301577378 ],
-      [0.000001,    -0.422618,    -0.906308,    0.044323861 ],
-     [ 0.000000,     0.000000,     0.000000,     1.000000 ]]),"Ramp frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = None)
+rampFrame = Pose(2, "Ramp", np.array([[    -1.000000,     0.000001,     0.000005,   .172217000 ],
+     [-0.000001,     0.906308,    -0.422618,  -.302361000 ],
+     [-0.000005,    -0.422618,    -0.906308,    .044797000 ],
+      [0.000000,     0.000000,     0.000000,     1.000000 ]]),"Ramp frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = None)
 Frames.append(ur5Frame) # Add the UR5 frame to the list of frames
 Frames.append(rampFrame) # Add the ramp frame to the list of frames
 
-dropOffFrame = Pose(3, "Dropoff", np.array([[1, 0, 0, 0.0285],
-                              [0, 1, 0, -.27091],
-                              [0, 0, 1, .009917],
+dropOffFrame = Pose(3, "Dropoff", np.array([[1, 0, 0, 0.029823],
+                              [0, 1, 0, -.284189],
+                              [0, 0, 1, .010],
                               [0, 0, 0, 1]]), "Dropoff frame for the used cell", base = seachlist("Ramp")) # The frame for the drop off location
-evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.14545],
-                                [0, 1, 0, -.044857],
-                                [0, 0, 1, .009917],
+evbFrame = Pose(4, "EVB", np.array([[1, 0, 0, 0.151265],
+                                [0, 1, 0, -.044],
+                                [0, 0, 1, .006],
                                 [0, 0, 0, 1]]),"EVB frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = seachlist("Ramp")) # The frame for the EVB location
 Frames.append(dropOffFrame) # Add the drop off frame to the list of frames
 Frames.append(evbFrame) # Add the EVB frame to the list of frames
 
-pickUpFrame = Pose(5, "Pickup", np.array([[     1.000000,    -0.000001,    -0.000000,    .081497 ],
-      [0.000001,     1.000000,    -0.000001,  -.025008 ],
-      [0.000000,     0.000001,     1.000000,     .009917 ],
+pickUpFrame = Pose(5, "Pickup", np.array([[     1.000000,    -0.00000,    -0.000000,    .085406 ],
+      [0.00000,     1.000000,    -0.00000,  -.02500 ],
+      [0.000000,     0.00000,     1.000000,     .010 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]
 ]),"Lid pickup frame for the robot for simulation Final_BetaBackup Date: 09-04-2025", base = seachlist("Ramp")) # The frame for the lid pickup location
 Frames.append(pickUpFrame) # Add the lid pickup frame to the list of frames  
      
-lidOnEvbFrame = Pose(6, "LidOnEvb", np.array([[    -0.000000,    -1.000000,     0.000000,   .182353000 ],
-      [1.000000,     0.000000,     0.000000,  -.113741000 ],
-      [0.000000,     0.000000,     1.000000,   -.013627000 ],
+lidOnEvbFrame = Pose(6, "LidOnEvb", np.array([[    -0.000000,    -1.000000,     0.000000,   .1865000 ],
+      [1.000000,     0.000000,     0.000000,  -.1152000 ],
+      [0.000000,     0.000000,     1.000000,   -.05464000 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is on the EVB", base = seachlist("Ramp"), approach=0.15) # The frame for the lid location
 Frames.append(lidOnEvbFrame) # Add the lid frame to the list of frames
 
-lidStorageFrame = Pose(7, "LidStorage", np.array([[    -0.000001,    -0.000001,     1.000000,   -.093699807 ],
-     [-0.000001,     1.000000,     0.000001,  -.590749488 ],
-     [-1.000000,    -0.000001,    -0.000001,   .111500172 ],
+lidStorageFrame = Pose(7, "LidStorage", np.array([[     0.000001,    -0.000001,     1.000000,   -.097682807 ],
+     [-1.000000,    -0.000001,     0.000001,  -.590749490 ],
+      [0.000001,    -1.000000,    -0.000001,   .111500174 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is in the storage") # The frame for the lid location
 Frames.append(lidStorageFrame) # Add the lid frame to the list of frames
 
@@ -164,13 +164,14 @@ def generateCellFrames():
 
     evbX = evbFrame.matrix[0][3] # The x position of the EVB frame
     evbY = evbFrame.matrix[1][3] # The y position of the EVB frame
+    evbZ = evbFrame.matrix[2][3] # The z position of the EVB frame
     
     for i in range(4):  
         for j in range(2):
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
-            [0,     0,     1,   0 ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1])) # The frame for the cell location
+            [0,     0,     1,   evbZ ],
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
 
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
@@ -366,7 +367,6 @@ def reset():
     if zValue > clearHeight:
         posInBaseFrame[2][3] = clearHeight # Set the z axis to the clear height
         
-    
     homeActions = []
     homeActions.append({"actionType": "moveTCP", "name": "ClearHeight", "move": getGlobalPos(posInBaseFrame, rampFrame), "type": "j"})
     homeActions.append({"actionType": "home", "name": "Homing"})
@@ -376,9 +376,13 @@ def reset():
     homingThread.join()
     
     updateUI()
+    actions = []
     generateMoves()
+    
     window.controlMenu.buttonTest.setEnabled(True)
     window.controlMenu.buttonWork.setEnabled(True)
+    
+    
 
 def onChangeToAutoMode():
     window.dropdownStacker.calibrator.startCal.setEnabled(False) # Disable the calibrator button
