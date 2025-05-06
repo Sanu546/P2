@@ -16,7 +16,7 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection() # Connect to the UR5 robot
+UR5 = RTDEConnection(ip_address = '192.168.1.100') # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
