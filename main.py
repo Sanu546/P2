@@ -22,13 +22,13 @@ gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
 actions = [] # The moves that the robot will make
 
 cellSpacingX = 0.07 # The spacing between the cells in the x direction in meters
-cellSpacingY = 0.046 # The spacing between the cells in the y direction in meters
+cellSpacingY = 0.047 # The spacing between the cells in the y direction in meters
 
 currentAction = 0
 
 clearHeight = -0.05
 
-colors = [['blue', 'blue'], ['red', 'red'], ['grey', 'grey'], ['red', 'blue']]
+colors = [['red', 'blue'], ['blue', 'blue'], ['blue', 'blue'], ['blue','blue']]
 
 # List for every frame
 Frames: List[Pose] = [] # The frames for the robot
