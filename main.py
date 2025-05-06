@@ -337,7 +337,7 @@ def nextMove():
 
 def updateUI():
     global colors
-    colors = objRec.get_colors()
+    #colors = objRec.get_colors()
     print("Colors: ", colors)
     window.dropdownStacker.cellDisplay.update_colors(colors)
     
@@ -461,7 +461,7 @@ def saveSingeCalibrationFrame():
     
     newFrame: Pose = oldFrame
     
-    if newFrame.base != currentCalibrationFrame:
+    if newFrame.base != currentCalibrationFrame and newFrame.base != None:
         globalPos = getGlobalPos(newMatrix, currentCalibrationFrame) # The global position of the new matrix in the base frame
         newMatrix = posInBase(globalPos, newFrame.base) # The new matrix is the old matrix multiplied by the base matrix
     
