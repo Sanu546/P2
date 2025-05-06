@@ -169,11 +169,12 @@ def generateCellFrames():
     
     for i in range(4):  
         for j in range(2):
-            Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
+            newFrame = Pose((int(f"{i}{j}{00}")),f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   evbZ ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
-
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j])
+            oldFrame = seachlist(f"Cell [{i}, {j}]") # The old frame in the list of frames
+            replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
 
@@ -643,7 +644,7 @@ currentCalibrationFrame: Pose = seachlist("UR5")
 #showFramesInList()
 def main():
     updateUI()
-    #generateCellFrames()# If you want to generate other cells on comentar this code (2)
+    generateCellFrames()# If you want to generate other cells on comentar this code (2)
     #saveList()# (3)
     #showFramesInList()
     generateMoves()
