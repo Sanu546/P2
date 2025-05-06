@@ -21,8 +21,8 @@ gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller
 
 actions = [] # The moves that the robot will make
 
-cellSpacingX = 0.07 # The spacing between the cells in the x direction in meters
-cellSpacingY = 0.046 # The spacing between the cells in the y direction in meters
+cellSpacingX = 0.1 # The spacing between the cells in the x direction in meters
+cellSpacingY = 0.09 # The spacing between the cells in the y direction in meters
 
 currentAction = 0
 
@@ -131,13 +131,13 @@ lidOnEvbFrame = Pose(6, "LidOnEvb", np.array([[    -0.000000,    -1.000000,     
 Frames.append(lidOnEvbFrame) # Add the lid frame to the list of frames
 
 lidStorageFrame = Pose(7, "LidStorage", np.array([[     0.000001,    -0.000001,     1.000000,   -.097682807 ],
-     [-1.000000,    -0.000001,     0.000001,  -.590749490 ],
-      [0.000001,    -1.000000,    -0.000001,   .111500174 ],
+     [0.000000,    1.000001,     0.000001,  -.590749490 ],
+      [-1.000001,    0.000000,    -0.000001,   .111500174 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is in the storage") # The frame for the lid location
 Frames.append(lidStorageFrame) # Add the lid frame to the list of frames
 
-lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   0],
-    [0,     1,    0,    -.145143],
+lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   -.145143],
+    [0,     1,    0,    0],
     [0,     0,    1,    0 ],
     [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
 Frames.append(lidStorageAproachFrame) # Add the lid frame to the list of frames
@@ -169,11 +169,12 @@ def generateCellFrames():
     
     for i in range(4):  
         for j in range(2):
-            Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
+            newFrame = Pose((int(f"{i}{j}{00}")),f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   evbZ ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
-
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j])
+            oldFrame = seachlist(f"Cell [{i}, {j}]") # The old frame in the list of frames
+            replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
 
@@ -632,7 +633,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-#Frames = loadList() # Load the frames from the file (1)
+Frames = loadList() # Load the frames from the file (1)
 
 baseFrames: List[Pose] = [
     seachlist("UR5"),
@@ -645,7 +646,7 @@ currentCalibrationFrame: Pose = seachlist("UR5")
 def main():
     updateUI()
     generateCellFrames()# If you want to generate other cells on comentar this code (2)
-    saveList()# (3)
+    #saveList()# (3)
     #showFramesInList()
     generateMoves()
     print("Actions: ", actions)
