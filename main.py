@@ -16,7 +16,7 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection(ip_address = '192.168.1.100') # Connect to the UR5 robot
+UR5 = RTDEConnection('192.168.1.100') # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
@@ -130,14 +130,14 @@ lidOnEvbFrame = Pose(6, "LidOnEvb", np.array([[    -0.000000,    -1.000000,     
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is on the EVB", base = seachlist("Ramp"), approach=0.15) # The frame for the lid location
 Frames.append(lidOnEvbFrame) # Add the lid frame to the list of frames
 
-lidStorageFrame = Pose(7, "LidStorage", np.array([[     0.000001,    -0.000001,     1.000000,   -.097682807 ],
-     [-1.000000,    -0.000001,     0.000001,  -.590749490 ],
-      [0.000001,    -1.000000,    -0.000001,   .111500174 ],
+lidStorageFrame = Pose(7, "LidStorage", np.array([[     0.000001,    1.000001,     0.000000,   -.097682807 ],
+     [0.000000,    0.000001,     -1.000001,  -.590749490 ],
+      [-1.000001,    0.000000,    -0.000001,   .111500174 ],
       [0.000000,     0.000000,     0.000000,     1.000000 ]]), "Lid frame when the lid is in the storage") # The frame for the lid location
 Frames.append(lidStorageFrame) # Add the lid frame to the list of frames
 
-lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,   0],
-    [0,     1,    0,    -.145143],
+lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,    0,  -.145143],
+    [0,     1,    0,   0],
     [0,     0,    1,    0 ],
     [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
 Frames.append(lidStorageAproachFrame) # Add the lid frame to the list of frames
@@ -172,7 +172,7 @@ def generateCellFrames():
             Frames.append(Pose(len(Frames)+1,f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   evbZ ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1]))   
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j]))   
 
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
@@ -205,8 +205,7 @@ def generateMoves():
     actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage", "move": lidStorageFrame.getGlobalPos(), "type": "l"}) # Move to the lid storage location
     actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25}) # Open the gripper
     actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing approach", "move": lidStorageFrame.getApproach(), "type": "l"}) # Move to the lid storage location
-    actions.append({"frameID":lidStorageAproachFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing via approach", "move": lidStorageViaFrame.getApproach(), "type": "j"}) # Move to the lid storage location
-
+    actions.append({"frameID":lidStorageViaFrame.id, "actionType": "moveTCP", "name": "Lid Storage outgoing via approach", "move":lidStorageViaFrame.getApproach(), "type": "j"})
     
     for i in range(4):
         for j in range(2):
@@ -337,7 +336,7 @@ def nextMove():
 
 def updateUI():
     global colors
-    colors = objRec.get_colors()
+    #colors = objRec.get_colors()
     print("Colors: ", colors)
     window.dropdownStacker.cellDisplay.update_colors(colors)
     
@@ -461,7 +460,7 @@ def saveSingeCalibrationFrame():
     
     newFrame: Pose = oldFrame
     
-    if newFrame.base != currentCalibrationFrame:
+    if newFrame.base != currentCalibrationFrame and newFrame.base != None:
         globalPos = getGlobalPos(newMatrix, currentCalibrationFrame) # The global position of the new matrix in the base frame
         newMatrix = posInBase(globalPos, newFrame.base) # The new matrix is the old matrix multiplied by the base matrix
     
@@ -632,7 +631,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-#Frames = loadList() # Load the frames from the file (1)
+Frames = loadList() # Load the frames from the file (1)
 
 baseFrames: List[Pose] = [
     seachlist("UR5"),
@@ -644,8 +643,8 @@ currentCalibrationFrame: Pose = seachlist("UR5")
 #showFramesInList()
 def main():
     updateUI()
-    generateCellFrames()# If you want to generate other cells on comentar this code (2)
-    saveList()# (3)
+    #generateCellFrames()# If you want to generate other cells on comentar this code (2)
+    #saveList()# (3)
     #showFramesInList()
     generateMoves()
     print("Actions: ", actions)
