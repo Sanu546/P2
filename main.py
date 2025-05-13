@@ -16,19 +16,21 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection(ip_address = '192.168.1.100') # Connect to the UR5 robot
+UR5 = RTDEConnection('192.168.1.100') # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
 
-cellSpacingX = 0.1 # The spacing between the cells in the x direction in meters
-cellSpacingY = 0.09 # The spacing between the cells in the y direction in meters
+cellSpacingX = 0.0695 # The spacing between the cells in the x direction in meters
+cellSpacingY = 0.047 # The spacing between the cells in the y direction in meters
 
 currentAction = 0
 
+cellsAdded = False
+
 clearHeight = -0.05
 
-colors = [['blue', 'blue'], ['red', 'red'], ['grey', 'grey'], ['red', 'blue']]
+colors = [['red', 'blue'], ['blue', 'blue'], ['blue', 'blue'], ['blue','blue']]
 
 # List for every frame
 Frames: List[Pose] = [] # The frames for the robot
@@ -68,7 +70,6 @@ def seachlist(name = "",id = None, matrix = []):
     
     return ideList[0] # return the first object in the list
 
-
 def deleteFrame(index):
     Frames.pop(index)
     
@@ -83,13 +84,8 @@ def replaceFrames(oldFrame,newFrame):
                     continue
                 if frame.base.id == oldFrame.id:
                     Frames[frameIndex].base = newFrame
-
-
     
     #saveList() # Save the the new frame to the list  
-
-
-
 
 cellFrames: List[Pose] = [] # The frames for the cells
  # The frame for the drop off location
@@ -142,14 +138,16 @@ lidStorageAproachFrame = Pose(8, "LidStorageAproach", np.array([[     1,    0,  
     [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
 Frames.append(lidStorageAproachFrame) # Add the lid frame to the list of frames
 
-
 lidStorageViaFrame = Pose(9, "LidStorageVia", np.array([[     1,    0,    0,   -.2],
     [0,     1,    0,  0],
     [0,     0,    1,    0 ],
     [0,     0,     0,     1 ]]), "Lid frame when the lid is in the storage", base = seachlist("LidStorage")) # The frame for the lid location
 Frames.append(lidStorageViaFrame) # Add the lid frame to the list of frames
 
-def saveList():   
+
+lidStorageReturnPos = np.array([np.radians(61.295092), np.radians(-99.176599), np.radians(109.691574), np.radians(56.953220), np.radians(77.815347), np.radians(-205.378034)])
+
+def saveList():    
     with open('Frames.pkl', "wb") as file:
         pickle.dump(Frames, file)  # Save Pose to a file 
         print("Frames saved successfully")
@@ -172,7 +170,7 @@ def generateCellFrames():
             newFrame = Pose((int(f"{i}{j}{00}")),f"Cell [{i}, {j}]", np.array([[    1,     0,     0,   j*cellSpacingX+evbX ],
             [0,     1,     0,   -i*cellSpacingY+evbY ],
             [0,     0,     1,   evbZ ],
-            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[3-i][j])
+            [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1])
             oldFrame = seachlist(f"Cell [{i}, {j}]") # The old frame in the list of frames
             replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
 #Calibration variables
@@ -182,7 +180,7 @@ def generateCellFrames():
 # is show every object in the list of frames. Where can se name,id,matrix and description
 def showFramesInList():
     print(f"There are {len(Frames)} frames in the list")
-    print("============================================================================")
+    print("============================================================================") 
     for i in range(len(Frames)):
         print(f"Frame {i}: {Frames[i].name}")
         print(f"Is cell: {Frames[i].id}")
@@ -195,20 +193,25 @@ def showFramesInList():
 def generateMoves():
     lidOnEvbFrame = seachlist("LidOnEvb") # The frame for the lid on the EVB location
     lidStorageFrame = seachlist("LidStorage") # The frame for the lid in the storage location
-    lidStorageViaFrame = seachlist("LidStorageVia") # The frame for the lid in the storage location
     lidStorageAproachFrame = seachlist("LidStorageAproach") # The frame for the lid in the storage location
+    lidStorageViaFrame = seachlist("LidStorageVia")
     
     actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB ingoing approach", "move": lidOnEvbFrame.getApproach(), "type": "j"})
+    actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": "lidopen"}) # Open the gripper
     actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB", "move": lidOnEvbFrame.getGlobalPos(), "type": "l"}) # Move to the lid on the EVB location
-    actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40}) # Close the gripper
+    actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "position", "position": "lidclose"}) # Close the gripper
     actions.append({"frameID":lidOnEvbFrame.id, "actionType": "moveTCP", "name": "Lid on EVB outgoing approach", "move": lidOnEvbFrame.getApproach(), "type": "l"}) # Move to the lid on the EVB location
     actions.append({"frameID":lidStorageAproachFrame.id , "actionType": "moveTCP", "name": "Lid storage ingoing approach", "move": lidStorageAproachFrame.getGlobalPos(), "type": "j"}) # Move to the lid storage location
+    #actions.append({"actionType": "vision", "name": "Vision capture"}) # Capture a vision frame to evaluate    
     actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage", "move": lidStorageFrame.getGlobalPos(), "type": "l"}) # Move to the lid storage location
-    actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25}) # Open the gripper
+    actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": "lidopen"}) # Open the gripper
     actions.append({"frameID":lidStorageFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing approach", "move": lidStorageFrame.getApproach(), "type": "l"}) # Move to the lid storage location
-    actions.append({"frameID":lidStorageAproachFrame.id , "actionType": "moveTCP", "name": "Lid storage outgoing via approach", "move": lidStorageViaFrame.getApproach(), "type": "j"}) # Move to the lid storage location
+    actions.append({"frameID":lidStorageViaFrame.id, "actionType": "moveTCP", "name": "Lid Storage outgoing via approach", "move":lidStorageViaFrame.getApproach(), "type": "j"})
+    actions.append({"actionType": "setJoints", "name": "Lid Storage outgoing pos", "move": lidStorageReturnPos})
+            
+    #print(actions)
 
-    
+def generateCellMoves():
     for i in range(4):
         for j in range(2):
             cell = seachlist(f"Cell [{i}, {j}]")
@@ -216,29 +219,27 @@ def generateMoves():
             pickUpFrame = seachlist("Pickup")
             if cell.replace: # Check if the cell is a replace cell
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} ingoing approach", "move": cell.getApproach(), "type": "j"})
-                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": "blockopen"})
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "position", "position": "blockclose"})
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
                 actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name} ingoing approach","move": dropOffFrame.getApproach(), "type": "j"})
                 actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name}","move": dropOffFrame.getGlobalPos(), "type": "l"})
-                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 30})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": "blockopen"})
                 actions.append({"frameID":dropOffFrame.id, "actionType": "moveTCP", "name": f"{dropOffFrame.name} outgoing approach","move": dropOffFrame.getApproach(), "type": "l"})
                 
             if cell.isEmpty or cell.replace: # Check if the cell is empty and not a replace cell
                 actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name} ingoing approach","move": pickUpFrame.getApproach(), "type": "j"})
                 actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name}","move": pickUpFrame.getGlobalPos(), "type": "l"})  
-                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "force", "force": 40})
+                actions.append({"actionType": "gripper", "name": "Gripper close", "mode": "position", "position": "blockclose"})
                 actions.append({"frameID":pickUpFrame.id, "actionType": "moveTCP", "name": f"{pickUpFrame.name} outgoing approach","move": pickUpFrame.getApproach(), "type": "l"})
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} ingoing approach","move": cell.getApproach(), "type": "j"})
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name}","move": cell.getGlobalPos(), "type": "l"})
-                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": 25})
+                actions.append({"actionType": "gripper", "name": "Gripper open", "mode": "position", "position": "blockopen"})
                 actions.append({"frameID":cell.id, "actionType": "moveTCP", "name": f"{cell.name} outgoing approach","move": cell.getApproach(), "type": "l"})
-                
-    #print(actions)
-
+    
 def singleAction(action):
-    exeThread = ExcecuteThread(action, UR5, gripper, window) # Create a thread to execute the action
+    exeThread = ExcecuteThread(action, UR5, gripper, window, updateUI) # Create a thread to execute the action
     exeThread.start()
     
 def runAutoRobot():
@@ -256,26 +257,8 @@ def runAutoRobot():
     if actionsLeft !=0 and status == "idle":
         UR5.resume()
         return
-    autoThread = ExcecuteSeriesThread(actions, UR5, gripper, resetEvent) # Create a thread to execute the actions
+    autoThread = ExcecuteSeriesThread(actions, UR5, gripper, resetEvent, updateUI) # Create a thread to execute the actions
     autoThread.start() # Start the thread
-
-def executeActions():
-    global currentAction
-    for action in actions:
-        #print(f"TS: {time.time()} Action: {action}") # Debugging
-        print(f"Made it here, action: {action}")
-        executeAction(action) # Where the magic hapens
-        currentAction += 1 # Increment the current action>
-      
-def executeAction(action):
-    if(action["actionType"] == "moveTCP"):
-        UR5.moveTCPandWait(action["move"], action["type"])
-        
-    if(action["actionType"] == "gripper"):
-        gripper.endEffector(action["mode"], action.get("position"), action.get("force"))
-        
-    if(action["actionType"] == "vision"):
-        pass
 
 def stopAutoRobot():
     UR5.stop()  
@@ -346,6 +329,7 @@ def reset():
     global currentAction
     global actions
     global autoThread
+    global cellsAdded
     rampFrame = seachlist("Ramp") # The frame for the ramp sanu 
     actions = []
     currentAction = 0
@@ -383,6 +367,8 @@ def reset():
     
     window.controlMenu.buttonTest.setEnabled(True)
     window.controlMenu.buttonWork.setEnabled(True)
+    
+    cellsAdded = False
     
     
 
@@ -475,6 +461,7 @@ def saveSingeCalibrationFrame():
     
     actions = []
     generateMoves()
+    generateCellMoves()
     stopCalibration()
     window.dropdownStacker.calibrator.stopCalibration()
     saveList()
@@ -499,6 +486,7 @@ def saveBaseCalibrationFrame():
     
     actions = []
     generateMoves()
+    generateCellMoves()
     stopCalibration()
     window.dropdownStacker.calibrator.stopCalibration()
     saveList()
@@ -522,6 +510,7 @@ def saveApproachCalibrationFrame():
     
     actions = []
     generateMoves()
+    generateCellMoves()
     stopCalibration()
     window.dropdownStacker.calibrator.stopCalibration()
     saveList()
@@ -579,6 +568,7 @@ def updateUIPosition():
     
 def updateProgramProgress():
     while True:
+        global cellsAdded
         global calibrationReset
         if not calibrationActive:
             updateUIPosition() # Update the current pose in the UI
@@ -593,6 +583,16 @@ def updateProgramProgress():
             
             currentTarget, nextTarget, currentProgress = autoThread.getState()
             
+            if currentTarget == "Lid storage":
+                updateUI()
+            if currentTarget == "Lid storage outgoing approach":
+                if not cellsAdded:
+                    generateCellFrames()
+                    generateCellMoves()
+                    #autoThread.addToSeries(actions[9:])
+                    cellsAdded = True
+                
+                
             if currentTarget == None or currentProgress == None:
                 window.controlMenu.setProgress(0,0)
                 window.controlMenu.setCurrentTarget("None")
@@ -615,6 +615,15 @@ def updateProgramProgress():
             window.controlMenu.setProgress(currentProgress, len(actions))
             
             currentTarget = actions[currentAction-1]["name"]
+            
+            if currentTarget == "Lid storage":
+                updateUI()
+            if currentTarget == "Lid storage outgoing approach":
+                if not cellsAdded:
+                    generateCellFrames()
+                    generateCellMoves()
+                    cellsAdded = True
+                
             nextTarget = actions[currentAction]["name"]
             window.controlMenu.setCurrentTarget(currentTarget)
             window.controlMenu.setNextTarget(nextTarget)
@@ -683,7 +692,7 @@ def main():
  # Show the frames in the list
 main()
 
-
+ 
 
 
 
