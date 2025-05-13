@@ -91,40 +91,18 @@ class GripperController:
             return True
 
         if mode == "position":
-            if 0 <= endPosition <= 100:
-                while actualPos != endPosition:
-                    toolCurrent = self.arm.getToolCurrent()
-                    actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100)
-
-                    # Watch for over-current
-                    if actualForce > 80:
-                        PWMsignal.pwm(defaultPanicPos)
-                        return False
-
-                    increment = GripperController.SPEED * GripperController.UPDATE_INTERVAL
-
-                    # Execute an opening move
-                    if actualPos < endPosition:
-                        if actualPos + increment > endPosition: # If move will result in overshoot, move the remaining distance.
-                            actualPos = endPosition
-                        else:
-                            actualPos += increment
-                            print(f"Incremented actualPos to {actualPos}")
-
-                    # Execute a closing move
-                    else:
-                        if actualPos + increment < endPosition: # If move will result in overshoot, move the remaining distance.
-                            actualPos = endPosition
-                        else:
-                            actualPos -= increment
-                            print(f"Decremented actualPos to {actualPos}")
-
-                    # print(f"New gripper pos: {new_pos}")
-
-                    self.posOut = scaleWithParams(actualPos, 0, 100, servoAt0, servoAt100)
-                    PWMsignal.pwm(self.posOut)
-
-                    sleep(GripperController.UPDATE_INTERVAL)
+            if endPosition == "lidopen":
+                PWMsignal.setServoPos("lidopen")
+                sleep(GripperController.UPDATE_INTERVAL)
+            elif endPosition == "lidclose":
+                PWMsignal.setServoPos("lidclose")
+                sleep(GripperController.UPDATE_INTERVAL)
+            elif endPosition == "blockopen":        
+                PWMsignal.setServoPos("blockopen")
+                sleep(GripperController.UPDATE_INTERVAL)
+            elif endPosition == "blockclose":   
+                PWMsignal.setServoPos("blockclose")
+                sleep(GripperController.UPDATE_INTERVAL)
             else:
                 raise ValueError(f"Position out of range: position = {endPosition} Should be 0 too 100")
             return True
