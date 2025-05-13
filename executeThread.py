@@ -1,13 +1,14 @@
 import threading
 
 class ExcecuteThread(threading.Thread):
-    def __init__(self, action, robot, gripper, window):
+    def __init__(self, action, robot, gripper, window, updateUI):
         super(ExcecuteThread, self).__init__()
         self.daemon = True  # Set the thread as a daemon thread
         self.action = action
         self.robot = robot
         self.gripper = gripper
         self.window = window
+        self.updateUI = updateUI
 
     def run(self):
         if(self.action["actionType"] == "home"):
@@ -26,7 +27,7 @@ class ExcecuteThread(threading.Thread):
             self.window.controlMenu.testMenu.buttonBack.setEnabled(True)
         
         if(self.action["actionType"] == "vision"):
-            pass
+            self.updateUI()
         
         if(self.action["actionType"] == "setJoints"):
             self.robot.moveJointandWait(self.action["move"])
