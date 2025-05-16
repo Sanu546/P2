@@ -64,7 +64,7 @@ def print_debug(array):
         print(" | ", end='')
     print()
     
-def tilt_image(image: np.ndarray, tilt_h: float, tilt_v: float) -> np.ndarray:    #! Virker ikke helt endnu
+def tilt_image(image: np.ndarray, tilt_h: float, tilt_v: float) -> np.ndarray:
 
     h, w = image.shape[:2]
 
