@@ -122,7 +122,7 @@ slider_tilt_v.pack()
 
 # Declare which camera to use
 print("Using camera 1")
-screen = cv2.VideoCapture(1)  # Change to 0 for the default camera
+screen = cv2.VideoCapture(0)  # Change to 0 for the default camera
 print("Camera opened")
 
 def update_frame(debug=False):

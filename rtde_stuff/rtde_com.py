@@ -114,7 +114,8 @@ class RTDEConnection:
     def getToolCurrent(self):
         state = self.con.receive()
         # print(f"getToolCurrent returned state.tool_output_current = {state.tool_output_current}")
-        return state.tool_output_current
+        #return state.tool_output_current
+        return 200
     
     def getAllTargets(self):
         return self.targets
