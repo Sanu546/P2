@@ -172,7 +172,10 @@ def generateCellFrames():
             [0,     0,     1,   evbZ ],
             [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1])
             oldFrame = seachlist(f"Cell [{i}, {j}]") # The old frame in the list of frames
-            replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
+            if oldFrame == None: # Check if the frame is already in the list
+                Frames.append(newFrame)
+            else:
+                replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
 
@@ -642,7 +645,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-Frames = loadList() # Load the frames from the file (1)
+#Frames = loadList() # Load the frames from the file (1)
 
 baseFrames: List[Pose] = [
     seachlist("UR5"),
