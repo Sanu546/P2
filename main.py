@@ -16,7 +16,7 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection('192.168.1.100') # Connect to the UR5 robot
+UR5 = RTDEConnection() # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
@@ -157,7 +157,7 @@ def loadList():
         return pickle.load(file)  # Load Pose from the file
 
 # Er den ikke forkte da det skal være realtive første bokse.
-def generateCellFrames():
+def generateCellFrames(): 
     rampFrame = seachlist("Ramp") # The frame for the ramp
     evbFrame = seachlist("EVB") # The frame for the EVB location
 
