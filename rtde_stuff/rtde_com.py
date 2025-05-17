@@ -148,7 +148,7 @@ class RTDEConnection:
                 #print(target)
                 moveDone = False
                 
-                self.setPos.input_int_register_24 = 0 if target["joint"] else 1
+                self.setPos.input_int_register_25 = 0 if target["joint"] else 1
                 self.setPos.input_int_register_26 = 0 if target["type"] == "j" else 1
                     
                 list_to_setPos(self.setPos, target["position"])
