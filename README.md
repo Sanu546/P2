@@ -22,7 +22,7 @@ From here you can both track the proccess of the program, and calibrate and adju
 In order to allow for easy developement we also ended up with a pretty capable simulation setup which can be seen below.
 <img src="./figures/untitled.GIF" width="800">
 
-In the simulation URSim is used simulate the UR5 Controller, RoboDk is then used to build the cell, while mimicing the controller position, which is controlled by our program.
+In the simulation URSim is used simulate the UR5 Controller. RoboDk is then used to build the cell, while mimicing the controller position, which is controlled by our program.
 
 ## How to run the simulation
 
@@ -30,18 +30,37 @@ In the simulation URSim is used simulate the UR5 Controller, RoboDk is then used
 
 1. First install URSim in as a virtual machine using, VirtualBox using the offical guide [here](https://www.universal-robots.com/download/software-cb-series/simulator-non-linux/offline-simulator-cb-series-non-linux-ursim-3158/).
 2. Then boot up the Virtual Machine with a "Host-Only" network adapter
-3. Lastly load the [UR program files]() on the URSim
+3. Lastly load the [UR5 program files](https://github.com/Sanu546/P2/tree/main/rtde_stuff/UR5%20program) on the URSim
 
+### Setup RoboDK
 
-First clone the repository nad enter the repository:
-```bash
-git clone https://github.com/Sanu546/P2.git
-cd p2
-```
-Then inside create and activte a virtual envitorment, while also installing the pip requirements:
-### Windows:
-```bash
-python -m venv .venv
-.venv/Scripts/activate
-pip install -r requirements.txt
-```
+1. Start RoboDK and load the [RoboDK file](https://github.com/Sanu546/P2/blob/main/roboDK/P2_sim_setup.rdk) file.
+2. Then while URSim is running, run the "robot_awesome" which is places in the root of the station tree.
+3. Now the UR5 robot should mimic the robot which URSim is simulating.
+
+### Setup EVB Python program
+1. First clone the repository nad enter the repository:
+    ```bash
+    git clone https://github.com/Sanu546/P2.git
+    cd p2
+    ```
+2. Then inside create and activte a virtual envitorment, while also installing the pip requirements:
+    
+    #### Windows:
+    
+    ```bash
+    python3 -m venv .venv
+    .venv/Scripts/activate
+    pip install -r requirements.txt
+    ```
+    #### Linux:
+
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
+3. Lastly run the main.py program.
+    ```bash
+    python3 main.py 
+    ```
