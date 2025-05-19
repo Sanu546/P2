@@ -35,30 +35,25 @@ class RTDEConnection:
         self.conf = rtde_config.ConfigFile(self.config_filename)
         self.state_names, self.state_types = self.conf.get_recipe("state")
         self.setPos_names, self.setPos_types = self.conf.get_recipe("setPose")
-        self.setTool_names, self.setTool_types = self.conf.get_recipe("setTool")
         self.watchdog_names, self.watchdog_types = self.conf.get_recipe("watchdog")
 
         #Setup the recipes on the robot
         self.con.send_output_setup(self.state_names, self.state_types)
         self.setPos = self.con.send_input_setup(self.setPos_names, self.setPos_types)
-        self.setTool = self.con.send_input_setup(self.setTool_names, self.setTool_types)
         self.watchdog = self.con.send_input_setup(self.watchdog_names, self.watchdog_types)
 
         #Initialize the setPose
-        self.setPos.input_double_register_0 = 0
-        self.setPos.input_double_register_1 = 0
-        self.setPos.input_double_register_2 = 0
-        self.setPos.input_double_register_3 = 0
-        self.setPos.input_double_register_4 = 0
-        self.setPos.input_double_register_5 = 0
-        self.setPos.input_int_register_1 = 0
-        self.setPos.input_int_register_2 = 0
-
-        #Initialize the setTool
-        self.setTool.input_int_register_3 = 0
+        self.setPos.input_double_register_24 = 0
+        self.setPos.input_double_register_25 = 0
+        self.setPos.input_double_register_26 = 0
+        self.setPos.input_double_register_27 = 0
+        self.setPos.input_double_register_28 = 0
+        self.setPos.input_double_register_29 = 0
+        self.setPos.input_int_register_25 = 0
+        self.setPos.input_int_register_26 = 0
         
         #Initialize the watchdog
-        self.watchdog.input_int_register_0 = 0
+        self.watchdog.input_int_register_24 = 0
 
         #Start data synchronization
         if not self.con.send_start():
@@ -75,7 +70,7 @@ class RTDEConnection:
         
         while not program_running:
             state = self.con.receive()
-            if state.output_int_register_0 == 1:
+            if state.output_int_register_24 == 1:
                 program_running = True
          
         self.moveJointandWait(self.startPos)
@@ -153,33 +148,32 @@ class RTDEConnection:
                 #print(target)
                 moveDone = False
                 
-                self.setPos.input_int_register_1 = 0 if target["joint"] else 1
-                self.setPos.input_int_register_2 = 0 if target["type"] == "j" else 1
+                self.setPos.input_int_register_25 = 0 if target["joint"] else 1
+                self.setPos.input_int_register_26 = 0 if target["type"] == "j" else 1
                     
                 list_to_setPos(self.setPos, target["position"])
                 self.con.send(self.setPos)
-                self.watchdog.input_int_register_0 = 1
+                self.watchdog.input_int_register_24 = 1
                 state = self.con.receive()
                     
                 while not moveDone:
                     state = self.con.receive()
-                    #print(f"Robot out: {state.output_int_register_0}")
-                    if state.output_int_register_0 == 0: 
+                    #print(f"Robot out: {state.output_int_register_24}")
+                    if state.output_int_register_24 == 0: 
                         print("Move done")
                         moveDone = True
-                        self.watchdog.input_int_register_0 = 0
+                        self.watchdog.input_int_register_24 = 0
                             
                     self.con.send(self.watchdog)
                     
-                    while state.output_int_register_0 == 0:
+                    while state.output_int_register_24 == 0:
                         state = self.con.receive()
                         
                 self.targets.pop(0)
             else:
                 self.status = "idle"
                 state = self.con.receive()
-                #print(f"Robot out: {state.output_int_register_0}")
-                self.con.send(self.setTool)
+                #print(f"Robot out: {state.output_int_register_24}")
                 self.con.send(self.watchdog)
       
     #Kill the connection to the robot and stop the server thread
@@ -194,10 +188,12 @@ class RTDEConnection:
 def setPos_to_list(sp):
     sp_list = []
     for i in range(0, 6):
-        sp_list.append(sp.__dict__["input_double_register_%i" % i])
+        iReg = i + 24
+        sp_list.append(sp.__dict__["input_double_register_%i" % iReg])
     return sp_list
 
 def list_to_setPos(sp, list):
     for i in range(0, 6):
-        sp.__dict__["input_double_register_%i" % i] = list[i]
+        iReg = i + 24
+        sp.__dict__["input_double_register_%i" % iReg] = list[i]
     return sp

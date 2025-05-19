@@ -16,7 +16,7 @@ from execureSeriesThread import ExcecuteSeriesThread # Import the execute series
 
 #from PyQt6.QtCore import Qt, QTimer
 
-UR5 = RTDEConnection('192.168.1.100') # Connect to the UR5 robot
+UR5 = RTDEConnection() # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
 
 actions = [] # The moves that the robot will make
@@ -157,7 +157,7 @@ def loadList():
         return pickle.load(file)  # Load Pose from the file
 
 # Er den ikke forkte da det skal være realtive første bokse.
-def generateCellFrames():
+def generateCellFrames(): 
     rampFrame = seachlist("Ramp") # The frame for the ramp
     evbFrame = seachlist("EVB") # The frame for the EVB location
 
@@ -172,7 +172,10 @@ def generateCellFrames():
             [0,     0,     1,   evbZ ],
             [0,     0,     0,     1 ]]),"Cell n frame for the robot Date: 09-04-2025" , rampFrame, isCell = True, color = colors[i][j-1])
             oldFrame = seachlist(f"Cell [{i}, {j}]") # The old frame in the list of frames
-            replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
+            if oldFrame == None: # Check if the frame is already in the list
+                Frames.append(newFrame)
+            else:
+                replaceFrames(oldFrame, newFrame) # Replace the old frame with the new frame   
 #Calibration variables
 # tidligere: ur5Frame # The current calibration frame
 
@@ -642,7 +645,7 @@ progressThread = th.Thread(target=updateProgramProgress)
 progressThread.daemon = True
 
 # To replace Frames list and save new  comented out code were (1) and und commented (2) and (3). Ask Santhosh if don't understand
-Frames = loadList() # Load the frames from the file (1)
+#Frames = loadList() # Load the frames from the file (1)
 
 baseFrames: List[Pose] = [
     seachlist("UR5"),
