@@ -30,7 +30,7 @@ cellsAdded = False
 
 clearHeight = -0.05
 
-colors = [['red', 'blue'], ['blue', 'blue'], ['blue', 'blue'], ['blue','blue']]
+colors = [['red', 'blue'], ['red', 'red'], ['blue', 'grey'], ['red','blue']]
 
 # List for every frame
 Frames: List[Pose] = [] # The frames for the robot

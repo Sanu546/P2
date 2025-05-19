@@ -2,15 +2,15 @@
    BeforeStart
      set_tool_voltage(12)
      setp≔p[0,0,0,0,0,0]
-     rtde_set_watchdog("input_int_register_0", 1, "PAUSE")
-     write_output_integer_register(0, 1)
+     rtde_set_watchdog("input_int_register_24", 1, "PAUSE")
+     write_output_integer_register(24, 1)
      out≔1
    Robot Program
-     If read_input_integer_register(0)≟1 and setp≠p[0, 0, 0, 0, 0, 0]
+     If read_input_integer_register(24)≟1 and setp≠p[0, 0, 0, 0, 0, 0]
        'Valid pose received from client'
-       If read_input_integer_register(2)≟0
+       If read_input_integer_register(26)≟0
          MoveJ
-           If read_input_integer_register(1)≟0
+           If read_input_integer_register(25)≟0
              setq
            Else
              setp
@@ -18,33 +18,30 @@
          MoveL
            setp
        'Confirm that move was executed'
-       write_output_integer_register(0, 0)
+       write_output_integer_register(24, 0)
        'Wait until script acknowledges confirmation'
-       Loop read_input_integer_register(0)≟1
+       Loop read_input_integer_register(24)≟1
          sync()
        'Request next pose'
-       write_output_integer_register(0, 1)
+       write_output_integer_register(24, 1)
        out≔0
      sync()
    Thread_1
      Loop
        tmp≔p[0,0,0,0,0,0]
        tmpq≔[0,0,0,0,0,0]
-       tmp[0] = read_input_float_register(0)
-       tmp[1] = read_input_float_register(1)
-       tmp[2] = read_input_float_register(2)
-       tmp[3] = read_input_float_register(3)
-       tmp[4] = read_input_float_register(4)
-       tmp[5] = read_input_float_register(5)
-       tmpq[0] = read_input_float_register(0)
-       tmpq[1] = read_input_float_register(1)
-       tmpq[2] = read_input_float_register(2)
-       tmpq[3] = read_input_float_register(3)
-       tmpq[4] = read_input_float_register(4)
-       tmpq[5] = read_input_float_register(5)
+       tmp[0] = read_input_float_register(24)
+       tmp[1] = read_input_float_register(25)
+       tmp[2] = read_input_float_register(26)
+       tmp[3] = read_input_float_register(27)
+       tmp[4] = read_input_float_register(28)
+       tmp[5] = read_input_float_register(29)
+       tmpq[0] = read_input_float_register(24)
+       tmpq[1] = read_input_float_register(25)
+       tmpq[2] = read_input_float_register(26)
+       tmpq[3] = read_input_float_register(27)
+       tmpq[4] = read_input_float_register(28)
+       tmpq[5] = read_input_float_register(29)
        setp≔tmp
        setq≔tmpq
        sync()
-   Thread_2
-     toolValue≔read_input_integer_register(3)
-     Script: tool_script.script

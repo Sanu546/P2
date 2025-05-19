@@ -18,13 +18,12 @@ class RTDEConnection:
     stopped = False  
     targets = []
     moving = False
-    reset = False 
     
     #constructor
-    def __init__(self, ip_address='192.168.56.101', port=30004, startPos=[np.radians(79.260852), np.radians(-110.886718), np.radians(122.292706), np.radians(53.983734), np.radians(85.484271), np.radians(-189.754028)]):
+    def __init__(self, ipAddress='192.168.56.101', port=30004, startPos=[np.radians(79.260852), np.radians(-110.886718), np.radians(122.292706), np.radians(53.983734), np.radians(85.484271), np.radians(-189.754028)]):
         
         #Establish a connection to the UR robot
-        self.con = rtde.RTDE(ip_address, port)
+        self.con = rtde.RTDE(ipAddress, port)
         self.con.connect()
         print("Connected to robot")
         self.con.get_controller_version()
@@ -64,9 +63,9 @@ class RTDEConnection:
         print("Waiting for robot to start program")
         
         #Start a thread to keep the server running
-        self.server_thread = th.Thread(target=self.serverThread)
-        self.server_thread.daemon = True
-        self.server_thread.start()  
+        self.sync_thread = th.Thread(target=self.syncThread)
+        self.sync_thread.daemon = True
+        self.sync_thread.start()  
         
         while not program_running:
             state = self.con.receive()
@@ -76,11 +75,6 @@ class RTDEConnection:
         self.moveJointandWait(self.startPos)
         print("Robot is in position and ready to receive commands")
     
-    
-    def moveTCP(self, position, type="j"):
-        position = mc.matrixToAxisAngle(position)
-        self.targets.append({"position": position, "joint": False, "type": type})
-        
     def moveTCPandWait(self, position, type="j"):
         position = mc.matrixToAxisAngle(position)
         print(f"moveTCPandWait: position = {position}")
@@ -88,9 +82,6 @@ class RTDEConnection:
         while len(self.targets) > 0:
             pass
      
-    def moveJoint(self, position):
-        self.targets.append({"position": position, "joint": True, "type": "j"})
-           
     def moveJointandWait(self, position):
         self.targets.append({"position": position, "joint": True, "type": "j"})
         while len(self.targets) > 0:
@@ -105,18 +96,8 @@ class RTDEConnection:
         state = self.con.receive()
         return mc.axisAngleToMatrix(state.target_TCP_pose)
     
-        #Get the tool current
-    def getToolCurrent(self):
-        state = self.con.receive()
-        # print(f"getToolCurrent returned state.tool_output_current = {state.tool_output_current}")
-        #return state.tool_output_current
-        return 200
-    
     def getAllTargets(self):
         return self.targets
-    
-    def setToolPos(self, tool):
-        self.setTool.input_int_register_3 = int(tool)
     
     def resume(self):
         self.stopped = False
@@ -139,7 +120,7 @@ class RTDEConnection:
         return self.stopped
     
     #Keep the server running in the background
-    def serverThread(self):
+    def syncThread(self):
         while not self.killed:
             if len(self.targets) > 0 and not self.stopped: #If there are targets in the queue
                 self.status = "running"
@@ -171,15 +152,16 @@ class RTDEConnection:
                         
                 self.targets.pop(0)
             else:
+                self.watchdog.input_int_register_24 = 0
                 self.status = "idle"
-                state = self.con.receive()
+                #state = self.con.receive()
                 #print(f"Robot out: {state.output_int_register_24}")
                 self.con.send(self.watchdog)
       
     #Kill the connection to the robot and stop the server thread
     def kill(self):
         self.killed = True
-        self.server_thread.join()
+        self.sync_thread.join()
         self.con.send_pause()
         self.con.disconnect()
         print("Disconnected from robot")
