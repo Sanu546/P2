@@ -1,4 +1,4 @@
-# AAU P2 Project - Autonomous dissasembly of EBV's
+# AAU P2 Project - Autonomous dissasembly of EVB's
 
 This is a part of group 261's project submisson for the Robtic 2nd year, spring 2025 semester project at Aalborg University. One this page you'll find all the software developed in relation to the project.
 
