@@ -44,8 +44,6 @@ class GripperController:
         defaultPanicPos = 4.5
 
         actualPos = scaleWithParams(self.posOut, servoAt0, servoAt100, 0, 100) # Get actual pos from instance specific variable
-        toolCurrent = self.arm.getToolCurrent() # Get tool current from robot
-        actualForce = scaleWithParams(toolCurrent, 0, 600, 0, 100) # Get tool current in percent (0-100)
 
 
         print(f"Actuating gripper, mode = {mode}, force = {force}, position = {endPosition}")
