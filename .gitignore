@@ -3,7 +3,7 @@
 *.pyc
 *__pycache__/.pyc
 *.vscode
-*._test
+*_test
 .coverage
 .pylintrc
 
