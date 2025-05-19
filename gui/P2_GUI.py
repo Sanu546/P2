@@ -1,12 +1,11 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QComboBox
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSplitter, QStackedWidget, QLineEdit, QDialog, QDialogButtonBox
-from PyQt6.QtGui import QFont, QImage, QPixmap
-from PyQt6.QtCore import Qt, QTimer
-import cv2 as cv
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
 import numpy as np
-import matrixConversion as mc
-from pose import Pose
+import util.matrixConversion as mc
+from util.pose import Pose
 
 """
 The first 3 classes is what will be displayed on the GUI.

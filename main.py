@@ -4,16 +4,15 @@ import time
 import numpy as np
 from gui.P2_GUI import MainWindow
 import vision.objRec as objRec
-from pose import Pose
+from util.pose import Pose
 from typing import List
-from end_effector_control import GripperController
+from end_effector.end_effector_control import GripperController
 import threading as th
 from numpy.linalg import inv
-import matrixConversion as mc
+import util.matrixConversion as mc
 import pickle # nyt sanu
-from executeThread import ExcecuteThread# Import the execute thread class
-from execureSeriesThread import ExcecuteSeriesThread # Import the execute series thread class
-
+from threads.executeThread import ExcecuteThread# Import the execute thread class
+from threads.execureSeriesThread import ExcecuteSeriesThread # Import the execute series thread class
 #from PyQt6.QtCore import Qt, QTimer
 
 UR5 = RTDEConnection() # Connect to the UR5 robot
@@ -148,12 +147,12 @@ Frames.append(lidStorageViaFrame) # Add the lid frame to the list of frames
 lidStorageReturnPos = np.array([np.radians(61.295092), np.radians(-99.176599), np.radians(109.691574), np.radians(56.953220), np.radians(77.815347), np.radians(-205.378034)])
 
 def saveList():    
-    with open('Frames.pkl', "wb") as file:
+    with open('saves/Frames.pkl', "wb") as file:
         pickle.dump(Frames, file)  # Save Pose to a file 
         print("Frames saved successfully")
 
 def loadList():
-    with open('Frames.pkl', "rb") as file:
+    with open('saves/Frames.pkl', "rb") as file:
         return pickle.load(file)  # Load Pose from the file
 
 # Er den ikke forkte da det skal være realtive første bokse.

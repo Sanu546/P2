@@ -10,7 +10,7 @@ import rtde.rtde as rtde
 import rtde.rtde_config as rtde_config
 import threading as th #Import treading to keep the server running in the background
 import numpy as np
-import matrixConversion as mc
+import util.matrixConversion as mc
 
 class RTDEConnection:
     config_filename = "rtde_stuff/control_loop_configuration.xml"

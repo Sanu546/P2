@@ -1,4 +1,4 @@
-from end_effector_control import GripperController
+from end_effector.end_effector_control import GripperController
 from rtde_stuff import RTDEConnection
 import unittest
 class TestGripperController(unittest.TestCase):
