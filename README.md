@@ -25,7 +25,7 @@ In order to allow for easy developement we also ended up with a pretty capable s
 In the simulation URSim is used simulate the UR5 Controller. RoboDk is then used to build the cell, while mimicing the controller position, which is controlled by our program.
 
 ## How to run the simulation
-First clone the repository nad enter the repository:
+First clone the repository and enter the repository:
 ```bash
 git clone https://github.com/Sanu546/P2.git
 cd p2
@@ -43,6 +43,7 @@ cd p2
 3. Now the UR5 robot should mimic the robot which URSim is simulating.
 
 ### Setup EVB Python program
+
 1. Then inside create and activte a virtual envitorment, while also installing the pip requirements:
     
     #### Windows:
