@@ -99,6 +99,10 @@ class RTDEConnection:
     def getAllTargets(self):
         return self.targets
     
+    def getCurrentJointPos(self):
+        state = self.con.receive()
+        return state.actual_q
+    
     def resume(self):
         self.stopped = False
     

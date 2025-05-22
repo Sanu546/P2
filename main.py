@@ -13,7 +13,11 @@ import util.matrixConversion as mc
 import pickle # nyt sanu
 from threads.executeThread import ExcecuteThread# Import the execute thread class
 from threads.execureSeriesThread import ExcecuteSeriesThread # Import the execute series thread class
+from joint_trajectory_plots.plotTrajectories import plotJointTrajectory # Import the plot joint trajectory function
+
+
 #from PyQt6.QtCore import Qt, QTimer
+
 
 UR5 = RTDEConnection() # Connect to the UR5 robot
 gripper = GripperController(UR5) # Associate the gripper with the UR5 Controller # Create a thread to execute the actions
@@ -261,6 +265,9 @@ def runAutoRobot():
         return
     autoThread = ExcecuteSeriesThread(actions, UR5, gripper, resetEvent, updateUI) # Create a thread to execute the actions
     autoThread.start() # Start the thread
+
+    plotThread = th.Thread(target=plotJointTrajectory, args=(UR5, window)) # Create a thread to plot the joint trajectory
+    plotThread.start() # Start the thread
 
 def stopAutoRobot():
     UR5.stop()  
@@ -567,7 +574,8 @@ def updateUIPosition():
     # print("Current position in base frame:", currentPosition)
     # print("Current position:", currentRPY)
     window.dropdownStacker.calibrator.setCurrentPose(currentRPY) # Update the current pose in the UI
-    
+
+
 def updateProgramProgress():
     while True:
         global cellsAdded
