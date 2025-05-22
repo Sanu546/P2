@@ -8,7 +8,6 @@ class ExcecuteThread(threading.Thread):
         self.robot = robot
         self.gripper = gripper
         self.window = window
-        self.updateUI = updateUI
 
     def run(self):
         if(self.action["actionType"] == "home"):

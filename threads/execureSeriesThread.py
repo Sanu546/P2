@@ -6,7 +6,7 @@ class ExcecuteSeriesThread(threading.Thread):
     stateName = None
     stateNextName = None
     stateIndex = 0
-    cellAdded = False
+
     def __init__(self, series, robot, gripper, resetEvent: threading.Event = None, updateUI = None):
         
         super(ExcecuteSeriesThread, self).__init__()
@@ -15,8 +15,6 @@ class ExcecuteSeriesThread(threading.Thread):
         self.robot = robot
         self.gripper = gripper
         self.resetEvent = resetEvent
-        self.updateUI = updateUI
-
     
     def getState(self):
         return self.stateName, self.stateNextName, self.stateIndex
@@ -61,7 +59,7 @@ class ExcecuteSeriesThread(threading.Thread):
                     self.robot.moveJointandWait(action["move"])
                 
                 if(action["actionType"] == "vision"):
-                    self.updateUI()
+                    pass
                 
         except ResetException:
             pass
